@@ -277,63 +277,73 @@ export default defineComponent({
         let localCache: any = null;
 
         const downloadFile = async (data: IResourceItem) => {
+            logDownload({id: data.ResourceId});
+            data.DownloadNum++;
             if (data.ResourceShowType === 1) {
-                // 下载窗卡页
-                window.electron.showOpenDialog({
-                    title: "选择保存路径",
-                    buttonLabel: "确定",
-                    properties: ["openDirectory"]
-                }).then(async (file: any) => {
-                    if (!file.canceled) {
-                        const path = file.filePaths[0];
-                        downloadProgress.value = 0;
-                        showDownload.value = true;
-
-                        localCache = new LocalCache({
-                            cachingStatus: (status) => {
-                                console.log(`status: ${status}`);
-                                downloadProgress.value = status;
-                                if (status === 100 && showDownload.value) {
-                                    showDownload.value = false;
-                                    ElMessage.success("打包下载完成！");
-                                    logDownload({id: data.ResourceId});
-                                    data.DownloadNum++;
-                                }
-                            }
-                        });
-                        localCache.doCache(
-                            {
-                                WindowID: data.OldResourceId,
-                                OriginType: data.IsSysFile === 1 ? 0 : 1
-                            },
-                            data.Name,
-                            path,
-                            () => {
-                                showDownload.value = false;
-                                ElMessage.error("网络异常，打包下载失败！");
-                            }
-                        );
-                    }
-                }).catch(() => {
-                    ElMessage({type: "error", message: "下载失败"});
+                store.commit(MutationTypes.SET_DOWNLOAD_LIST, {
+                    type: "wincard",
+                    data
                 });
+                // 下载窗卡页
+                // window.electron.showOpenDialog({
+                //     title: "选择保存路径",
+                //     buttonLabel: "确定",
+                //     properties: ["openDirectory"]
+                // }).then(async (file: any) => {
+                //     if (!file.canceled) {
+                //         const path = file.filePaths[0];
+                //         downloadProgress.value = 0;
+                //         showDownload.value = true;
+
+                //         localCache = new LocalCache({
+                //             cachingStatus: (status) => {
+                //                 console.log(`status: ${status}`);
+                //                 downloadProgress.value = status;
+                //                 if (status === 100 && showDownload.value) {
+                //                     showDownload.value = false;
+                //                     ElMessage.success("打包下载完成！");
+                //                     logDownload({id: data.ResourceId});
+                //                     data.DownloadNum++;
+                //                 }
+                //             }
+                //         });
+                //         localCache.doCache(
+                //             {
+                //                 WindowID: data.OldResourceId,
+                //                 OriginType: data.IsSysFile === 1 ? 0 : 1
+                //             },
+                //             data.Name,
+                //             path,
+                //             () => {
+                //                 showDownload.value = false;
+                //                 ElMessage.error("网络异常，打包下载失败！");
+                //             }
+                //         );
+                //     }
+                // }).catch(() => {
+                //     ElMessage({type: "error", message: "下载失败"});
+                // });
                 return;
             }
             if (data.File) {
-                const url = await getOssUrl(
-                    `${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`,
-                    data.File.FileBucket
-                );
-                const success = await download(
-                    url,
-                    data.File.FileName,
-                    data.File.FileExtention
-                );
+                store.commit(MutationTypes.SET_DOWNLOAD_LIST, {
+                    type: "file",
+                    data
+                });
+                // const url = await getOssUrl(
+                //     `${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`,
+                //     data.File.FileBucket
+                // );
+                // const success = await download(
+                //     url,
+                //     data.File.FileName,
+                //     data.File.FileExtention
+                // );
 
-                if (success) {
-                    logDownload({id: data.ResourceId});
-                    data.DownloadNum++;
-                }
+                // if (success) {
+                //     logDownload({id: data.ResourceId});
+                //     data.DownloadNum++;
+                // }
             }
         };
 

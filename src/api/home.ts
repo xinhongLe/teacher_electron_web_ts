@@ -287,11 +287,12 @@ export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsRes
 }
 
 // 获取窗下的元素
-export function GetWindowsElements(data: IGetWindowCards): Promise<GetWindowCardsResponse> {
+export function GetWindowsElements(data: IGetWindowCards, noLoading: boolean): Promise<GetWindowCardsResponse> {
     return request({
         url: "/Api/WCP/Window/GetWindowsElements",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            ...noLoading ? { noLoading: "true" } : {}
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,

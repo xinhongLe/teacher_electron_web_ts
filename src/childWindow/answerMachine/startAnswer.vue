@@ -116,7 +116,7 @@ import useStudentMachine from "@/hooks/useStudentMachine";
 import StudentList from "./studentList.vue";
 import Title from "./title.vue";
 import {ICurrentSelectClass, UserInfoState} from "@/types/store";
-import {getTeacherClassList} from "@/views/login/api";
+import {getTeacherClassList} from "@/api/login";
 import {IClassItem, IGradeItem} from "@/types/quickAnswer";
 import {ElMessage} from "element-plus";
 import {get, set, STORAGE_TYPES} from "@/utils/storage";

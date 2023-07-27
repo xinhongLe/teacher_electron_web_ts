@@ -1,6 +1,12 @@
-import {CommonState, IShowResourceFullScreen, RootState} from "@/types/store";
+import {CommonState, IDownloading, IShowResourceFullScreen, RootState} from "@/types/store";
 import {Module, MutationTree} from "vuex";
 import {MutationTypes} from "..";
+import { IResourceItem } from "@/api/resource";
+import { STORAGE_TYPES, get, set } from "@/utils/storage";
+import emitter, { EmitterEvents } from "@/utils/emitter";
+import { ElMessage } from "element-plus";
+//文件不支持的特殊符号进行去除
+import sanitize from "sanitize-filename";
 
 const initState = (): CommonState => ({
     isDragging: false,
@@ -12,7 +18,8 @@ const initState = (): CommonState => ({
     currentPackageData: null,
     currentKebiaoResource: false,
     currentBeikeResource: true,
-    resourceIntoType: 0
+    resourceIntoType: 0,
+    downloading: []
 });
 
 const mutations: MutationTree<CommonState> = {
@@ -74,6 +81,44 @@ const mutations: MutationTree<CommonState> = {
     },
     [MutationTypes.SET_BEIKE_RESOURCE_INTO](state, type) {
         state.currentBeikeResource = type;
+    },
+    [MutationTypes.SET_DOWNLOAD_LIST](state, { type, data } : { type: string, data: IResourceItem }) {
+        const downloadObj = {
+            id: data.ResourceId,
+            name: type === "wincard" ? `${sanitize(data.Name)}.lyxpkg` : `${data.Name}.${data.File.FileExtention}`,
+            type,
+            data,
+            timestamp: new Date().getTime(),
+            status: 0
+        }
+
+        if (state.downloading.findIndex(item => item.id === downloadObj.id) > -1) {
+            ElMessage.warning("已在下载列表中");
+        } else {
+            state.downloading.push(downloadObj);
+
+            const downloadList = get(STORAGE_TYPES.DOWNLOAD_HISTORY) || [];
+
+            downloadList.unshift(downloadObj);
+
+            set(STORAGE_TYPES.DOWNLOAD_HISTORY, downloadList);
+
+            emitter.emit(EmitterEvents.DOWNLOAD_CHANGE, downloadList);
+        }
+    },
+    [MutationTypes.INIT_DOWNLOADING](state, downloading: IDownloading[]) {
+        state.downloading = downloading;
+    },
+    [MutationTypes.MOVE_DOWNLOADING](state, { id, status, timestamp } : { id: string; status: number; timestamp: number; }) {
+        const index = state.downloading.findIndex(item => item.id === id && item.timestamp === timestamp);
+        state.downloading.splice(index, 1);
+
+        const downloadList: IDownloading[] = get(STORAGE_TYPES.DOWNLOAD_HISTORY) || [];
+        const i = downloadList.findIndex(item => item.id === id && item.timestamp === timestamp);
+        downloadList[i].status = status;
+        set(STORAGE_TYPES.DOWNLOAD_HISTORY, downloadList);
+
+        emitter.emit(EmitterEvents.DOWNLOAD_CHANGE, downloadList);
     }
 };
 

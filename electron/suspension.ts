@@ -1,18 +1,11 @@
-import {
-    BrowserWindow,
-    ipcMain,
-    screen,
-    app,
-    remote,
-    powerMonitor,
-} from "electron";
-import {createWindow} from "./createWindow";
+import { BrowserWindow, ipcMain, screen, app, powerMonitor } from "electron";
+import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
-import {checkWindowSupportNet} from "./util";
-import {spawn, exec, ChildProcessWithoutNullStreams} from "child_process";
-import path, {join} from "path";
+import { checkWindowSupportNet } from "./util";
+import { spawn, exec, ChildProcessWithoutNullStreams } from "child_process";
+import path, { join } from "path";
 import detect from "detect-port";
-import {Action, CallBack, SocketHelper} from "./socketHelper";
+import { Action, CallBack, SocketHelper } from "./socketHelper";
 
 const WIN_PATH_BALL = join(__dirname, "../extraResources/ball/");
 let suspensionWin: BrowserWindow | null;
@@ -106,8 +99,7 @@ powerMonitor.on("resume", () => {
             lastSpwan.kill();
             lastSpwan.pid && process.kill(lastSpwan.pid);
         }
-    } catch (e) {
-    }
+    } catch (e) {}
 });
 
 app.on("will-quit", () => {
@@ -116,8 +108,7 @@ app.on("will-quit", () => {
             lastSpwan.kill();
             lastSpwan.pid && process.kill(lastSpwan.pid);
         }
-    } catch (e) {
-    }
+    } catch (e) {}
 });
 
 function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
@@ -224,8 +215,9 @@ function createRollcall(allStudentList: []) {
     });
 
     rollCallWin.on("ready-to-show", () => {
-        rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
-        rollCallWin && rollCallWin.webContents.openDevTools();
+        rollCallWin &&
+            rollCallWin.webContents.send("sendAllStudentList", allStudentList);
+        // rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
     rollCallWin.on("closed", () => {
@@ -247,7 +239,7 @@ function createUnfoldSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
     });
     // 设置黑板窗口位置
     const winSize = unfoldSuspensionWin.getSize(); // 获取窗口宽高
@@ -255,10 +247,10 @@ function createUnfoldSuspensionWindow() {
         size.width - winSize[0] - 20,
         size.height - winSize[1]
     );
-    unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
+    // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
         unfoldSuspensionWin &&
-        unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+            unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     unfoldSuspensionWin.on("closed", () => {
@@ -280,7 +272,7 @@ function createBlackboardWindow() {
         show: false,
         useContentSize: true,
     });
-    blackboardWin.webContents.openDevTools(); // 打开黑板调试
+    // blackboardWin.webContents.openDevTools(); // 打开黑板调试
 
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
@@ -291,7 +283,8 @@ function createBlackboardWindow() {
     blackboardWin.on("closed", () => {
         blackboardWin = null;
         isShowBlackboard = false;
-        suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin &&
+            suspensionWin.webContents.send("hideSuspensionBlackboard");
         setSuspensionSize();
     });
 }
@@ -308,16 +301,21 @@ function createAnswerMachineWindow(allStudentList: []) {
         // alwaysOnTop: true,
     });
 
-    answerMachineWin.webContents.openDevTools();
+    // answerMachineWin.webContents.openDevTools();
 
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
         answerMachineWin && answerMachineWin.focus();
-        answerMachineWin && answerMachineWin.webContents.send("sendAllStudentList", allStudentList);
+        answerMachineWin &&
+            answerMachineWin.webContents.send(
+                "sendAllStudentList",
+                allStudentList
+            );
     });
 
     answerMachineWin.once("ready-to-show", () => {
-        answerMachineWin && answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
+        answerMachineWin &&
+            answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     answerMachineWin.on("closed", () => {
@@ -345,19 +343,19 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
         resizable: false, // 是否允许窗口大小缩放
         height: 600,
         useContentSize: true,
-        maximizable: false
+        maximizable: false,
     });
-    quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
+    // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
     quickAnswerWin.on("ready-to-show", () => {
         quickAnswerWin && quickAnswerWin.show();
         quickAnswerWin && quickAnswerWin.focus();
         quickAnswerWin &&
-        quickAnswerWin.webContents.send(
-            "sendAllStudentList",
-            allStudentList,
-            isAnswer
-        );
+            quickAnswerWin.webContents.send(
+                "sendAllStudentList",
+                allStudentList,
+                isAnswer
+            );
     });
 
     quickAnswerWin.once("ready-to-show", () => {
@@ -395,14 +393,14 @@ export function createLocalPreviewWindow(filePath: string) {
         show: false,
         frame: false,
         webPreferences: {
-            enableRemoteModule: true,
+            // enableRemoteModule: true,
             webviewTag: true,
             webSecurity: false,
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
-        }
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
+        },
     });
     // win.webContents.openDevTools();
     win.once("ready-to-show", () => {
@@ -442,7 +440,48 @@ function checkIsUseBallEXE(callback: (T: boolean, env?: number) => void) {
     }
 }
 
+function createLinuxBall() {
+    let ballname = "linux/winball";
+    const newEnv = Object.create(process.env);
+    newEnv.LD_LIBRARY_PATH = join(WIN_PATH_BALL, "linux/lib");
+
+    return new Promise((resolve) => {
+        try {
+            if (lastSpwan) {
+                lastSpwan.kill();
+                lastSpwan.pid && process.kill(lastSpwan.pid);
+            }
+        } catch (e) {}
+        try {
+            lastSpwan = spawn(
+                join(WIN_PATH_BALL, ballname),
+                [lastPort.toString()],
+                {
+                    env: newEnv,
+                }
+            );
+            lastSpwan.stdout.on("data", (data) => {
+                console.log(`stdout: ${data}`);
+            });
+
+            lastSpwan.stderr.on("data", (data) => {
+                console.error(`stderr: ${data}`);
+            });
+
+            lastSpwan.on("close", (code) => {
+                console.log(`child process exited with code ${code}`);
+            });
+        } catch (e) {}
+        setTimeout(() => {
+            resolve(true);
+        }, 3000);
+    });
+}
+
 function createBall(forcec = false) {
+    if (process.platform === "linux") {
+        return createLinuxBall();
+    }
     let ballname = "winball/winball.exe";
     let cballname = "ball.exe";
     return new Promise((resolve) => {
@@ -459,8 +498,7 @@ function createBall(forcec = false) {
                     lastSpwan.kill();
                     lastSpwan.pid && process.kill(lastSpwan.pid);
                 }
-            } catch (e) {
-            }
+            } catch (e) {}
             try {
                 lastSpwan = spawn(
                     join(WIN_PATH_BALL, forcec ? cballname : ballname),
@@ -477,8 +515,7 @@ function createBall(forcec = false) {
                 lastSpwan.on("close", (code) => {
                     console.log(`child process exited with code ${code}`);
                 });
-            } catch (e) {
-            }
+            } catch (e) {}
             setTimeout(() => {
                 resolve(true);
             }, 3000);
@@ -613,9 +650,9 @@ function createLocalSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
     });
-    suspensionWin.webContents.openDevTools();
+    // suspensionWin.webContents.openDevTools();
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = suspensionWin.getSize(); // 获取窗口宽高
     suspensionWin.setPosition(
@@ -654,8 +691,7 @@ export function createSuspensionWindow() {
                 lastSpwan.kill();
                 lastSpwan.pid && process.kill(lastSpwan.pid);
             }
-        } catch (e) {
-        }
+        } catch (e) {}
         detect(lastPort)
             .then((_port) => {
                 if (lastPort == _port) {
@@ -723,15 +759,15 @@ function showSuspension() {
 }
 
 export function registerEvent() {
-    let winStartPosition = {x: 0, y: 0};
-    let mouseStartPosition = {x: 0, y: 0};
+    let winStartPosition = { x: 0, y: 0 };
+    let mouseStartPosition = { x: 0, y: 0 };
     let movingInterval: any = null;
     ipcMain.handle("window-move-open", (events, canMoving) => {
         if (canMoving) {
             if (!suspensionWin) return;
             // 读取原位置
             const winPosition = suspensionWin.getPosition();
-            winStartPosition = {x: winPosition[0], y: winPosition[1]};
+            winStartPosition = { x: winPosition[0], y: winPosition[1] };
             mouseStartPosition = screen.getCursorScreenPoint();
             // 清除
             if (movingInterval) {
@@ -803,7 +839,8 @@ export function registerEvent() {
 
     ipcMain.handle("openBlackboard", () => {
         isShowBlackboard = false;
-        suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin &&
+            suspensionWin.webContents.send("hideSuspensionBlackboard");
         showSuspension();
         setSuspensionSize();
         if (blackboardWin) {
@@ -831,7 +868,8 @@ export function registerEvent() {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("BLACKBOARDHIDE", ""));
         } else {
-            suspensionWin && suspensionWin.webContents.send("blackboardMinimized");
+            suspensionWin &&
+                suspensionWin.webContents.send("blackboardMinimized");
         }
         if (process.platform === "darwin") {
             blackboardWin && blackboardWin.setFullScreen(false);
@@ -869,7 +907,6 @@ export function registerEvent() {
     });
     ipcMain.handle("hideTimerWin", () => {
         if (socketHelper) {
-            console.log("hideTimerWin");
             socketHelper.sendMessage(new Action("QUICKTIMESHOW", ""));
         }
     });
@@ -905,18 +942,21 @@ export function registerEvent() {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("QUICKTIMEHIDE", time));
         } else {
-            suspensionWin && suspensionWin.webContents.send("timerWinHide", time);
+            suspensionWin &&
+                suspensionWin.webContents.send("timerWinHide", time);
         }
     });
 
     // 课件最小化
     ipcMain.handle("courseMinimize", (_, data) => {
+        data = JSON.parse(data);
         showSuspension();
         isShowCourse = true;
         currentCourseData = data;
         setSuspensionSize();
         if (socketHelper) {
-            socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `${data.url},${data.name}`));
+            console.error(data);
+            socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `${path.resolve(data.url)},${data.name}`));
         } else {
             suspensionWin && suspensionWin.webContents.send("courseWinHide", data);
         }
@@ -947,7 +987,7 @@ export function registerEvent() {
             socketHelper.sendMessage(new Action("VIDEOSHOW", ""));
         } else {
             suspensionWin &&
-            suspensionWin.webContents.send("hideSuspensionVideo");
+                suspensionWin.webContents.send("hideSuspensionVideo");
         }
         setSuspensionSize();
     });
@@ -958,7 +998,7 @@ export function registerEvent() {
             socketHelper.sendMessage(new Action("QUESTIONHIDE", ""));
         } else {
             suspensionWin &&
-            suspensionWin.webContents.send("questionMinimized");
+                suspensionWin.webContents.send("questionMinimized");
         }
         setSuspensionSize();
     });
@@ -969,7 +1009,7 @@ export function registerEvent() {
             socketHelper.sendMessage(new Action("QUESTIONSHOW", ""));
         } else {
             suspensionWin &&
-            suspensionWin.webContents.send("hideSuspensionQuestion");
+                suspensionWin.webContents.send("hideSuspensionQuestion");
         }
         setSuspensionSize();
     });
@@ -999,18 +1039,17 @@ export function registerEvent() {
 
     ipcMain.handle("answer-jection", (_, data) => {
         answerMachineWin &&
-        answerMachineWin.webContents.send("answer-jection", data);
+            answerMachineWin.webContents.send("answer-jection", data);
     });
 
     ipcMain.handle("getWindowList", (_, data) => {
         unfoldSuspensionWin &&
-        unfoldSuspensionWin.webContents.send("getWindowList", data);
+            unfoldSuspensionWin.webContents.send("getWindowList", data);
     });
     ipcMain.handle("getCourseWares", (_, data) => {
         unfoldSuspensionWin &&
-        unfoldSuspensionWin.webContents.send("getCourseWares", data);
+            unfoldSuspensionWin.webContents.send("getCourseWares", data);
     });
-
 }
 
 export const unfoldSuspensionWinSendMessage = (
@@ -1028,7 +1067,7 @@ function createTeamCompetition() {
         height: 250,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false
+        maximizable: false,
     });
 
     teamCompetitionWin.on("ready-to-show", () => {
@@ -1048,7 +1087,7 @@ function createTeamCompetition2() {
         height: 250,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false
+        maximizable: false,
     });
 
     teamCompetitionWin2.on("ready-to-show", () => {

@@ -3,30 +3,109 @@ import crypto from "crypto";
 import AdmZip from "adm-zip";
 import ffmpeg from "fluent-ffmpeg";
 import logger from "@/utils/logger";
-import {v4 as uuidv4} from "uuid";
-import path, {resolve, join} from "path";
-import {checkWindowSupportNet} from "./util";
-import {parsePPT, pptParsePath} from "./parsePPT";
-import {exportWord, IFileData} from "./exportWord";
-import {isExistFile, mkdirs, store} from "./downloadFile";
-import {getCurrentWindow, app, dialog} from "@electron/remote";
-import {execFile as execFileFromAsar, spawn} from "child_process";
-import {access, copyFile, mkdir, readFile, rm, stat, writeFile} from "fs/promises";
-import {darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup} from "./darwin";
-import electron, {desktopCapturer, OpenDialogOptions, remote, SaveDialogOptions} from "electron";
+import { v4 as uuidv4 } from "uuid";
+import path, { join, resolve } from "path";
+import { checkWindowSupportNet } from "./util";
+import { exportWord, IFileData } from "./exportWord";
+import { isExistFile, mkdirs, store } from "./downloadFile";
+import {
+    app,
+    dialog,
+    getCurrentWindow,
+    globalShortcut,
+    getCurrentWebContents,
+    desktopCapturer,
+    screen
+} from "@electron/remote";
+import { execFile as execFileFromAsar, spawn } from "child_process";
+import {
+    access,
+    copyFile,
+    mkdir,
+    readFile,
+    rm,
+    stat,
+    writeFile,
+} from "fs/promises";
+import {
+    darwinGetScreenPermissionGranted,
+    darwinRequestScreenPermissionPopup,
+} from "./darwin";
+import {
+    ipcRenderer,
+    nativeImage,
+    OpenDialogOptions,
+    SaveDialogOptions,
+    shell
+} from "electron";
+import * as https from "https";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import Axios, { CancelTokenSource } from "axios";
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
-const PATH_WhiteBoard = join(__dirname, "../extraResources/whiteboard/Aixueshi.Whiteboard.exe");
-const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
-const PATH_FFMPEG = process.platform === "darwin" ? join(__dirname, "../extraResources/ffmpeg/ffmpeg") : join(__dirname, "../extraResources/ffmpeg/ffmpeg-win32-ia32.exe");
+const PATH_WhiteBoard = join(
+    __dirname,
+    "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
+);
+const PATH_BINARY =
+    process.platform === "darwin"
+        ? join(__dirname, "../ColorPicker")
+        : join(__dirname, "../mockingbot-color-picker-ia32.exe");
+const PATH_FFMPEG =
+    process.platform === "darwin"
+        ? join(__dirname, "../extraResources/ffmpeg/ffmpeg")
+        : join(__dirname, "../extraResources/ffmpeg/ffmpeg-win32-ia32.exe");
 
 ffmpeg.setFfmpegPath(PATH_FFMPEG);
 
 window.electron = {
-    ...electron,
     store,
-    parsePPT,
     log: logger,
+    remote: {
+        app,
+        dialog,
+        getCurrentWindow,
+        screen,
+        getCurrentWebContents,
+    },
+    ipcRenderer,
+    shell,
+    path,
+    getFileName: (path: string, fileName: string, i: number) => {
+        const name = (i === 0 ? fileName : fileName.replace(/([^.]+).([^.]+)/gi, `$1(${i}).$2`));
+        if (window.electron.isExistFile(path + "/" + name)) return window.electron.getFileName(path, fileName, i + 1);
+        return name;
+    },
+    downloadFile: (
+        url: string,
+        path: string,
+        callback: (progress: number) => void,
+        cancelCallBack: (cancelToken: CancelTokenSource) => void
+    ): Promise<Boolean> => {
+        return new Promise((resolve) => {
+            const CancelToken = Axios.CancelToken;
+            const source = CancelToken.source();
+            cancelCallBack(source);
+            Axios({
+                url,
+                method: "GET",
+                responseType: "arraybuffer",
+                onDownloadProgress: (evt) => {
+                    callback((evt.loaded / evt.total) * 100);
+                },
+                cancelToken: source.token
+            }).then((response) => {
+                if (response.status === 200) {
+                    const buffer = Buffer.from(response.data);
+                    fs.writeFile(path, buffer, (err) => {
+                        resolve(!err);
+                    });
+                } else {
+                    resolve(false);
+                }
+            }).catch(() => {});
+        });
+    },
     exit: () => {
         app.quit();
     },
@@ -35,7 +114,7 @@ window.electron = {
         getCurrentWindow().center();
     },
     getVersion: () => {
-        return remote.app.getVersion();
+        return app.getVersion();
     },
     hideWindow: () => {
         const currentWindow = getCurrentWindow();
@@ -45,27 +124,41 @@ window.electron = {
         return app.getPath(name);
     },
     getWindowImg: () => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const currentWindow = getCurrentWindow();
             const bound = currentWindow.getBounds();
             desktopCapturer.getSources({
-                types: ["window"]
+                types: ["screen"]
             }).then(sources => {
-                console.log('sources', sources)
-                const index = sources.findIndex(source => source.name === "爱学仕校园教师端");
-                const selectSource = sources[index];
+                // console.log('sources', sources)
+                // const index = sources.findIndex(source => source.name === "爱学仕校园教师端");
+                const selectSource = sources[0];
                 const buffer = selectSource.thumbnail.toPNG({
                     scaleFactor: 0.1
                 });
 
-                const outputPath = join(app.getPath("userData"), "files", "thumbnails");
+                const newBuffer = nativeImage.createFromBuffer(buffer).resize({
+                    width: 200,
+                    height: 200
+                }).toPNG();
+
+                const outputPath = join(
+                    app.getPath("userData"),
+                    "files",
+                    "thumbnails"
+                );
                 if (!fs.existsSync(outputPath)) {
                     fs.mkdirSync(outputPath);
                 }
 
-                const filePath = join(outputPath, `${new Date().getTime()}.png`);
-                fs.writeFileSync(filePath, buffer);
+                const filePath = join(
+                    outputPath,
+                    `${new Date().getTime()}.png`
+                );
+                fs.writeFileSync(filePath, newBuffer);
                 resolve(filePath);
+            }).catch(err => {
+                console.error(err);
             });
         });
     },
@@ -102,9 +195,6 @@ window.electron = {
     isMac: (): boolean => {
         return process.platform === "darwin";
     },
-    getPPTPath: (path) => {
-        return join(pptParsePath, path);
-    },
     unmaximizeWindow: () => {
         const currentWindow = getCurrentWindow();
         if (currentWindow.isFullScreen()) {
@@ -116,11 +206,13 @@ window.electron = {
     },
     unZip: (path: string) => {
         const zip = new AdmZip(path);
-        const dirName = path.replace(/(.*[\/\\])*([^.]+)/i, "$2").replace(".zip", "");
+        const dirName = path
+            .replace(/(.*[\/\\])*([^.]+)/i, "$2")
+            .replace(".zip", "");
         zip.extractAllToAsync(downloadsPath + dirName, true);
     },
     unRegisterEscKeyUp: () => {
-        remote.globalShortcut.unregister("esc");
+        globalShortcut.unregister("esc");
     },
     getWhiteBoard: async () => {
         if (
@@ -178,8 +270,10 @@ window.electron = {
     },
     isExistM3U8: (fileName: string) => {
         const filePath = resolve(downloadsPath, fileName);
-        return new Promise(resolve => {
-            access(filePath).then(() => resolve(true)).catch(() => resolve(false));
+        return new Promise((resolve) => {
+            access(filePath)
+                .then(() => resolve(true))
+                .catch(() => resolve(false));
         });
     },
     getFilePath: (fileName: string) => {
@@ -189,7 +283,11 @@ window.electron = {
     convertVideoH264: (filePath: string) => {
         return new Promise((resolve, reject) => {
             const uuid = uuidv4();
-            const outputPath = join(app.getPath("userData"), "files", `/${uuid}.mp4`);
+            const outputPath = join(
+                app.getPath("userData"),
+                "files",
+                `/${uuid}.mp4`
+            );
             if (!fs.existsSync(outputPath)) {
                 fs.mkdirSync(outputPath);
             }
@@ -207,9 +305,12 @@ window.electron = {
             }
         });
     },
-    isExistFile: async (fileName: string) => {
+    isExistCacheFile: async (fileName: string) => {
         const filePath = resolve(downloadsPath, fileName);
         return isExistFile(filePath);
+    },
+    isExistFile: (filePath: string) => {
+        return fs.existsSync(filePath);
     },
     setPositionWin: (x, y, ani?: boolean) => {
         const currentWindow = getCurrentWindow();
@@ -222,7 +323,7 @@ window.electron = {
         return isExist ? "file://" + filePath.split("\\").join("/") : "";
     },
     registerEscKeyUp: (callback: () => void) => {
-        remote.globalShortcut.register("esc", () => {
+        globalShortcut.register("esc", () => {
             callback && callback();
         });
     },
@@ -265,14 +366,17 @@ window.electron = {
                         // 监听结束
                         const zip = new AdmZip();
 
-                        zip.addLocalFolderAsync(join(outputPath, name), (success, err) => {
-                            if (success) {
-                                const zipBuffer = zip.toBuffer();
-                                resolve(zipBuffer);
-                            } else {
-                                logger.error("压缩失败: ", err);
+                        zip.addLocalFolderAsync(
+                            join(outputPath, name),
+                            (success, err) => {
+                                if (success) {
+                                    const zipBuffer = zip.toBuffer();
+                                    resolve(zipBuffer);
+                                } else {
+                                    logger.error("压缩失败: ", err);
+                                }
                             }
-                        });
+                        );
                     })
                     .run();
             } catch (err) {
@@ -289,7 +393,7 @@ window.electron = {
             cards,
             pages,
             slides,
-            cacheFiles
+            cacheFiles,
         } = cacheData;
         const filePath = resolve(app.getPath("userData"), "files", windowName);
         const guid = () => {
@@ -309,7 +413,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, {recursive: true})
+                        mkdir(dirname, { recursive: true })
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );
@@ -339,7 +443,7 @@ window.electron = {
                         userId,
                         cards,
                         pages,
-                        slides
+                        slides,
                     }),
                     "lyxpkg"
                 )
@@ -384,7 +488,7 @@ window.electron = {
             console.error("报错--", e);
             return "";
         } finally {
-            await rm(filePath, {recursive: true, force: true});
+            await rm(filePath, { recursive: true, force: true });
         }
     },
     unpackCacheFile: async (zipFileName, newpath = "") => {
@@ -393,7 +497,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, {recursive: true})
+                        mkdir(dirname, { recursive: true })
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );
@@ -457,7 +561,7 @@ window.electron = {
         try {
             await customUnZipFolder(zipFileName, newpath);
             let jsonFile = await readFile(newpath + `/${jsonFileName}`, {
-                encoding: "utf-8"
+                encoding: "utf-8",
             });
             jsonFile = aesDecrypt(jsonFile, "lyxpkg");
             return JSON.parse(jsonFile);
@@ -476,7 +580,10 @@ window.electron = {
     exportWord: (filePath: string, fileData: IFileData, styleType: number) => {
         exportWord(filePath, fileData, styleType);
     },
-    readFile: (path: string, callback: (buffer: ArrayBuffer | string) => void) => {
+    readFile: (
+        path: string,
+        callback: (buffer: ArrayBuffer | string) => void
+    ) => {
         fs.readFile(path, (err, buffer) => {
             if (err) {
                 logger.error("读取资源文件失败：", err);
@@ -485,5 +592,102 @@ window.electron = {
                 callback(buffer);
             }
         });
-    }
+    },
+    getUpdateUserChoice: () => {
+        const currentVersion = window.electron.getVersion();
+        const data = get(STORAGE_TYPES.USER_UPDATE_CHOICE) || {
+            version: currentVersion,
+            value: "update",
+        };
+        if (currentVersion !== data.version) {
+            return {
+                version: currentVersion,
+                value: "update",
+            };
+        } else {
+            return data;
+        }
+    },
+    saveUpdateUserChoice: (choice) => {
+        set(STORAGE_TYPES.USER_UPDATE_CHOICE, choice);
+    },
+    downloadNewApp: (
+        version: string,
+        onProgress: (progress: number) => void
+    ) => {
+        const extension =
+            process.platform === "darwin"
+                ? ".dmg"
+                : process.platform === "linux"
+                    ? ".deb"
+                    : ".exe";
+        const fileName =
+            (process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端") +
+            "-" +
+            version +
+            extension;
+        const updataUrl =
+            "https://app-v.oss-cn-shanghai.aliyuncs.com/teacherElectron/build/" +
+            fileName;
+        const request = https.request(updataUrl);
+        // request.setHeader("Range", `bytes=${0}-${updateInfo.files[0].size - 1}`);
+        const filePath = path.join(app.getPath("temp"), fileName);
+        // 先验证文件是否已经下载
+        if (fs.existsSync(filePath)) {
+            onProgress(100);
+            // 启动安装程序
+            if (process.platform === "darwin") {
+                shell.openPath(filePath);
+            } else if (process.platform === "win32") {
+                spawn(path.resolve(filePath), ["/interactive"], {
+                    detached: true,
+                    shell: true,
+                });
+            } else if (process.platform === "linux") {
+                shell.openPath(filePath);
+            }
+
+            app.quit(); // 退出旧的程序
+            return;
+        }
+        const fileStream = fs.createWriteStream(filePath);
+        request.on("response", (response: any) => {
+            const totalBytes = parseInt(response.headers["content-length"], 10);
+            let downloadedBytes = 0;
+            response.on("data", (chunk: any) => {
+                downloadedBytes += chunk.length;
+                // 更新下载进度
+                onProgress &&
+                    onProgress(
+                        Math.round((downloadedBytes / totalBytes) * 100)
+                    );
+            });
+            response.pipe(fileStream, fileName);
+            fileStream.on("finish", () => {
+                fileStream.close();
+                // 启动安装程序
+                if (process.platform === "darwin") {
+                    shell.openPath(filePath);
+                } else if (process.platform === "win32") {
+                    spawn(path.resolve(filePath), ["/interactive"], {
+                        detached: true,
+                        shell: true,
+                    });
+                } else if (process.platform === "linux") {
+                    shell.openPath(filePath);
+                }
+
+                app.quit(); // 退出旧的程序
+                fileStream.destroy();
+            });
+
+            fileStream.on("error", (error: any) => {
+                console.error(`Failed to save downloaded file: ${error}`);
+            });
+        });
+        request.on("error", () => {
+            fileStream.destroy();
+        });
+        request.end();
+    },
 };

@@ -19,8 +19,6 @@ import {
     dealOldDataWord,
 } from "./dataParsePage";
 import {getOssUrl} from "./oss";
-//文件不支持的特殊符号进行去除
-const sanitize = require("sanitize-filename");
 // new LocalCache({
 //     cachingStatus: (status) => {
 //         console.log(`status: ${status}`);
@@ -86,7 +84,7 @@ export default class LocalCache {
             const fileName = src.replace(/(.*\/)*([^.]+)/i, "$2");
             if (fileName === "ElementFile/" || fileName === "null")
                 return resolve("");
-            return window.electron.isExistFile(fileName).then((isExist) => {
+            return window.electron.isExistCacheFile(fileName).then((isExist) => {
                 if (isExist) {
                     resolve(window.electron.getFilePath(fileName));
                 } else {
@@ -312,6 +310,10 @@ export default class LocalCache {
         this.isEnd = true;
     }
 
+    destory() {
+        this.isEnd = true;
+    }
+
     async doCache(
         winInfo: IGetWindowCards,
         cacheFileName: string,
@@ -321,7 +323,7 @@ export default class LocalCache {
         this.isFail = false;
         this.isEnd = false;
         this.cacheCallback?.cachingStatus(0);
-        const eleRes = await GetWindowsElements(winInfo);
+        const eleRes = await GetWindowsElements(winInfo, true);
         // return;
         if (this.isEnd) return;
         if (eleRes.success) {
@@ -382,7 +384,7 @@ export default class LocalCache {
 
             // 将json文件写入到指定文件夹，将缓存资源文件复制到指定文件夹，并对文件夹压缩后加密，形成离线包
             const cacheData = {
-                windowName: sanitize(cacheFileName),
+                windowName: cacheFileName.replace(/(.*\/)*([^.]+).*/gi, "$2"),
                 windowId: winInfo.WindowID,
                 cards,
                 pages,

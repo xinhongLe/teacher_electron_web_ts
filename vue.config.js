@@ -51,6 +51,12 @@ module.exports = {
             entry: "src/main.ts",
             template: "public/index.html"
         },
+        login: {
+            entry: "src/childWindow/login/main.ts",
+            template: "public/login.html",
+            filename: "login.html",
+            chunks: ["login"]
+        },
         suspension: {
             entry: "src/childWindow/suspension/main.ts",
             template: "public/suspension.html",
@@ -329,25 +335,18 @@ module.exports = {
                                 "ia32" // 32位
                             ]
                         }
-                    ],
-                    // extraFiles: [
-                    //     {
-                    //         from: "node_modules/trtc-electron-sdk/build/Release/",
-                    //         to: "./resources",
-                    //         filter: ["**/*"]
-                    //     }
-                    // ]
+                    ]
                 },
                 mac: {
                     icon: "./public/icon.icns",
-                    target: ["dmg", "zip"],
-                    // extraFiles: [
-                    //     {
-                    //         from: "node_modules/trtc-electron-sdk/build/Release/",
-                    //         to: "./Resources",
-                    //         filter: ["**/*"]
-                    //     }
-                    // ],
+                    target: [
+                        {
+                            "target": "dmg",
+                            "arch": [
+                                "x64"
+                            ]
+                        }
+                    ],
                     fileAssociations: [
                         {
                             ext: "lyxpkg",
@@ -355,9 +354,10 @@ module.exports = {
                         }
                     ]
                 },
-                // extraFiles: [
-                //     "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node"
-                // ]
+                protocols: [{
+                    name: "lyxteacher",
+                    schemes: ["lyxteacher"]
+                }]
             },
             externals: [
                 "clipboard",

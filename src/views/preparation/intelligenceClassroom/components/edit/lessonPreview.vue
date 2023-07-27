@@ -28,10 +28,10 @@ import {defineComponent, PropType, reactive, toRefs, watch} from "vue";
 import {ElMessage} from "element-plus";
 import {get, STORAGE_TYPES} from "@/utils/storage";
 import {cooOss, getOssUrl} from "@/utils/oss";
-import {IFrom, ItemForm} from "@/types/lessonDesign.ts";
+import {IFrom, ItemForm} from "@/types/lessonDesign";
 import {toChinesNum} from "@/utils/common";
 //文件不支持的特殊符号进行去除
-const sanitize = require("sanitize-filename");
+import sanitize from "sanitize-filename";
 export default defineComponent({
     name: "lessonPreview",
     props: {

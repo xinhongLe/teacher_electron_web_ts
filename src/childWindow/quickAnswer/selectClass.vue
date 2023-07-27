@@ -30,7 +30,7 @@ import {defineComponent, onMounted, PropType, reactive, ref, toRefs} from "vue";
 import Title from "@/childWindow/answerMachine/title.vue";
 import {IYunInfo} from "@/types/login";
 import {ElMessage} from "element-plus";
-import {getTeacherClassList} from "@/views/login/api";
+import {getTeacherClassList} from "@/api/login";
 import {IClassItem, IGradeItem} from "@/types/quickAnswer";
 import {UserInfoState} from "@/types/store";
 

@@ -119,7 +119,17 @@ export enum STORAGE_TYPES {
     /**
      * 统一班级列表
      */
-    CLASS_LIST = "CLASS_LIST"
+    CLASS_LIST = "CLASS_LIST",
+
+    /**
+     * 记录用户选择是否更新
+     */
+    USER_UPDATE_CHOICE = "USER_UPDATE_CHOICE",
+
+    /**
+     * 下载历史
+     */
+    DOWNLOAD_HISTORY = "DOWNLOAD_HISTORY",
 }
 
 export const set = (
@@ -173,10 +183,15 @@ export const clear = () => {
         const record = get(STORAGE_TYPES.RECORD_LOGIN_LIST);
         const paths = get(STORAGE_TYPES.OSS_PATHS);
         const selectBookData = get(STORAGE_TYPES.SELECT_BOOK_ID);
+        const userUpdateChoice = get(STORAGE_TYPES.USER_UPDATE_CHOICE);// 用户的更新选择
+        const history = get(STORAGE_TYPES.DOWNLOAD_HISTORY);
         window.electron.store.clear();
         record && set(STORAGE_TYPES.RECORD_LOGIN_LIST, record);
         paths && set(STORAGE_TYPES.OSS_PATHS, paths);
+        history && set(STORAGE_TYPES.DOWNLOAD_HISTORY, history);
         selectBookData && set(STORAGE_TYPES.SELECT_BOOK_ID, selectBookData);
+        userUpdateChoice && set(STORAGE_TYPES.USER_UPDATE_CHOICE, userUpdateChoice);
+
     } else {
         Object.keys(localStorage).forEach((name) => {
             const REGEXP = /^VUE_(.+)/;
@@ -187,7 +202,8 @@ export const clear = () => {
                 !REGEXP.test(name) ||
                 name.includes(STORAGE_TYPES.RECORD_LOGIN_LIST) ||
                 name.includes(STORAGE_TYPES.OSS_PATHS) ||
-                name.includes(STORAGE_TYPES.SELECT_BOOK_ID)
+                name.includes(STORAGE_TYPES.SELECT_BOOK_ID) ||
+                name.includes(STORAGE_TYPES.USER_UPDATE_CHOICE)
             ) {
                 return;
             }
