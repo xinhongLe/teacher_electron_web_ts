@@ -1,5 +1,6 @@
 <template>
-    <div class="preparation" @mousedown="clickOutSide($event)" v-click-outside="clickOutSide">
+    <!--备课页面-->
+    <div class="preparation" @mousedown="clickOutSide($event)" v-click-outside="clickOutSide" v-if="isPreparation">
         <LeftMenu v-model:course="course" v-model:bookId="bookId"/>
         <div class="content-wrapper">
             <head-com
@@ -39,9 +40,16 @@
             </div>
 
         </div>
-        <!--        导学案设计组件-->
-        <LearnPlanDesign v-model:learnSelectVisible="learnSelectVisible"></LearnPlanDesign>
     </div>
+
+    <!--编辑导学案模板页面-->
+    <div v-else class="preparation">
+        <LearnPlanEditTemplate @goBack="goBack" :templateType="templateType"></LearnPlanEditTemplate>
+    </div>
+
+    <!--导学案设计选择模板组件-->
+    <LearnPlanDesign v-model:learnSelectVisible="learnSelectVisible"
+                     @openEditTemplate="openEditTemplate"></LearnPlanDesign>
 </template>
 
 <script lang="ts">
@@ -56,6 +64,7 @@ import LessonPackage from "./layout/lessonPackage.vue";
 import useLessonPackage from "@/hooks/useLessonPackage";
 import ClassArrangement from "./classArrangement/index.vue";
 import LearnPlanDesign from "@/views/preparation/learnPlanDesign/index.vue";
+import LearnPlanEditTemplate from "@/views/preparation/learnPlanDesign/LearnPlanEditTemplate.vue";
 import {defineComponent, nextTick, watch, ref} from "vue";
 
 export default defineComponent({
@@ -66,7 +75,8 @@ export default defineComponent({
         Resources,
         LessonPackage,
         ClassArrangement,
-        LearnPlanDesign
+        LearnPlanDesign,
+        LearnPlanEditTemplate
     },
     setup() {
         const {clickOutSide} = useClickDrag();
@@ -166,11 +176,26 @@ export default defineComponent({
                 ClassArrangementRef.value && ClassArrangementRef.value.updateSchedules();
             });
         };
+        // 是否是备课中的状态
+        const isPreparation = ref(true);
+        // 导学案设计模板选择
         const learnSelectVisible = ref(false);
         // 导学案设计
         const learnPlanDesign = () => {
             learnSelectVisible.value = true
         };
+        const templateType = ref(1);
+        // 打开模板编辑页面
+        const openEditTemplate = (type: number) => {
+            learnSelectVisible.value = false;
+            isPreparation.value = false;
+            templateType.value = type;
+
+        };
+        // 退出模板编辑页面
+        const goBack = () => {
+            isPreparation.value = true;
+        }
         return {
             course,
             showClassArrangement,
@@ -185,6 +210,8 @@ export default defineComponent({
             addLessonBag,
             resourcesRef,
             learnSelectVisible,
+            isPreparation,
+            templateType,
             clickOutSide,
             addLessonPackage,
             toMyLessonPackage,
@@ -195,6 +222,8 @@ export default defineComponent({
             closeCalendar,
             updateSchedules,
             learnPlanDesign,
+            openEditTemplate,
+            goBack
 
         };
     }

@@ -1,7 +1,8 @@
 <template>
     <el-dialog custom-class="delete-dialog" v-model="dialogVisible" title="提示" width="420px" center
-        :close-on-click-modal="false">
+               :close-on-click-modal="false">
         <div class="toast-content">
+            <slot name="icon"></slot>
             <p style="white-space: pre-wrap;">{{ msg }}</p>
         </div>
         <template #footer>
@@ -16,7 +17,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, getCurrentInstance, watch } from "vue-demi";
+import {defineComponent, ref, getCurrentInstance, watch} from "vue-demi";
 
 export default defineComponent({
     props: {
@@ -39,7 +40,7 @@ export default defineComponent({
             }
         }
     },
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         // const { proxy } = getCurrentInstance() as any;
         const dialogVisible = ref(false);
         const info = ref();
@@ -98,6 +99,8 @@ export default defineComponent({
     text-align: center;
     margin: 20px;
     margin-bottom: 30px;
+    display: flex;
+    align-items: center;
 
     img {
         margin-bottom: 20px;

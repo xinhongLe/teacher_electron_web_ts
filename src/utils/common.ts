@@ -1,9 +1,9 @@
-import { padStart } from "lodash";
+import {padStart} from "lodash";
 import request from "./request";
 import isElectron from "is-electron";
-import { get, STORAGE_TYPES } from "./storage";
-import { TRACK_API } from "@/config";
-import { useStore } from "@/store";
+import {get, STORAGE_TYPES} from "./storage";
+import {TRACK_API} from "@/config";
+import {useStore} from "@/store";
 
 export enum EnumTrackEventType {
     /// <summary>
@@ -162,6 +162,7 @@ export enum EnumTrackSource {
     /// </summary>
     APP = 40,
 }
+
 export class TrackModel {
     /// <summary>
     /// 跟踪来源
@@ -379,7 +380,7 @@ export const getDomOffset = (dom: HTMLElement) => {
         top += node.offsetTop;
         node = node.offsetParent as HTMLElement;
     }
-    return { left, top };
+    return {left, top};
 };
 
 export const toChinesNum = (num: any) => {
@@ -518,3 +519,16 @@ export const secondToTime = (second = 0) => {
     const sec = Math.floor(second - hour * 3600 - min * 60);
     return (hour > 0 ? [hour, min, sec] : [min, sec]).map(add0).join(":");
 };
+
+export const convertToLetters = (number: number) => {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+
+    while (number > 0) {
+        const remainder = (number - 1) % 26;
+        result = letters[remainder] + result;
+        number = Math.floor((number - 1) / 26);
+    }
+
+    return result;
+}

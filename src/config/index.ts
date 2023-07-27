@@ -48,6 +48,10 @@ export const VUE_APP_PREPARE_API = process.env.VUE_APP_PREPARE_API;
 //校历作息
 export const VUE_APP_CLASS_TIME_API = process.env.VUE_APP_CLASS_TIME_API;
 
+// 组卷中心web页面
+export const VUE_APP_GVC_WEB = process.env.VUE_APP_GVC_WEB;
+
+
 // 所有的科目列表及id
 export const ALL_SUBJECT_LIST = [
     {
