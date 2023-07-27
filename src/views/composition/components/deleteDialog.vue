@@ -40,7 +40,7 @@ export default defineComponent({
             }
         }
     },
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         // const { proxy } = getCurrentInstance() as any;
         const dialogVisible = ref(false);
         const info = ref();
