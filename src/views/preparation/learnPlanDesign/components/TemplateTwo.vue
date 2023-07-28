@@ -213,7 +213,7 @@
 <script lang="ts">
 import {
     defineComponent, nextTick, reactive,
-    ref, toRefs, getCurrentInstance, computed
+    ref, toRefs
 } from "vue";
 import {convertToLetters} from "@/utils/common";
 import {v4 as uuidv4} from "uuid";
@@ -231,7 +231,7 @@ export default defineComponent({
     setup(props, {emit}) {
         const {
             templatePageData, lastPageNum, getEditer,
-            addItem, setQuestionItem, currentAddItems
+            addItem, setQuestionItem, currentAddItems, delItem
         } = useDesignTemplate(2);
         // 标题是否处在可编辑状态
         const isTitleEdit = ref(false);
@@ -240,9 +240,9 @@ export default defineComponent({
         // 模板信息
         const templateInfo = reactive({
             Title: "苏州市****学校**导学案",//标题
-            Class: "初三一班",
-            Name: "张老师",
-            Time: "2023.07.21",
+            Class: "",
+            Name: "",
+            Time: "",
             Learn: "",
             Zpoint: "",
             Npoint: ""
@@ -279,6 +279,7 @@ export default defineComponent({
             titleClick,
             getEditer,
             addItem,
+            delItem,
             addQuestionItem,
             close,
             setQuestionItem,
@@ -670,7 +671,7 @@ export default defineComponent({
     .template-review-content {
 
         position: absolute;
-        top: 0;
+        top: 4%;
         left: 50%;
         transform: translateX(-50%);
 

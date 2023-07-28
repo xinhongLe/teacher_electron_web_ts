@@ -46,8 +46,8 @@ export default (type: number) => {
     ]);
     // 计算页面高度所用盗的变量
     const currentPageLayout = reactive({
-        basicPageHeight: type === 1 ? 1002 : 1008,//基础页面高度
-        basicTopHeight: type === 1 ? 190 : 360,//第一页基本信息高度
+        basicPageHeight: type === 1 ? 956 : 964,//基础页面高度
+        basicTopHeight: type === 1 ? 136 : 306,//第一页基本信息高度
     });
     // 当前要添加题目的一栏
     const currentAddItems: any = ref();
@@ -115,7 +115,8 @@ export default (type: number) => {
                 allContentHeight += item.ConHeight;
             })
             const topHeight = pageData.Level === 1 ? currentPageLayout.basicTopHeight : 0;
-            if (allContentHeight + topHeight > currentPageLayout.basicPageHeight) {
+            const basicPageHeight = pageData.Level === 1 ? currentPageLayout.basicPageHeight : 1024
+            if (allContentHeight + topHeight > basicPageHeight) {
                 const data = pageData.Data.pop();
                 if (!templatePageData.value[index + 1]) {
                     templatePageData.value.push(

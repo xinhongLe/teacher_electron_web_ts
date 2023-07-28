@@ -19,6 +19,7 @@ import {systemId, VUE_APP_GVC_WEB} from "@/config";
 import isElectron from "is-electron";
 import {IYunInfo} from "@/types/login";
 import {getPlatformByOrgId} from "@/api/home";
+import {UserInfoState} from "@/types/store";
 
 // ts
 export default defineComponent({
@@ -44,16 +45,25 @@ export default defineComponent({
                 emit("selectedQuestion", selectQuestionList.value)
             }
         };
-
+        const getPlatformIdByOrgId = async () => {
+            const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
+            const id = currentUserInfo.schoolId;
+            // return getPlatformByOrgId([{id}]).then(res => {
+            //     return res.result.length > 0 ? res.result[0].platformId : "";
+            // });
+            const res = await getPlatformByOrgId([{id}]);
+            return res.result.length > 0 ? res.result[0].platformId : "";
+        };
         //云平台信息
         const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
 
-        onMounted(() => {
+        onMounted(async () => {
+            const platformID = await getPlatformIdByOrgId();
             // token 令牌
             const token = get(STORAGE_TYPES.SET_TOKEN);
             // webview地址
             nextTick(() => {
-                url.value = `http://192.168.20.106:8089/?platformID=${systemId}&orgId=${yunInfo.OrgId}&orgTypeID=${yunInfo.OrgTypeId}&userID=${yunInfo.UserId}&userName=${yunInfo.UserName}&systemID=${yunInfo.SystemId}&token=${token}&#/addItem`;
+                url.value = `http://192.168.20.106:8089/?platformID=${platformID}&orgId=${yunInfo.OrgId}&orgTypeID=${yunInfo.OrgTypeId}&userID=${yunInfo.UserId}&userName=${yunInfo.UserName}&systemID=${yunInfo.SystemId}&token=${token}&#/addItem`;
                 window.addEventListener("message", selectedQuestion, false);
             })
         })

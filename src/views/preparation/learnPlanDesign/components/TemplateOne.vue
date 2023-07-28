@@ -186,7 +186,7 @@ export default defineComponent({
     setup(props, {emit}) {
         const {
             templatePageData, lastPageNum, getEditer,
-            addItem, setQuestionItem, currentAddItems
+            addItem, setQuestionItem, currentAddItems, delItem
         } = useDesignTemplate(1);
         // 标题是否处在可编辑状态
         const isTitleEdit = ref(false);
@@ -195,9 +195,9 @@ export default defineComponent({
         // 模板信息
         const templateInfo = reactive({
             Title: "苏州市****学校**导学案",//标题
-            Class: "初三一班",
-            Name: "张老师",
-            Time: "2023.07.21",
+            Class: "",
+            Name: "",
+            Time: "",
             Lesson: "",
         });
         // 点击标题进入编辑
@@ -227,6 +227,7 @@ export default defineComponent({
             titleClick,
             getEditer,
             addItem,
+            delItem,
             close,
             setQuestionItem,
             convertToLetters,
@@ -581,7 +582,7 @@ export default defineComponent({
     .template-review-content {
 
         position: absolute;
-        top: 0;
+        top: 4%;
         left: 50%;
         transform: translateX(-50%);
 
