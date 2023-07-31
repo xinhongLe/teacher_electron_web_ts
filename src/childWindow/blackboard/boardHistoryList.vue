@@ -1,6 +1,6 @@
 <template>
     <div class="board-history-list-warp" @click.stop="">
-        <Title title="历史黑板" :close="close" />
+        <Title title="历史黑板" :close="close"/>
         <div class="list">
             <div v-if="historyList.length === 0" class="empty-warp">
                 <img src="./ico/img_lishibiji@2x.png"/>
@@ -14,7 +14,10 @@
             >
                 <div class="time-warp" @click="collapseClick(item.CreateTime)">
                     <span>{{ item.CreateTime }}</span>
-                    <el-icon color="#bec3d6"><caret-bottom v-if="activeNames.includes(item.CreateTime)"/><caret-top v-else/></el-icon>
+                    <el-icon color="#bec3d6">
+                        <caret-bottom v-if="activeNames.includes(item.CreateTime)"/>
+                        <caret-top v-else/>
+                    </el-icon>
                 </div>
                 <CollapseTransition>
                     <div
@@ -28,7 +31,9 @@
                                 :key="file.ID"
                             >
                                 <div class="delete-icon" @click="deleteHistory(file.ID)">
-                                    <el-icon :size="16" color="#fff"><delete /></el-icon>
+                                    <el-icon :size="16" color="#fff">
+                                        <delete/>
+                                    </el-icon>
                                 </div>
                                 <img src="" @error="error($event, file)" @click="enlargeImgClick"/>
                             </div>
@@ -41,7 +46,9 @@
             <div class="enlarge-img-content-warp">
                 <img :src="enlargeImgSrc">
                 <div class="close-btn" @click="enlargeImgSrc = ''">
-                    <el-icon :size="30" color="#19203D" class="icon"><close/></el-icon>
+                    <el-icon :size="30" color="#19203D" class="icon">
+                        <close/>
+                    </el-icon>
                 </div>
             </div>
         </div>
@@ -49,16 +56,16 @@
 </template>
 
 <script lang="ts">
-import { FileInfo } from "@/types/lookQuestion";
-import { getOssUrl } from "@/utils/oss";
-import { defineComponent, ref } from "vue";
-import { deleteBlackboardHistory, fetchBlackboardHistoryList, HistoryList } from "./api";
+import {FileInfo} from "@/types/lookQuestion";
+import {getOssUrl} from "@/utils/oss";
+import {defineComponent, ref} from "vue";
+import {deleteBlackboardHistory, fetchBlackboardHistoryList, HistoryList} from "./api";
 import Title from "./title.vue";
-import { pull } from "lodash";
+import {pull} from "lodash";
 import CollapseTransition from "@/components/collapseTransition/index.vue";
 
 export default defineComponent({
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const historyList = ref<HistoryList[]>([]);
         const activeNames = ref<string[]>([]);
         const enlargeImgSrc = ref("");
@@ -87,13 +94,13 @@ export default defineComponent({
         };
 
         const deleteHistory = async (id: string) => {
-            await deleteBlackboardHistory({ id });
+            await deleteBlackboardHistory({id});
             getHistoryList();
         };
 
         const error = async (e: Event, file: FileInfo) => {
             const target = e.target as HTMLImageElement;
-            const { FileName, FilePath, Bucket, Extention } = file;
+            const {FileName, FilePath, Bucket, Extention} = file;
             const key = `${FilePath}/${FileName}.${Extention}`;
             const url = await getOssUrl(key, Bucket);
             target.src = url;
@@ -176,7 +183,7 @@ export default defineComponent({
             on
         };
     },
-    components: { Title, CollapseTransition }
+    components: {Title, CollapseTransition}
 });
 </script>
 
@@ -189,10 +196,11 @@ export default defineComponent({
     width: 414px;
     background: #fff;
     box-shadow: -3px 0px 6px -4px rgba(0, 0, 0, 0.12),
-        -6px 0px 16px 0px rgba(0, 0, 0, 0.08),
-        -9px 0px 28px 8px rgba(0, 0, 0, 0.05);
+    -6px 0px 16px 0px rgba(0, 0, 0, 0.08),
+    -9px 0px 28px 8px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
+
     .enlarge-img-warp {
         position: fixed;
         top: 0;
@@ -201,6 +209,7 @@ export default defineComponent({
         right: 0;
         z-index: 1;
         background-color: rgba(0, 0, 0, 0.4);
+
         .enlarge-img-content-warp {
             position: absolute;
             top: 50%;
@@ -208,6 +217,8 @@ export default defineComponent({
             transform: translate(-50%, -50%);
             border: 20px solid #f3f7ff;
             border-radius: 8px;
+            width: 70%;
+
             .close-btn {
                 position: absolute;
                 top: 0;
@@ -222,15 +233,19 @@ export default defineComponent({
                 cursor: pointer;
                 transform: translate(50%, -50%);
             }
+
             img {
-                width: 1332px;
-                height: 712px;
+                width: 100%;
+                //width: 1332px;
+                //height: 712px;
             }
         }
     }
+
     .list {
         flex: 1;
         overflow: overlay;
+
         .empty-warp {
             border-top: 1px solid #ECEDF0;
             padding-top: 160px;
@@ -243,16 +258,20 @@ export default defineComponent({
             color: #5F626F;
             flex-shrink: 0;
             overflow: hidden;
+
             img {
                 width: 240px;
             }
+
             span {
                 height: 28px;
                 line-height: 28px;
             }
         }
+
         .item {
             border-top: 1px solid #ecedf0;
+
             .time-warp {
                 cursor: pointer;
                 display: flex;
@@ -263,17 +282,21 @@ export default defineComponent({
                 justify-content: space-between;
                 padding: 0 24px;
             }
+
             .img-list-warp {
                 background-color: #f5f6fa;
+
                 .img-list {
                     padding: 24px;
                 }
+
                 .img-warp {
                     width: 366px;
                     height: 206px;
                     border-radius: 4px;
                     margin-top: 16px;
                     position: relative;
+
                     .delete-icon {
                         cursor: pointer;
                         border-radius: 4px;
@@ -287,9 +310,11 @@ export default defineComponent({
                         height: 36px;
                         background-color: rgba(0, 0, 0, 0.4);
                     }
+
                     &:first-child {
                         margin-top: 0;
                     }
+
                     img {
                         width: 100%;
                         height: 100%;

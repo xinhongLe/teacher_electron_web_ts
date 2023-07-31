@@ -36,7 +36,7 @@
                 >布置作业
                 </el-button
                 >
-                <el-button size="large" plain :icon="Refresh" @click="initData"
+                <el-button size="large" plain :icon="Refresh" @click="getTaskList"
                 >刷新
                 </el-button
                 >

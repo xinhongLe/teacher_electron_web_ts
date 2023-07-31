@@ -153,6 +153,7 @@ export default defineComponent({
                 list[i].PageList = pages.filter(item => item.State);
             }
             windowCards.value = list;
+
         }, {immediate: true, deep: true});
 
         const canvasDataMap = new Map();
@@ -165,9 +166,10 @@ export default defineComponent({
         });
         const currentSlide = computed(() => {
             const page = props.pages?.filter(item => item.State)[props.index];
+            console.log('page----', page)
             const json = page ? page.Json : {};
             json.design = page.DesignIntent;
-            json.remark = page.Remark;
+            json.remark = page.Remark || page.AcademicPresupposition;
             return json;
         });
         watch(() => currentSlide.value, (val, oldVal) => {
