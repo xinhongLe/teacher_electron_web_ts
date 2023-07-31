@@ -389,6 +389,8 @@ const webOpenUrl = (url: string) => {
         isOpenUrl = true;
 
         loginWindow && loginWindow.close();
+    } else {
+        isOpenFile = true;
     }
 };
 
@@ -404,6 +406,7 @@ app.on("ready", async () => {
 
     if (app.isPackaged && isOpenFile) {
         result = createLocalPreview(process.argv);
+        isOpenFile = false;
     }
 
     if (!result && !isOpenFile && !isOpenUrl) {
