@@ -233,6 +233,18 @@
                             />
                             <div class="blackboard-text">小组比拼2</div>
                         </div>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('互动游戏'), openGameSet()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_aiteacher.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">互动游戏</div>
+                        </div>
                     </div>
                 </el-collapse-item>
                 <el-collapse-item
@@ -320,26 +332,26 @@ import {
     ref,
     watch
 } from "vue";
-import {Game} from "./interface";
-import {getToolList} from "@/api/index";
-import {getOssUrl} from "@/utils/oss";
+import { Game } from "./interface";
+import { getToolList } from "@/api/index";
+import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
-import {ElMessage} from "element-plus";
-import {BookList} from "@/types/preparation";
-import {get, set, STORAGE_TYPES, storeChange} from "@/utils/storage";
-import {fetchAllStudents} from "@/views/labelManage/api";
-import {IpcRendererEvent} from "electron";
-import {iconResources, textResources, typeResources} from "@/config/resource";
+import { ElMessage } from "element-plus";
+import { BookList } from "@/types/preparation";
+import { get, set, STORAGE_TYPES, storeChange } from "@/utils/storage";
+import { fetchAllStudents } from "@/views/labelManage/api";
+import { IpcRendererEvent } from "electron";
+import { iconResources, textResources, typeResources } from "@/config/resource";
 import usePageEvent from "@/hooks/usePageEvent";
-import {EVENT_TYPE} from "@/config/event";
-import {IYunInfo} from "@/types/login";
-import {UserInfoState} from "@/types/store";
-import {Search, RefreshRight} from "@element-plus/icons-vue";
+import { EVENT_TYPE } from "@/config/event";
+import { IYunInfo } from "@/types/login";
+import { UserInfoState } from "@/types/store";
+import { Search, RefreshRight } from "@element-plus/icons-vue";
 
 export default defineComponent({
-    components: {RefreshRight},
-    setup(props, {emit}) {
-        const {createBuryingPointFn} = usePageEvent("智课助手");
+    components: { RefreshRight },
+    setup(props, { emit }) {
+        const { createBuryingPointFn } = usePageEvent("智课助手");
         const gameList = ref<Game[]>([]);
         const initBookList = [
             {
@@ -386,25 +398,25 @@ export default defineComponent({
                 data.bookIDs =
                     subjectPublisherBookList.value
                         .find((item) => item.Value === selectBookList.value[0])
-                        ?.Children?.flatMap((x) => x.Children || {Value: ""})
+                        ?.Children?.flatMap((x) => x.Children || { Value: "" })
                         .map((x) => x?.Value || "") || [];
             } else if (selectBookList.value.length === 2) {
                 data.bookIDs =
                     subjectPublisherBookList.value
                         .find((item) => item.Value === selectBookList.value[0])
                         ?.Children?.find(
-                        (item) => item.Value === selectBookList.value[1]
-                    )
+                            (item) => item.Value === selectBookList.value[1]
+                        )
                         ?.Children?.map((x) => x?.Value || "") || [];
             } else {
                 data.bookID = selectBookList.value[2];
             }
             const res = await getToolList(data);
             if (res.resultCode === 200) {
-                const list = res.result.filter(({Url}) => Url);
+                const list = res.result.filter(({ Url }) => Url);
                 const imgListPromise = list.map((item) => {
-                    const {File} = item;
-                    const {FileName, Bucket, FilePath, Extention} = File;
+                    const { File } = item;
+                    const { FileName, Bucket, FilePath, Extention } = File;
                     const key = `${FilePath}/${FileName}.${Extention}`;
                     return getOssUrl(key, Bucket);
                 });
@@ -479,6 +491,10 @@ export default defineComponent({
             }
         };
 
+        const openGameSet = () => {
+            isElectron() && window.electron.ipcRenderer.invoke("openGameSetWindow");
+        };
+
         // 工具-随手画
         const openPainting = () => {
             window.electron.getWhiteBoard();
@@ -487,12 +503,12 @@ export default defineComponent({
         // 打开小组比拼
         const openTeamCompetition = () => {
             if (isElectron()) window.electron.ipcRenderer.invoke("openTeamCompetition");
-        }
+        };
 
         // 打开小组比拼
         const openTeamCompetition2 = () => {
             if (isElectron()) window.electron.ipcRenderer.invoke("openTeamCompetition2");
-        }
+        };
 
         const close = () => {
             if (isElectron()) {
@@ -507,7 +523,7 @@ export default defineComponent({
             }
         };
         const uncultivated = () => {
-            ElMessage({type: "warning", message: "功能暂未开发"});
+            ElMessage({ type: "warning", message: "功能暂未开发" });
         };
         const exitApp = () => {
             window.electron.ipcRenderer.invoke("exitApp");
@@ -626,7 +642,6 @@ export default defineComponent({
             });
         };
 
-
         watch(selectBookList, getGradeList);
         return {
             Search,
@@ -644,6 +659,7 @@ export default defineComponent({
             clickKnowledge,
             openAnswerMachineWindow,
             openQuickAnswer,
+            openGameSet,
             clickProjection,
             searchName,
             uncultivated,
@@ -664,7 +680,7 @@ export default defineComponent({
             currentClickCol,
             openPainting,
             openTeamCompetition,
-            openTeamCompetition2,
+            openTeamCompetition2
         };
     }
 });

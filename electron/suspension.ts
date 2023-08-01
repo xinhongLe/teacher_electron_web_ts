@@ -18,6 +18,7 @@ let teamCompetitionWin: BrowserWindow | null;
 let teamCompetitionWin2: BrowserWindow | null;
 let answerMachineWin: BrowserWindow | null;
 let quickAnswerWin: BrowserWindow | null;
+let gameSetWin: BrowserWindow | null;
 let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
@@ -33,7 +34,7 @@ let lastSpwan: ChildProcessWithoutNullStreams | null = null;
 let lastPort = 1122;
 let isFirstTime = true;
 let openTimes = -1;
-let lastOpenTime = new Date().getTime();
+const lastOpenTime = new Date().getTime();
 let currentCourseData: any = null;
 
 const timerURL =
@@ -72,6 +73,11 @@ const quickAnswerURL =
     process.env.NODE_ENV === "development"
         ? `${process.env.WEBPACK_DEV_SERVER_URL}quickAnswer.html`
         : `file://${__dirname}/quickAnswer.html`;
+
+const gameSetURL =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}gameSet.html`
+        : `file://${__dirname}/gameSet.html`;
 
 const localTeamURL =
     process.env.NODE_ENV === "development"
@@ -188,7 +194,7 @@ function createTimerWindow() {
         frame: false, // 要创建无边框窗口
         resizable: false, // 禁止窗口大小缩放
         height: 500,
-        useContentSize: true,
+        useContentSize: true
     });
     timerWin.on("ready-to-show", () => {
         timerWin && timerWin.show();
@@ -211,7 +217,7 @@ function createRollcall(allStudentList: []) {
         height: 600,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false,
+        maximizable: false
     });
 
     rollCallWin.on("ready-to-show", () => {
@@ -239,7 +245,7 @@ function createUnfoldSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
     // 设置黑板窗口位置
     const winSize = unfoldSuspensionWin.getSize(); // 获取窗口宽高
@@ -270,7 +276,7 @@ function createBlackboardWindow() {
         minWidth: 1000,
         minHeight: 600,
         show: false,
-        useContentSize: true,
+        useContentSize: true
     });
     // blackboardWin.webContents.openDevTools(); // 打开黑板调试
 
@@ -297,7 +303,7 @@ function createAnswerMachineWindow(allStudentList: []) {
         useContentSize: true,
         transparent: true,
         // backgroundColor: "#00000000",
-        frame: false, // 要创建无边框窗口
+        frame: false // 要创建无边框窗口
         // alwaysOnTop: true,
     });
 
@@ -343,9 +349,8 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
         resizable: false, // 是否允许窗口大小缩放
         height: 600,
         useContentSize: true,
-        maximizable: false,
+        maximizable: false
     });
-    // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
     quickAnswerWin.on("ready-to-show", () => {
         quickAnswerWin && quickAnswerWin.show();
@@ -367,6 +372,32 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
     });
 }
 
+function createGameSetWindow() {
+    gameSetWin = createWindow(gameSetURL, {
+        width: 1080,
+        height: 920,
+        frame: false, // 要创建无边框窗口
+        // type: "toolbar",
+        alwaysOnTop: true,
+        resizable: true, // 是否允许窗口大小缩放
+        useContentSize: true,
+        maximizable: false
+    });
+    // gameSetWin.webContents.openDevTools(); // 打开游戏调试器
+
+    gameSetWin.on("ready-to-show", () => {
+        gameSetWin && gameSetWin.show();
+    });
+
+    gameSetWin.once("ready-to-show", () => {
+        gameSetWin && gameSetWin.setAlwaysOnTop(true, "pop-up-menu");
+    });
+
+    gameSetWin.on("closed", () => {
+        quickAnswerWin = null;
+    });
+}
+
 function createProjectionWindow() {
     const size = screen.getPrimaryDisplay().workAreaSize;
     projectionWin = createWindow(projectionURL, {
@@ -375,7 +406,7 @@ function createProjectionWindow() {
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
-        resizable: false,
+        resizable: false
     });
 
     projectionWin.once("ready-to-show", () => {
@@ -399,8 +430,8 @@ export function createLocalPreviewWindow(filePath: string) {
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
-        },
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
+        }
     });
     // win.webContents.openDevTools();
     win.once("ready-to-show", () => {
@@ -416,8 +447,8 @@ function createSubjectToolWindow(url: string, name: string) {
         show: false,
         title: `爱学仕学科工具《${name}》`,
         webPreferences: {
-            nodeIntegration: false,
-        },
+            nodeIntegration: false
+        }
     });
     win.once("ready-to-show", () => {
         win.show();
@@ -441,7 +472,7 @@ function checkIsUseBallEXE(callback: (T: boolean, env?: number) => void) {
 }
 
 function createLinuxBall() {
-    let ballname = "linux/winball";
+    const ballname = "linux/winball";
     const newEnv = Object.create(process.env);
     newEnv.LD_LIBRARY_PATH = join(WIN_PATH_BALL, "linux/lib");
 
@@ -457,7 +488,7 @@ function createLinuxBall() {
                 join(WIN_PATH_BALL, ballname),
                 [lastPort.toString()],
                 {
-                    env: newEnv,
+                    env: newEnv
                 }
             );
             lastSpwan.stdout.on("data", (data) => {
@@ -483,7 +514,7 @@ function createBall(forcec = false) {
         return createLinuxBall();
     }
     let ballname = "winball/winball.exe";
-    let cballname = "ball.exe";
+    const cballname = "ball.exe";
     return new Promise((resolve) => {
         checkIsUseBallEXE((status, env) => {
             if (!status) {
@@ -650,7 +681,7 @@ function createLocalSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
     // suspensionWin.webContents.openDevTools();
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
@@ -962,7 +993,6 @@ export function registerEvent() {
         }
     });
 
-
     ipcMain.handle("timeChange", (_, time) => {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("QUICKTIMEHIDEINTERVAL", time));
@@ -1037,6 +1067,13 @@ export function registerEvent() {
         }
     });
 
+    ipcMain.handle("openGameSetWindow", (_) => {
+        showSuspension();
+        if (!quickAnswerWin) {
+            createGameSetWindow();
+        }
+    });
+
     ipcMain.handle("answer-jection", (_, data) => {
         answerMachineWin &&
             answerMachineWin.webContents.send("answer-jection", data);
@@ -1067,7 +1104,7 @@ function createTeamCompetition() {
         height: 250,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false,
+        maximizable: false
     });
 
     teamCompetitionWin.on("ready-to-show", () => {
@@ -1087,7 +1124,7 @@ function createTeamCompetition2() {
         height: 250,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false,
+        maximizable: false
     });
 
     teamCompetitionWin2.on("ready-to-show", () => {
