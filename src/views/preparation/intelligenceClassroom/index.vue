@@ -61,7 +61,7 @@ import {IViewResourceData} from "@/types/store";
 import Tools from "./components/preview/tools.vue";
 import {dealAnimationData} from "@/utils/dataParse";
 import SelectClassDialog from "./components/preview/selectClassDialog.vue";
-import {ref, watchEffect, PropType, onUnmounted, computed, defineComponent} from "vue";
+import {ref, watchEffect, PropType, onUnmounted, computed, defineComponent, watch} from "vue";
 import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
 import {getOssUrl} from "@/utils/oss";
 import {getWindowStruct} from "@/api/home";

@@ -454,7 +454,6 @@ export default defineComponent({
         onMounted(() => {
             init();
             fabCanvas.value.on("object:added", function (e: any) {
-                console.log('123')
                 if (isAction.value) {
                     return;
                 }
