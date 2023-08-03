@@ -1,11 +1,4 @@
-import {
-    BrowserWindow,
-    ipcMain,
-    screen,
-    app,
-    remote,
-    powerMonitor,
-} from "electron";
+import { BrowserWindow, ipcMain, screen, app, powerMonitor } from "electron";
 import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
@@ -13,6 +6,7 @@ import { spawn, exec, ChildProcessWithoutNullStreams } from "child_process";
 import path, { join } from "path";
 import detect from "detect-port";
 import { Action, CallBack, SocketHelper } from "./socketHelper";
+
 const WIN_PATH_BALL = join(__dirname, "../extraResources/ball/");
 let suspensionWin: BrowserWindow | null;
 let unfoldSuspensionWin: BrowserWindow | null;
@@ -28,6 +22,8 @@ let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
 let isShowQuestion = false; // 悬浮球是否显示题目图标
+let isShowCourse = false; // 悬浮球是否显示课件图标
+
 let socketHelper: SocketHelper;
 let socketHelperHeartbeatInterval: any = -1;
 let socketHelperHeartbeatCheckInterval: any = -1;
@@ -38,6 +34,7 @@ let lastPort = 1122;
 let isFirstTime = true;
 let openTimes = -1;
 let lastOpenTime = new Date().getTime();
+let currentCourseData: any = null;
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -120,7 +117,7 @@ function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     }
     let width = 120;
     let height = 120;
-    if (isShowTimer || isShowVideo || isShowBlackboard || isShowQuestion) {
+    if (isShowTimer || isShowVideo || isShowBlackboard || isShowQuestion || isShowCourse) {
         width = 200;
         height = 200;
     }
@@ -168,6 +165,7 @@ function hideSuspensionIcon() {
     isShowVideo = false;
     isShowQuestion = false;
     isShowBlackboard = false;
+    isShowCourse = false;
     if (suspensionWin) {
         suspensionWin.webContents.send("timerWinClose");
         suspensionWin.webContents.send("hideSuspensionVideo");
@@ -217,7 +215,8 @@ function createRollcall(allStudentList: []) {
     });
 
     rollCallWin.on("ready-to-show", () => {
-        rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
+        rollCallWin &&
+            rollCallWin.webContents.send("sendAllStudentList", allStudentList);
         // rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
@@ -225,6 +224,7 @@ function createRollcall(allStudentList: []) {
         rollCallWin = null;
     });
 }
+
 function createUnfoldSuspensionWindow() {
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const width = size.width > 545 ? 545 : size.width - 80;
@@ -262,13 +262,18 @@ function createUnfoldSuspensionWindow() {
 function createBlackboardWindow() {
     blackboardWin = createWindow(blackboardURL, {
         width: 1000,
-        height: 750,
+        height: 600,
         frame: false, // 要创建无边框窗口
-        resizable: false,
-        fullscreen: true,
+        resizable: true,
+        // resizable: false,
+        // fullscreen: true,
+        minWidth: 1000,
+        minHeight: 600,
         show: false,
         useContentSize: true,
     });
+    // blackboardWin.webContents.openDevTools(); // 打开黑板调试
+
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
         blackboardWin && blackboardWin.focus();
@@ -286,24 +291,26 @@ function createBlackboardWindow() {
 
 function createAnswerMachineWindow(allStudentList: []) {
     answerMachineWin = createWindow(answerMachineURL, {
-        // width: 620,
-        // height: 422,
         fullscreen: true,
         center: true,
         show: false,
         useContentSize: true,
         transparent: true,
-        backgroundColor: "#00000000",
-        type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // backgroundColor: "#00000000",
         frame: false, // 要创建无边框窗口
-        alwaysOnTop: true,
-        resizable: false,
+        // alwaysOnTop: true,
     });
+
+    // answerMachineWin.webContents.openDevTools();
 
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
         answerMachineWin && answerMachineWin.focus();
-        answerMachineWin && answerMachineWin.webContents.send("sendAllStudentList", allStudentList);
+        answerMachineWin &&
+            answerMachineWin.webContents.send(
+                "sendAllStudentList",
+                allStudentList
+            );
     });
 
     answerMachineWin.once("ready-to-show", () => {
@@ -320,14 +327,23 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
     quickAnswerWin = createWindow(quickAnswerURL, {
         // width: 620,
         // height: 420,
-        fullscreen: true,
-        center: true,
-        show: false,
-        useContentSize: true,
-        transparent: true,
-        type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // // fullscreen: true,
+        // center: true,
+        // show: false,
+        // useContentSize: true,
+        // transparent: true,
+        // type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // frame: false, // 要创建无边框窗口
+        // alwaysOnTop: true,
+
+        // transparent: true,
+        width: 800,
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
+        resizable: false, // 是否允许窗口大小缩放
+        height: 600,
+        useContentSize: true,
+        maximizable: false,
     });
     // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
@@ -377,7 +393,7 @@ export function createLocalPreviewWindow(filePath: string) {
         show: false,
         frame: false,
         webPreferences: {
-            enableRemoteModule: true,
+            // enableRemoteModule: true,
             webviewTag: true,
             webSecurity: false,
             nodeIntegration: true,
@@ -424,7 +440,48 @@ function checkIsUseBallEXE(callback: (T: boolean, env?: number) => void) {
     }
 }
 
+function createLinuxBall() {
+    let ballname = "linux/winball";
+    const newEnv = Object.create(process.env);
+    newEnv.LD_LIBRARY_PATH = join(WIN_PATH_BALL, "linux/lib");
+
+    return new Promise((resolve) => {
+        try {
+            if (lastSpwan) {
+                lastSpwan.kill();
+                lastSpwan.pid && process.kill(lastSpwan.pid);
+            }
+        } catch (e) {}
+        try {
+            lastSpwan = spawn(
+                join(WIN_PATH_BALL, ballname),
+                [lastPort.toString()],
+                {
+                    env: newEnv,
+                }
+            );
+            lastSpwan.stdout.on("data", (data) => {
+                console.log(`stdout: ${data}`);
+            });
+
+            lastSpwan.stderr.on("data", (data) => {
+                console.error(`stderr: ${data}`);
+            });
+
+            lastSpwan.on("close", (code) => {
+                console.log(`child process exited with code ${code}`);
+            });
+        } catch (e) {}
+        setTimeout(() => {
+            resolve(true);
+        }, 3000);
+    });
+}
+
 function createBall(forcec = false) {
+    if (process.platform === "linux") {
+        return createLinuxBall();
+    }
     let ballname = "winball/winball.exe";
     let cballname = "ball.exe";
     return new Promise((resolve) => {
@@ -561,7 +618,24 @@ class CustomCallBack implements CallBack {
             case "PONG":
                 socketHelperHeartbeatTime = new Date().getTime();
                 break;
+            case "COURSEWARE1SHOW":
+                isShowCourse = true;
+                socketHelper.sendMessage(new Action("COURSEWARE1SHOW", ""));
+                ipcMain.emit("setCourseMaximize", currentCourseData);
+                break;
+            case "COURSEWARE1HIDE":
+                ipcMain.emit("closeCourse");
+                isShowCourse = false;
+                // timerWin && timerWin.destroy();
+                break;
         }
+    }
+}
+
+export function courseShow() {
+    if (socketHelper) {
+        isShowCourse = true;
+        socketHelper.sendMessage(new Action("COURSEWARE1SHOW", ""));
     }
 }
 
@@ -578,11 +652,12 @@ function createLocalSuspensionWindow() {
         backgroundColor: "#00000000",
         alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
     });
+    // suspensionWin.webContents.openDevTools();
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = suspensionWin.getSize(); // 获取窗口宽高
     suspensionWin.setPosition(
         size.width - winSize[0] - 80,
-        size.height - winSize[1] - 50,
+        size.height - winSize[1] - 350,
         false
     );
 
@@ -722,7 +797,6 @@ export function registerEvent() {
 
     ipcMain.handle("openSuspension", () => {
         isShowSuspension = true;
-        console.log("open-isShowSuspension", isShowSuspension);
         if (socketHelper) {
             socketHelper.sendMessage(new Action("SMALLMENUSHOW", ""));
         } else {
@@ -732,7 +806,6 @@ export function registerEvent() {
 
     ipcMain.handle("closeSuspension", () => {
         isShowSuspension = false;
-        console.log("close-isShowSuspension", isShowSuspension);
         if (socketHelper) {
             socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
         } else {
@@ -834,7 +907,6 @@ export function registerEvent() {
     });
     ipcMain.handle("hideTimerWin", () => {
         if (socketHelper) {
-            console.log("hideTimerWin");
             socketHelper.sendMessage(new Action("QUICKTIMESHOW", ""));
         }
     });
@@ -874,6 +946,22 @@ export function registerEvent() {
                 suspensionWin.webContents.send("timerWinHide", time);
         }
     });
+
+    // 课件最小化
+    ipcMain.handle("courseMinimize", (_, data) => {
+        data = JSON.parse(data);
+        showSuspension();
+        isShowCourse = true;
+        currentCourseData = data;
+        setSuspensionSize();
+        if (socketHelper) {
+            console.error(data);
+            socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `${path.resolve(data.url)},${data.name}`));
+        } else {
+            suspensionWin && suspensionWin.webContents.send("courseWinHide", data);
+        }
+    });
+
 
     ipcMain.handle("timeChange", (_, time) => {
         if (socketHelper) {
@@ -937,6 +1025,8 @@ export function registerEvent() {
         showSuspension();
         if (!answerMachineWin) {
             createAnswerMachineWindow(allStudentList);
+        } else {
+            answerMachineWin && answerMachineWin.show();
         }
     });
 
@@ -997,7 +1087,7 @@ function createTeamCompetition2() {
         height: 250,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false
+        maximizable: false,
     });
 
     teamCompetitionWin2.on("ready-to-show", () => {

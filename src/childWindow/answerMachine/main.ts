@@ -1,4 +1,4 @@
-import { createApp } from "vue";
+import {createApp} from "vue";
 import App from "./App.vue";
 
 import "element-plus/dist/index.css";
@@ -15,7 +15,8 @@ import {
     ElOption,
     ElCascader,
     ElProgress,
-    ElConfigProvider
+    ElConfigProvider,
+    ElCheckboxGroup, ElRadio, ElRadioGroup
 } from "element-plus";
 
 import {
@@ -24,7 +25,7 @@ import {
     Clock,
     AlarmClock,
     Warning,
-    CircleCheck
+    CircleCheck,
 } from "@element-plus/icons-vue";
 
 const components = [
@@ -44,7 +45,8 @@ const components = [
     AlarmClock,
     Warning,
     CircleCheck,
-    ElConfigProvider
+    ElConfigProvider,
+    ElCheckboxGroup, ElRadio, ElRadioGroup
 ];
 
 const app = createApp(App);

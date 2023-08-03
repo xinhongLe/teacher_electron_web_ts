@@ -3,16 +3,19 @@
         <Title title="选择班级" :close="close"></Title>
         <div class="content">
             <div class="left">
-                <div @click.capture="handleRow(i)" :class="['leftRow', activeIndex === i ? 'active' : '']" v-for="(item, i) in gradeList" :key="i">
-                    <el-checkbox :indeterminate="item.ClassList.filter(item => item.check).length > 0 && (item.ClassList.filter(item => item.check).length < item.ClassList.length)"
-                                 v-model="item.check"
-                                 @change="handleChangeGrade(item)"
-                                 size="large" />
-                    <span class="text">{{item.GradeName}}</span>
+                <div @click.capture="handleRow(i)" :class="['leftRow', activeIndex === i ? 'active' : '']"
+                     v-for="(item, i) in gradeList" :key="i">
+                    <el-checkbox
+                        :indeterminate="item.ClassList.filter(item => item.check).length > 0 && (item.ClassList.filter(item => item.check).length < item.ClassList.length)"
+                        v-model="item.check"
+                        @change="handleChangeGrade(item)"
+                        size="large"/>
+                    <span class="text">{{ item.GradeName }}</span>
                 </div>
             </div>
             <div class="right">
-                <el-checkbox  @change="handleChangeClass(item)" v-for="(item, i) in classList" :key="i" v-model="item.check" :label="item.ClassName" size="large" />
+                <el-checkbox @change="handleChangeClass(item)" v-for="(item, i) in classList" :key="i"
+                             v-model="item.check" :label="item.ClassName" size="large"/>
             </div>
         </div>
         <div class="footer">
@@ -23,22 +26,23 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, reactive, ref, toRefs } from "vue";
+import {defineComponent, onMounted, PropType, reactive, ref, toRefs} from "vue";
 import Title from "@/childWindow/answerMachine/title.vue";
-import { IYunInfo } from "@/types/login";
-import { ElMessage } from "element-plus";
-import { getTeacherClassList } from "@/views/login/api";
-import { IClassItem, IGradeItem } from "@/types/quickAnswer";
-import { UserInfoState } from "@/types/store";
+import {IYunInfo} from "@/types/login";
+import {ElMessage} from "element-plus";
+import {getTeacherClassList} from "@/api/login";
+import {IClassItem, IGradeItem} from "@/types/quickAnswer";
+import {UserInfoState} from "@/types/store";
 
 interface State {
-    activeIndex:number,
+    activeIndex: number,
     gradeList: IGradeItem[],
     classList: IClassItem[]
 }
+
 export default defineComponent({
     name: "selectClass",
-    components: { Title },
+    components: {Title},
     props: {
         currentUserInfo: {
             type: Object as PropType<UserInfoState>,
@@ -46,7 +50,7 @@ export default defineComponent({
         }
     },
     emits: ["openQuickAnswer"],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const state = reactive<State>({
             activeIndex: 0,
             gradeList: [],
@@ -54,9 +58,9 @@ export default defineComponent({
         });
 
         const confirm = () => {
-            let selectClass:IClassItem[] = [];
-            state.gradeList.forEach((item:IGradeItem) => {
-                const arr = item.ClassList.filter((j:IClassItem) => j.check);
+            let selectClass: IClassItem[] = [];
+            state.gradeList.forEach((item: IGradeItem) => {
+                const arr = item.ClassList.filter((j: IClassItem) => j.check);
                 selectClass = selectClass.concat(arr);
             });
 
@@ -67,22 +71,22 @@ export default defineComponent({
             emit("openQuickAnswer", selectClass);
         };
 
-        const handleRow = (i:number) => {
+        const handleRow = (i: number) => {
             state.activeIndex = i;
             state.classList = state.gradeList[i].ClassList;
         };
 
-        const handleChangeGrade = (item:IGradeItem) => {
-            item.ClassList.forEach((i:IClassItem) => {
+        const handleChangeGrade = (item: IGradeItem) => {
+            item.ClassList.forEach((i: IClassItem) => {
                 i.check = item.check;
             });
         };
 
         const handleChangeClass = (item: IClassItem) => {
-            state.gradeList.some((i:IGradeItem) => {
-                const currentGrade = i.ClassList.find((j:IClassItem) => j.ClassId === item.ClassId);
+            state.gradeList.some((i: IGradeItem) => {
+                const currentGrade = i.ClassList.find((j: IClassItem) => j.ClassId === item.ClassId);
                 if (currentGrade) {
-                    i.check = i.ClassList.length === i.ClassList.filter((j:IClassItem) => j.check).length;
+                    i.check = i.ClassList.length === i.ClassList.filter((j: IClassItem) => j.check).length;
                 }
                 return currentGrade;
             });
@@ -122,7 +126,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.box{
+.box {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -130,47 +134,56 @@ export default defineComponent({
     background-color: #fff;
     font-size: 14px;
 }
-.content{
+
+.content {
     display: flex;
     flex: 1;
     min-height: 0;
-    .left{
+
+    .left {
         width: 160px;
         height: 100%;
         overflow-y: auto;
         padding: 20px 0;
         border-right: 1px solid #E9ECF0;;
-        .leftRow{
+
+        .leftRow {
             display: flex;
             align-items: center;
             cursor: pointer;
             height: 42px;
             padding: 0px 20px;
-            .text{
+
+            .text {
                 margin-left: 6px;
                 font-size: 14px;
                 color: #19203D;
             }
-            &:hover{
+
+            &:hover {
                 background-color: #ecf5ff;
             }
         }
-        .active{
+
+        .active {
             background: #E6ECFF;
             box-shadow: inset -4px 0px 0px #4b71ee;
-            :deep(.el-checkbox__label){
+
+            :deep(.el-checkbox__label) {
                 color: #4B71EE;
             }
         }
     }
-    .right{
+
+    .right {
         flex: 1;
         min-widths: 0;
         padding: 20px;
         overflow-y: auto;
     }
 }
-.footer{
+
+.footer {
     width: 100%;
     padding: 20px 0;
     text-align: center;

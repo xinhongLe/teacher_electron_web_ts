@@ -7,18 +7,21 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watchEffect, watch, h, onUnmounted } from "vue";
+import {computed, defineComponent, ref, watchEffect, watch, h, onUnmounted} from "vue";
 import * as mqtt from "mqtt";
-import { ElMessage, ElMessageBox, MessageHandler } from "element-plus";
-import { store } from "@/store";
+import {ElMessage, ElMessageBox, MessageHandler} from "element-plus";
+import {store} from "@/store";
 import Content from "./Content.vue";
-import { clearInterval, setInterval } from "timers";
+import {clearInterval, setInterval} from "timers";
+import {YUN_API_VIDEO_PROJECT_MQTT} from "@/config";
+
 const imgError = require("@/assets/projection/img_error@2x.png");
-let messageHandle:MessageHandler;
+let messageHandle: MessageHandler;
 export default defineComponent({
     setup() {
         const isShow = ref(false);
-        const client = mqtt.connect("wss://recognition.aixueshi.top/mqtt", {
+        const client = mqtt.connect(YUN_API_VIDEO_PROJECT_MQTT || "", {
+            port: 8083,
             keepalive: 30
         });
         const noSignalCount = ref(0); // 没收到心跳的次数
@@ -46,10 +49,9 @@ export default defineComponent({
 
         const dealVideoProjectTopic = (infoString: string) => {
             const info: {
-                    IsEnd: boolean;
-                    roomID: string;
-                } = JSON.parse(infoString);
-            window.electron.log.info(`dealVideoProjectTopic roomID: ${info.roomID}, IsEnd: ${info.IsEnd}`);
+                IsEnd: boolean;
+                roomID: string;
+            } = JSON.parse(infoString);
             if (!info.IsEnd) {
                 roomId.value = info.roomID;
                 isShow.value = true;
@@ -59,7 +61,6 @@ export default defineComponent({
         };
 
         const dealHeartbeatTopic = () => {
-            window.electron.log.info("receive heartbeat");
             client.publish(getPublish(heartbeatResult.value), "");
         };
 
@@ -114,9 +115,9 @@ export default defineComponent({
                 });
             } else if (v === 6) {
                 messageHandle && messageHandle.close();
-                ElMessageBox.alert(h("div", { style: "display: flex;flex-direction: column;align-items: center;padding: 40px;" }, [
-                    h("img", { src: imgError, style: "width: 144px" }, ""),
-                    h("span", { style: "color: #212743;font-size: 20px;margin-top: 20px;" }, "网络断开，请重试!")
+                ElMessageBox.alert(h("div", {style: "display: flex;flex-direction: column;align-items: center;padding: 40px;"}, [
+                    h("img", {src: imgError, style: "width: 144px"}, ""),
+                    h("span", {style: "color: #212743;font-size: 20px;margin-top: 20px;"}, "网络断开，请重试!")
                 ]), {
                     showClose: false,
                     center: true,
@@ -156,7 +157,7 @@ export default defineComponent({
             roomId
         };
     },
-    components: { Content }
+    components: {Content}
 });
 </script>
 
@@ -165,9 +166,11 @@ export default defineComponent({
     :deep(.el-dialog) {
         -webkit-app-region: no-drag;
     }
+
     :deep(.el-dialog__header) {
         display: none;
     }
+
     :deep(.el-dialog__body) {
         height: 100%;
     }

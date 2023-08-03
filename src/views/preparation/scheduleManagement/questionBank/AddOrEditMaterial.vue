@@ -10,7 +10,7 @@
             <el-form label-width="80px">
                 <el-form-item label="课时：">
                     <el-select v-model="lessonId">
-                        <el-option label="全部课时" :value="null" />
+                        <el-option label="全部课时" :value="null"/>
                         <el-option
                             v-for="item in lessons"
                             :key="item.ID"
@@ -30,11 +30,11 @@
                         <el-button>上传</el-button>
                     </el-upload>
                     <div v-else class="file">
-                        <FileType :fileExtension="fileInfo.fileExtension" />
+                        <FileType :fileExtension="fileInfo.fileExtension"/>
                         <div class="name" :title="fileInfo.name">
                             {{ fileInfo.fileName }}.{{ fileInfo.fileExtension }}
                         </div>
-                        <span class="delete" @click="deleteFile" />
+                        <span class="delete" @click="deleteFile"/>
                     </div>
                 </el-form-item>
             </el-form>
@@ -43,7 +43,7 @@
             <span>
                 <el-button @click="handleClose">取消</el-button>
                 <el-button type="primary" @click="clickEnsureBtn"
-                    >确定</el-button
+                >确定</el-button
                 >
             </span>
         </template>
@@ -51,13 +51,14 @@
 </template>
 
 <script lang="ts">
-import { fileTypeMap } from "@/config";
+import {fileTypeMap} from "@/config";
 import useUploadFile from "@/hooks/useUploadFile";
-import { Lesson, Material } from "@/types/preparation";
-import { addMaterial, editMaterial } from "@/views/preparation/api";
-import { ElMessage } from "element-plus";
-import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
+import {Lesson, Material} from "@/types/preparation";
+import {addMaterial, editMaterial} from "@/views/preparation/api";
+import {ElMessage} from "element-plus";
+import {computed, defineComponent, PropType, ref, watchEffect} from "vue";
 import FileType from "@/components/fileType/index.vue";
+
 export default defineComponent({
     props: {
         lessons: {
@@ -81,11 +82,11 @@ export default defineComponent({
             required: true
         }
     },
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const lessonId = ref<string | null>(null);
         const loading = ref(false);
 
-        const { loadingShow, fileInfo, uploadFile, resetFileInfo } =
+        const {loadingShow, fileInfo, uploadFile, resetFileInfo} =
             useUploadFile("ElementFile");
 
         const handleClose = () => {
@@ -136,7 +137,7 @@ export default defineComponent({
         watchEffect(() => {
             if (props.dialogVisible && props.isEdit) {
                 lessonId.value = props.editInfo.LessonID;
-                const { Name, Extention, FileName, FileMD5 } = props.editInfo.ElementFile;
+                const {Name, Extention, FileName, FileMD5} = props.editInfo.ElementFile;
                 fileInfo.fileName = Name;
                 fileInfo.fileExtension = Extention;
                 fileInfo.name = FileName;
@@ -156,7 +157,7 @@ export default defineComponent({
             fileInfo
         };
     },
-    components: { FileType }
+    components: {FileType}
 });
 </script>
 
@@ -166,6 +167,7 @@ export default defineComponent({
     align-content: center;
     flex-direction: column;
 }
+
 .file {
     height: 36px;
     background: #f3f7ff;
@@ -174,6 +176,7 @@ export default defineComponent({
     align-items: center;
     padding: 8px 12px;
     position: relative;
+
     .name {
         color: #19203d;
         font-size: 14px;
@@ -183,6 +186,7 @@ export default defineComponent({
         white-space: nowrap;
         font-weight: 400;
     }
+
     .delete {
         width: 14px;
         height: 14px;

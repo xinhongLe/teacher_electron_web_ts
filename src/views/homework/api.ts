@@ -1,6 +1,6 @@
 import request from "@/utils/request";
-import { AI_XUE_SHI_API, YUN_API_ONECARD } from "@/config";
-import { RequestFun } from "@/types/response";
+import {AI_XUE_SHI_API, YUN_API_ONECARD} from "@/config";
+import {IResponse, RequestFun} from "@/types/response";
 import {
     FetchClassHomeworkPaperListData,
     FetchHomeworkDateByYearData,
@@ -14,14 +14,13 @@ import {
     PointsPackage,
     SvImgIn, Id, ISendWrongTopicRes
 } from "@/types/homework";
-import { ChartView } from "echarts";
-import { AnyRecord } from "dns";
+import {ChartView} from "echarts";
+import {AnyRecord} from "dns";
+import {IMyClassResponse} from "@/api/home";
 
 // 获取一年中有作业的日期
-export const fetchHomeworkDateByYear: RequestFun<
-    FetchHomeworkDateByYearData,
-    string[]
-> = (data) => {
+export const fetchHomeworkDateByYear: RequestFun<FetchHomeworkDateByYearData,
+    string[]> = (data) => {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/W4/HomeworkIntegration/GetHomeworkDateByYear",
@@ -34,10 +33,8 @@ export const fetchHomeworkDateByYear: RequestFun<
 };
 
 // 老师查询全部类型的班级作业
-export const fetchClassHomeworkPaperList: RequestFun<
-    FetchClassHomeworkPaperListData,
-    Homework[]
-> = (data) => {
+export const fetchClassHomeworkPaperList: RequestFun<FetchClassHomeworkPaperListData,
+    Homework[]> = (data) => {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/W4/HomeworkIntegration/GetClassHomeworkPaperList",
@@ -248,5 +245,17 @@ export const overWrongTopicCollection: RequestFun<Id, any> = (data) => {
         },
         method: "post",
         data
+    });
+};
+
+// 获取科目的
+export const GetMySubjectByOrgId: RequestFun<any, any> = () => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/V2/Teacher/Subject/GetMySubjectByOrgId",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
     });
 };

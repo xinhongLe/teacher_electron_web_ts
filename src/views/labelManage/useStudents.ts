@@ -1,9 +1,9 @@
 import router from "@/router";
-import { TagStudent, StudentTag, Tag } from "@/types/labelManage";
-import { LessonSubject } from "@/types/login";
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import { computed, ref, Ref } from "vue";
-import { fetchStudentsTagList } from "./api";
+import {TagStudent, StudentTag, Tag} from "@/types/labelManage";
+import {LessonSubject} from "@/types/login";
+import {get, STORAGE_TYPES} from "@/utils/storage";
+import {computed, ref, Ref} from "vue";
+import {fetchStudentsTagList} from "./api";
 
 const getSubjectName = (SelectSubjectId: string) => {
     const subjectList: LessonSubject[] = get(STORAGE_TYPES.USER_INFO).Subjects;
@@ -18,7 +18,7 @@ export default (tagList: Ref<Tag[]>, selectSubjectId: Ref<string>) => {
     const selectSubjectName = computed(() => getSubjectName(selectSubjectId.value));
 
     const dealStudentList = (students: TagStudent[]) => {
-        const newStudentList:StudentTag[] = [];
+        const newStudentList: StudentTag[] = [];
         const tagStudentListMap = new Map<string, TagStudent[]>();
         tagList.value.forEach((v) => {
             tagStudentListMap.set(v.TagName, []);

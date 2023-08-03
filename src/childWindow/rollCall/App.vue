@@ -1,49 +1,57 @@
 <template>
-    <div class="roll-call" :style="{'background-color': chooseFlag ? '#fff' : '#efefef'}">
-        <div class="roll-call-header" v-if="chooseFlag">
-<!--            <div class="rch-left"></div>-->
-            <div class="rch-center">
-                <span v-if="chooseFlag">选择班级</span>
-            </div>
-            <!-- <div class="rch-right" @click="close">
-                <img src="@/assets/images/suspension/guanbi.png" alt="" />
-            </div> -->
-        </div>
-        <div class="roll-call-content" v-if="chooseFlag">
-<!--            <div class="class-tree" >-->
-<!--                <el-tree-->
-<!--                    ref="treeRef"-->
-<!--                    :data="classTreeList"-->
-<!--                    show-checkbox-->
-<!--                    node-key="ID"-->
-<!--                    default-expand-all-->
-<!--                    :expand-on-click-node="false"-->
-<!--                    :props="treeProps"-->
-<!--                    @check="checkTreeChange"-->
-<!--                >-->
-<!--                </el-tree>-->
+    <div
+        class="roll-call"
+        :style="{ 'background-color': chooseFlag ? '#fff' : '#efefef' }"
+    >
+        <!--        <div class="roll-call-header" v-if="chooseFlag">-->
+        <!--            <div class="rch-center">-->
+        <!--                <span v-if="chooseFlag">选择班级</span>-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <!--        <div class="roll-call-content" v-if="chooseFlag">-->
+        <!--&lt;!&ndash;            <div class="class-tree" >&ndash;&gt;-->
+        <!--&lt;!&ndash;                <el-tree&ndash;&gt;-->
+        <!--&lt;!&ndash;                    ref="treeRef"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    :data="classTreeList"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    show-checkbox&ndash;&gt;-->
+        <!--&lt;!&ndash;                    node-key="ID"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    default-expand-all&ndash;&gt;-->
+        <!--&lt;!&ndash;                    :expand-on-click-node="false"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    :props="treeProps"&ndash;&gt;-->
+        <!--&lt;!&ndash;                    @check="checkTreeChange"&ndash;&gt;-->
+        <!--&lt;!&ndash;                >&ndash;&gt;-->
+        <!--&lt;!&ndash;                </el-tree>&ndash;&gt;-->
 
-<!--            </div>-->
-            <div class="content">
-                <div class="left">
-                    <div @click.capture="handleRow(i)" :class="['leftRow', activeIndex === i ? 'active' : '']" v-for="(item, i) in gradeList" :key="i">
-                        <el-checkbox :indeterminate="item.ClassList.filter(item => item.check).length > 0 && (item.ClassList.filter(item => item.check).length < item.ClassList.length)"
-                                     v-model="item.check"
-                                     @change="handleChangeGrade(item)"
-                                     size="large" />
-                        <span class="text">{{item.GradeName}}</span>
-                    </div>
-                </div>
-                <div class="right">
-                    <el-checkbox  @change="handleChangeClass(item)" v-for="(item, i) in classList" :key="i" v-model="item.check" :label="item.ClassName" size="large" />
-                </div>
-            </div>
-            <div class="roll-call-footer">
-                <el-button @click="close">取消</el-button>
-                <el-button type="primary" @click="submit">确认</el-button>
-            </div>
-        </div>
-        <StudentList :studentList="checkStudentList" v-else/>
+        <!--&lt;!&ndash;            </div>&ndash;&gt;-->
+        <!--            <div class="content">-->
+        <!--                <div class="left">-->
+        <!--                    <div @click.capture="handleRow(i)" :class="['leftRow', activeIndex === i ? 'active' : '']" v-for="(item, i) in gradeList" :key="i">-->
+        <!--                        <el-checkbox :indeterminate="item.ClassList.filter(item => item.check).length > 0 && (item.ClassList.filter(item => item.check).length < item.ClassList.length)"-->
+        <!--                                     v-model="item.check"-->
+        <!--                                     @change="handleChangeGrade(item)"-->
+        <!--                                     size="large" />-->
+        <!--                        <span class="text">{{item.GradeName}}</span>-->
+        <!--                    </div>-->
+        <!--                </div>-->
+        <!--                <div class="right">-->
+        <!--                    <el-checkbox  @change="handleChangeClass(item)" v-for="(item, i) in classList" :key="i" v-model="item.check" :label="item.ClassName" size="large" />-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--            <div class="roll-call-footer">-->
+        <!--                <el-button @click="close">取消</el-button>-->
+        <!--                <el-button type="primary" @click="submit">确认</el-button>-->
+        <!--            </div>-->
+        <!--        </div>-->
+
+        <SelectAttendClass
+            v-model:classVisible="chooseFlag"
+            v-model:currentClassList="currentClassList"
+            v-if="chooseFlag"
+            @close="close"
+            @confirm="submit"
+        >
+        </SelectAttendClass>
+        <StudentList :studentList="checkStudentList" v-else />
     </div>
 </template>
 
@@ -54,17 +62,19 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage } from "element-plus";
 import { defineComponent, reactive, ref, toRefs } from "vue";
 import StudentList from "./studentList.vue";
-import { getTeacherClassList } from "@/views/login/api";
+import { getTeacherClassList } from "@/api/login";
 import { UserInfoState } from "@/types/store";
 import { IClassItem, IGradeItem } from "@/types/quickAnswer";
+import SelectAttendClass from "@/components/navBar/selectAttendClass.vue";
 
 interface State {
-    activeIndex:number,
-    gradeList: IGradeItem[],
-    classList: IClassItem[],
-    allStudentList: Student[],
-    checkStudentList: Student[],
-    lastCheckGradeId: string
+    activeIndex: number;
+    gradeList: IGradeItem[];
+    classList: IClassItem[];
+    allStudentList: Student[];
+    checkStudentList: Student[];
+    lastCheckGradeId: string;
+    currentClassList: any;
 }
 
 export default defineComponent({
@@ -78,7 +88,9 @@ export default defineComponent({
         // const treeProps = { label: "Name", children: "classData" };
         // const userInfo = get(STORAGE_TYPES.USER_INFO);
         const chooseFlag = ref(true);
-        const currentUserInfo:UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        const currentUserInfo: UserInfoState = get(
+            STORAGE_TYPES.CURRENT_USER_INFO
+        );
 
         // const map = new Map();
         // const classList = userInfo?.Classes as LessonClasses[];
@@ -129,9 +141,10 @@ export default defineComponent({
             classList: [],
             allStudentList: allStudentList,
             checkStudentList: [],
-            lastCheckGradeId: ""
+            lastCheckGradeId: "",
+            currentClassList: get(STORAGE_TYPES.CURRENT_SELECT_CLASS) || {},
         });
-        const submit = () => {
+        const submit = (value: string) => {
             // const data = treeRef.value!.getCheckedNodes(true, false);
             // if (data.length === 0) {
             //     ElMessage({ type: "warning", message: "请先选择班级" });
@@ -149,18 +162,21 @@ export default defineComponent({
             //         map.set(StudentID, student);
             //     }
             // });
-            let selectClass:string[] = [];
-            state.gradeList.forEach((item:IGradeItem) => {
-                const arr = item.ClassList.filter((j:IClassItem) => j.check).map((v:IClassItem) => v.ClassId);
-                selectClass = selectClass.concat(arr);
-            });
-
-            if (selectClass.length === 0) {
+            let selectClass: string = value || "";
+            // state.gradeList.forEach((item: IGradeItem) => {
+            //     const arr = item.ClassList.filter((j: IClassItem) => j.check).map((v: IClassItem) => v.ClassId);
+            //     selectClass = selectClass.concat(arr);
+            // });
+            console.log("value", value, state.allStudentList);
+            if (!selectClass) {
                 return ElMessage.warning("请至少选择一个班级");
             }
 
-            state.checkStudentList = state.allStudentList.filter(student => selectClass.includes(student.ClassID));
-            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            state.checkStudentList = state.allStudentList.filter(
+                (student) => selectClass === student.ClassID
+            );
+            const size =
+                window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
             const width = size.width > 1200 ? 1200 : size.width;
             const height = size.height > 800 ? 800 : size.height;
             window.electron.setContentSize(width, height);
@@ -172,22 +188,22 @@ export default defineComponent({
         //     state.classList = classList;
         // };
 
-        const handleRow = (i:number) => {
+        const handleRow = (i: number) => {
             state.activeIndex = i;
             state.classList = state.gradeList[i].ClassList;
         };
 
         // 只能选择同个年级班级
-        const handleChangeGrade = (row:IGradeItem) => {
+        const handleChangeGrade = (row: IGradeItem) => {
             state.lastCheckGradeId = row.GradeId;
-            state.gradeList.forEach((i:IGradeItem) => {
+            state.gradeList.forEach((i: IGradeItem) => {
                 if (row.GradeId === i.GradeId) {
-                    i.ClassList.forEach((v:IClassItem) => {
+                    i.ClassList.forEach((v: IClassItem) => {
                         v.check = row.check;
                     });
                 } else {
                     i.check = false;
-                    i.ClassList.forEach((v:IClassItem) => {
+                    i.ClassList.forEach((v: IClassItem) => {
                         v.check = false;
                     });
                 }
@@ -196,39 +212,49 @@ export default defineComponent({
 
         const handleChangeClass = (item: IClassItem) => {
             // 和上次选中的年做比较 如选中年级不同 取消上次选中的年级、班级
-            if (state.lastCheckGradeId && state.lastCheckGradeId !== item.GradeId) {
-                const lastGradeList = state.gradeList.find((i:IGradeItem) => state.lastCheckGradeId === i.GradeId);
+            if (
+                state.lastCheckGradeId &&
+                state.lastCheckGradeId !== item.GradeId
+            ) {
+                const lastGradeList = state.gradeList.find(
+                    (i: IGradeItem) => state.lastCheckGradeId === i.GradeId
+                );
                 if (lastGradeList) {
                     lastGradeList.check = false;
-                    lastGradeList.ClassList.forEach((j:IClassItem) => { j.check = false});
+                    lastGradeList.ClassList.forEach((j: IClassItem) => {
+                        j.check = false;
+                    });
                 }
             }
             state.lastCheckGradeId = item.GradeId || "";
-            state.gradeList.some((i:IGradeItem) => {
+            state.gradeList.some((i: IGradeItem) => {
                 if (item.GradeId === i.GradeId) {
-                    i.check = i.ClassList.length === i.ClassList.filter((j:IClassItem) => j.check).length;
+                    i.check =
+                        i.ClassList.length ===
+                        i.ClassList.filter((j: IClassItem) => j.check).length;
                     return true;
                 }
             });
         };
 
         const _getTeacherClassList = () => {
-            const data = {
-                Base_OrgId: currentUserInfo!.schoolId,
-                TeacherId: currentUserInfo!.userCenterUserID
-            };
-            getTeacherClassList(data).then(res => {
-                if (res.resultCode === 200) {
-                    const list = res.result || [];
-                    state.gradeList = list.map((i:IGradeItem) => {
-                        i.ClassList.forEach((j: IClassItem) => {
-                            j.GradeId = i.GradeId;
-                        });
-                        return i;
-                    });
-                    state.classList = state.gradeList.length > 0 ? state.gradeList[0].ClassList : [];
-                }
-            });
+            // const data = {
+            //     Base_OrgId: currentUserInfo!.schoolId,
+            //     TeacherId: currentUserInfo!.userCenterUserID
+            // };
+            // getTeacherClassList(data).then(res => {
+            //     if (res.resultCode === 200) {
+            //         const list = res.result || [];
+            //         state.gradeList = list.map((i:IGradeItem) => {
+            //             i.ClassList.forEach((j: IClassItem) => {
+            //                 j.GradeId = i.GradeId;
+            //             });
+            //             return i;
+            //         });
+            //         state.classList = state.gradeList.length > 0 ? state.gradeList[0].ClassList : [];
+            //     }
+            // });
+            // state.classList = [get(STORAGE_TYPES.CURRENT_SELECT_CLASS)];
         };
 
         _getTeacherClassList();
@@ -237,9 +263,12 @@ export default defineComponent({
             window.electron.destroyWindow();
         };
 
-        window.electron.ipcRenderer.on("sendAllStudentList", (_, studentList) => {
-            state.allStudentList = studentList;
-        });
+        window.electron.ipcRenderer.on(
+            "sendAllStudentList",
+            (_, studentList) => {
+                state.allStudentList = studentList;
+            }
+        );
         return {
             ...toRefs(state),
             // classTreeList,
@@ -253,10 +282,10 @@ export default defineComponent({
             handleChangeGrade,
             handleChangeClass,
             _getTeacherClassList,
-            currentUserInfo
+            currentUserInfo,
         };
     },
-    components: { StudentList }
+    components: { StudentList, SelectAttendClass },
 });
 </script>
 
@@ -266,29 +295,35 @@ body {
     user-select: none;
     overflow: hidden;
     box-sizing: border-box;
+
     * {
         box-sizing: border-box;
     }
+
     img {
         -webkit-user-drag: none;
     }
 }
+
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
+
 /* 滚动条背景 */
 ::-webkit-scrollbar-track {
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.06);
     -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.08);
 }
+
 /* 滚动条滑块 */
 ::-webkit-scrollbar-thumb {
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.16);
     -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
 }
+
 //.el-tree {
 //    > div {
 //        > div {
@@ -311,24 +346,34 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
+
+    #attend-class {
+        width: 100%;
+        height: 100%;
+    }
 }
+
 .roll-call-header {
     padding: 20px 20px 0;
     display: flex;
     justify-content: center;
     align-items: center;
+
     .rch-center {
         font-size: 18px;
     }
+
     .rch-right {
         width: 20px;
         height: 20px;
+
         img {
             width: 100%;
             height: 100%;
         }
     }
 }
+
 .roll-call-content {
     display: flex;
     flex-direction: column;
@@ -336,57 +381,66 @@ body {
     min-height: 0;
     padding: 10px;
 }
+
 //.class-tree {
 //    flex: 1;
 //    min-height: 0;
 //    overflow-y: auto;
 //}
-.content{
+.content {
     display: flex;
     flex: 1;
     min-height: 0;
-    .left{
+
+    .left {
         width: 200px;
         height: 100%;
         overflow-y: auto;
         padding: 20px 0;
-        border-right: 1px solid #E9ECF0;;
-        .leftRow{
+        border-right: 1px solid #e9ecf0;
+
+        .leftRow {
             display: flex;
             align-items: center;
             cursor: pointer;
             height: 42px;
             padding: 0px 20px;
-            .text{
+
+            .text {
                 margin-left: 6px;
                 font-size: 14px;
-                color: #19203D;
+                color: #19203d;
             }
-            &:hover{
+
+            &:hover {
                 background-color: #ecf5ff;
             }
         }
-        .active{
-            background: #E6ECFF;
-            :deep(.el-checkbox__label){
-                color: #4B71EE;
+
+        .active {
+            background: #e6ecff;
+
+            :deep(.el-checkbox__label) {
+                color: #4b71ee;
             }
         }
     }
-    .right{
+
+    .right {
         flex: 1;
         min-widths: 0;
         padding: 20px;
         overflow-y: auto;
     }
 }
+
 .roll-call-footer {
     display: flex;
     justify-content: center;
     padding-top: 10px;
+
     .el-button {
         width: 100px;
     }
 }
-
 </style>

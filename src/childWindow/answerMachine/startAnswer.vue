@@ -11,61 +11,68 @@
                 }}
             </div> -->
             <el-form ref="formRef" :model="form" :rules="rules">
-                    <div class="select-warp">
-                        <span class="label p_b_20">请选择班级：</span>
-                        <el-form-item label="" prop="selectClass">
-                            <el-select popper-class="answer-select" v-model="form.selectClass" @change="_getAnswerMachineQuestionList">
-                                <el-option
-                                    v-for="item in classList"
-                                    :key="item.ClassId"
-                                    :label="item.ClassName"
-                                    :value="item.ClassId"
-                                />
-                            </el-select>
-                        </el-form-item>
-                        <span class="view-btn" v-show="answerMode === AnswerMode.AnswerMachine" @click="isShowStudentList = true">查看</span>
-                    </div>
+                <div class="select-warp">
+                    <span class="label p_b_20">请选择班级：</span>
+                    <el-form-item label="" prop="selectClass">
+                        <!--                        <el-select popper-class="answer-select" v-model="form.selectClass"-->
+                        <!--                                   @change="_getAnswerMachineQuestionList">-->
+                        <!--                            <el-option-->
+                        <!--                                v-for="item in classList"-->
+                        <!--                                :key="item.ClassUserCenterId"-->
+                        <!--                                :label="item.ClassName"-->
+                        <!--                                :value="item.ClassUserCenterId"-->
+                        <!--                            />-->
+                        <!--                        </el-select>-->
+                        <el-radio-group v-model="form.selectClass" @change="_getAnswerMachineQuestionList">
+                            <el-radio v-for="(item, i) in classList" :key="i"
+                                      :label="item.ClassUserCenterId" size="large">{{ item.ClassName }}
+                            </el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <span class="view-btn" v-show="answerMode === AnswerMode.AnswerMachine"
+                          @click="isShowStudentList = true">查看</span>
+                </div>
                 <div v-for="(item, i) in form.topicList" :key="i">
-                        <div class="row">
-                            <div class="select-warp m_b_22">
+                    <div class="row">
+                        <div class="select-warp m_b_22">
                                 <span class="label">
                                     <span style="float: left">题{{ i + 1 }}</span>
                                     <span>类型：</span>
                                 </span>
-                                <el-button
-                                    @click="choiceQuestionType(item, QuestionType.单选题)"
-                                    :type="item.questionType === QuestionType.单选题 ? 'primary' : 'default'"
-                                >单选题
-                                </el-button>
-                                <el-button
-                                    @click="choiceQuestionType(item, QuestionType.多选题)"
-                                    :type="item.questionType === QuestionType.多选题 ? 'primary' : 'default'"
-                                >多选题
-                                </el-button
-                                >
-                                <el-button
-                                    @click="choiceQuestionType(item, QuestionType.判断题)"
-                                    :type="item.questionType === QuestionType.判断题 ? 'primary' : 'default'"
-                                >判断题
-                                </el-button
-                                >
-                            </div>
-                            <div class="select-warp" v-show="answerMode === AnswerMode.PAD">
-                                <span class="label p_b_20">选项：</span>
-                                <el-form-item label="" :prop="`topicList[${i}].selectSetting`" :rules="rules.option">
-                                    <el-cascader
-                                        popper-class="answer-select"
-                                        :options="item.option"
-                                        v-model="item.selectSetting"
-                                        :disabled="!(item.selectSetting.length > 0)"
-                                        placeholder="请选择类型"
-                                    />
-                                </el-form-item>
-                            </div>
-                            <div v-if="form.topicList.length > 1" class="del-btn" @click="delRow(i)">
-                                <img src="@/assets/images/suspension/icon_delete.png" alt="">
-                            </div>
+                            <el-button
+                                @click="choiceQuestionType(item, QuestionType.单选题)"
+                                :type="item.questionType === QuestionType.单选题 ? 'primary' : 'default'"
+                            >单选题
+                            </el-button>
+                            <el-button
+                                @click="choiceQuestionType(item, QuestionType.多选题)"
+                                :type="item.questionType === QuestionType.多选题 ? 'primary' : 'default'"
+                            >多选题
+                            </el-button
+                            >
+                            <el-button
+                                @click="choiceQuestionType(item, QuestionType.判断题)"
+                                :type="item.questionType === QuestionType.判断题 ? 'primary' : 'default'"
+                            >判断题
+                            </el-button
+                            >
                         </div>
+                        <div class="select-warp" v-show="answerMode === AnswerMode.PAD">
+                            <span class="label p_b_20">选项：</span>
+                            <el-form-item label="" :prop="`topicList[${i}].selectSetting`" :rules="rules.option">
+                                <el-cascader
+                                    popper-class="answer-select"
+                                    :options="item.option"
+                                    v-model="item.selectSetting"
+                                    :disabled="!(item.selectSetting.length > 0)"
+                                    placeholder="请选择类型"
+                                />
+                            </el-form-item>
+                        </div>
+                        <div v-if="form.topicList.length > 1" class="del-btn" @click="delRow(i)">
+                            <img src="@/assets/images/suspension/icon_delete.png" alt="">
+                        </div>
+                    </div>
                 </div>
             </el-form>
         </div>
@@ -77,12 +84,12 @@
             <div>
                 <el-button v-if="!lessonId" @click="close">取消</el-button>
                 <el-tooltip content="您可以提前准备好题目并【保存为草稿】下次打开可直接使用" placement="top">
-                    <el-button type="primary"  @click="start(0)" plain>保存为草稿</el-button>
+                    <el-button type="primary" @click="start(0)" plain>保存为草稿</el-button>
                 </el-tooltip>
 
-<!--            <el-tooltip content="您可以提前准备好题目并【加入当前备课包】上课时打开备课包可直接使用" placement="top">-->
-                    <el-button type="primary" @click="start(1)">立即发放</el-button>
-<!--            </el-tooltip>-->
+                <!--            <el-tooltip content="您可以提前准备好题目并【加入当前备课包】上课时打开备课包可直接使用" placement="top">-->
+                <el-button type="primary" @click="start(1)">立即发放</el-button>
+                <!--            </el-tooltip>-->
             </div>
         </div>
     </div>
@@ -94,18 +101,26 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, PropType, reactive, ref, toRefs, watch } from "vue";
-import { Student } from "@/types/labelManage";
-import { groupBy, uniqBy, cloneDeep } from "lodash";
-import { MQTTInfoData, getAnswerMachineQuestionList, saveAnswerMachineQuestion } from "./api";
-import { AnswerMode, PADModeQuestionType, getChoiceQuestion } from "./enum";
+import {computed, defineComponent, inject, PropType, reactive, ref, toRefs, watch} from "vue";
+import {Student} from "@/types/labelManage";
+import {cloneDeep, groupBy, uniqBy} from "lodash";
+import {
+    getAnswerMachineQuestionList,
+    MQTTInfoData,
+    saveAnswerMachineQuestion,
+    SaveTeacherSelectClassRecord,
+    GetLastSelectedClassIdByTeacherID
+} from "./api";
+import {AnswerMode, getChoiceQuestion, PADModeQuestionType} from "./enum";
 import useStudentMachine from "@/hooks/useStudentMachine";
 import StudentList from "./studentList.vue";
 import Title from "./title.vue";
-import { UserInfoState } from "@/types/store";
-import { getTeacherClassList } from "@/views/login/api";
-import { IClassItem, IGradeItem } from "@/types/quickAnswer";
-import { ElMessage } from "element-plus";
+import {ICurrentSelectClass, UserInfoState} from "@/types/store";
+import {getTeacherClassList} from "@/api/login";
+import {IClassItem, IGradeItem} from "@/types/quickAnswer";
+import {ElMessage} from "element-plus";
+import {get, set, STORAGE_TYPES} from "@/utils/storage";
+import {store} from "@/store";
 
 export default defineComponent({
     components: {
@@ -130,7 +145,7 @@ export default defineComponent({
             default: () => ""
         }
     },
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const isShowStudentList = ref(false);
         const choiceQuestion = getChoiceQuestion();
         const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
@@ -139,23 +154,23 @@ export default defineComponent({
                 value: "2",
                 label: "2",
                 children: [
-                    { value: "√ ×", label: "√ ×" },
-                    { value: "T F", label: "T F" }
+                    {value: "√ ×", label: "√ ×"},
+                    {value: "T F", label: "T F"}
                 ]
             }
         ];
         const state = reactive({
             rules: {
-                selectClass: [{ required: true, message: "请选择班级", trigger: "change" }],
-                option: [{ required: true, message: "请选择类型", trigger: "change" }]
+                selectClass: [{required: true, message: "请选择班级", trigger: "change"}],
+                option: [{required: true, message: "请选择类型", trigger: "change"}]
             },
             form: {
                 selectClass: "",
-                topicList: [{ questionType: 0, selectSetting: [], option: [] }]
+                topicList: [{questionType: 0, selectSetting: [], option: []}]
             },
-            classList: [] as IClassItem[]
+            classList: [] as ICurrentSelectClass[]
         });
-        const { studentMachineListByClassIdMap, getStudentMachineListMap, studentMachineListMap } = useStudentMachine();
+        const {studentMachineListByClassIdMap, getStudentMachineListMap, studentMachineListMap} = useStudentMachine();
 
         const allStudentListMap = computed(() => {
             const allListMap = groupBy(props.allStudentList, "ClassID");
@@ -186,11 +201,11 @@ export default defineComponent({
         };
 
         const formRef = ref();
-        const start = (type:number) => {
+        const start = (type: number) => {
             if (type === 0) {
                 handleConfirm(type);
             } else {
-                formRef.value.validate(async (valid:boolean) => {
+                formRef.value.validate(async (valid: boolean) => {
                     if (valid) {
                         handleConfirm(type);
                     }
@@ -198,7 +213,7 @@ export default defineComponent({
             }
         };
 
-        const handleConfirm = async(type:number) => {
+        const handleConfirm = async (type: number) => {
             const data: MQTTInfoData = {
                 TeacherID: props.currentUserInfo!.userCenterUserID,
                 OrgID: props.currentUserInfo!.schoolId,
@@ -209,7 +224,7 @@ export default defineComponent({
                 IsEnd: false,
                 TimeStamp: null,
                 Topic: `answer_${state.form.selectClass}`,
-                QuestionDetail: state.form.topicList.map((item: any, index:number) => {
+                QuestionDetail: state.form.topicList.map((item: any, index: number) => {
                     return {
                         ID: item.ID,
                         Sort: index,
@@ -221,8 +236,12 @@ export default defineComponent({
             };
             if (props.answerMode === AnswerMode.PAD) {
                 // const res = await sendMQTTInfo(data);
-                const res = await saveAnswerMachineQuestion({ ...data, LessonId: props.lessonId ? props.lessonId : null });
+                const res = await saveAnswerMachineQuestion({
+                    ...data,
+                    LessonId: props.lessonId ? props.lessonId : null
+                });
                 if (res.resultCode === 200) {
+
                     if (type === 1) {
                         emit("start",
                             allStudentListMap.value[state.form.selectClass] || [],
@@ -232,6 +251,11 @@ export default defineComponent({
                     } else {
                         ElMessage.success("保存草稿成功");
                     }
+                    await SaveTeacherSelectClassRecord({
+                        TeacherID: props.currentUserInfo!.userCenterUserID,
+                        ClassID: state.form.selectClass
+                    })
+
                 }
             }
         };
@@ -241,8 +265,8 @@ export default defineComponent({
         };
 
         const addRow = () => {
-            if (state.form.topicList.length === 10) return ElMessage.warning("最多添加10道题");
-            state.form.topicList.push(cloneDeep({ questionType: 0, selectSetting: [], option: [] }));
+            if (state.form.topicList.length === 40) return ElMessage.warning("最多添加40道题");
+            state.form.topicList.push(cloneDeep({questionType: 0, selectSetting: [], option: []}));
         };
 
         const delRow = (index: number) => {
@@ -277,6 +301,7 @@ export default defineComponent({
             }
         };
         const _getAnswerMachineQuestionList = () => {
+
             const data = {
                 TeacherID: props.currentUserInfo!.userCenterUserID,
                 OrgID: props.currentUserInfo!.schoolId,
@@ -285,35 +310,45 @@ export default defineComponent({
             };
             getAnswerMachineQuestionList(data).then(res => {
                 if (res.resultCode === 200) {
-                    const topicList = (res.result && res.result.QuestionDetail) ? res.result.QuestionDetail.map((item:any) => {
+                    const topicList = (res.result && res.result.QuestionDetail) ? res.result.QuestionDetail.map((item: any) => {
                         return {
                             questionType: item.QuestionType,
                             selectSetting: item.QuestionType ? [item.QuestionNum.toString(), item.QuestionOption.replaceAll(";", " ")] : [],
                             option: item.QuestionType === QuestionType.value.判断题 ? questionnaireOption : choiceQuestion
 
                         };
-                    }) : [{ questionType: 0, selectSetting: [], option: [] }];
+                    }) : [{questionType: 0, selectSetting: [], option: []}];
                     state.form.topicList = topicList;
                     if (res.result && res.result.ClassID) state.form.selectClass = res.result.ClassID;
                 }
             });
+            const classData: any = state.classList.find(item => item.ClassUserCenterId === state.form.selectClass);
+            if (!classData.ClassUserCenterId) return;
+            window.electron.ipcRenderer.send('updateSelectClass', JSON.stringify(classData));
         };
-        const _getTeacherClassList = () => {
+        const _getTeacherClassList = async () => {
+            // state.classList = get(STORAGE_TYPES.USER_INFO).Classes;
+            // console.log('state.classList ', state.classList)
+            // const classData = await GetLastSelectedClassIdByTeacherID({ID: props.currentUserInfo!.userCenterUserID})
+            // state.form.selectClass = state.classList[0].ClassId;
+            // if (classData.resultCode === 200) {
+            //     state.form.selectClass = classData.result || state.classList[0].ClassId;
+            // }
+            // _getAnswerMachineQuestionList(); // 不传ClassID 获取上次的草稿记录
+            //
             const data = {
                 Base_OrgId: props.currentUserInfo!.schoolId,
                 TeacherId: props.currentUserInfo!.userCenterUserID
             };
-            getTeacherClassList(data).then(res => {
-                if (res.resultCode === 200) {
-                    const gradeList = res.result || [];
-                    let classList:IClassItem[] = [];
-                    gradeList.forEach((item:IGradeItem) => {
-                        classList = classList.concat(item.ClassList);
-                    });
-                    state.classList = classList;
-                    _getAnswerMachineQuestionList(); // 不传ClassID 获取上次的草稿记录
-                }
-            });
+            state.classList = get(STORAGE_TYPES.CLASS_LIST);
+            const currentClass = get(STORAGE_TYPES.CURRENT_SELECT_CLASS).ClassUserCenterId;
+            const classData = await GetLastSelectedClassIdByTeacherID({ID: data.TeacherId})
+            state.form.selectClass = currentClass;
+            if (classData.resultCode === 200) {
+                state.form.selectClass = classData.result || currentClass;
+            }
+            _getAnswerMachineQuestionList(); // 不传ClassID 获取上次的草稿记录
+
         };
 
         _getTeacherClassList();
@@ -341,18 +376,19 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 $blue: #4b71ee;
-.main_bg{
-    height: 550px!important;
+.main_bg {
+    //height: 100%;
     border-radius: 8px;
     background: #fff;
     box-shadow: 0px 6px 16px -8px rgba(0, 0, 0, 0.12),
     0px 9px 28px 0px rgba(0, 0, 0, 0.08),
     0px 12px 48px 16px rgba(0, 0, 0, 0.05);
-    border: 1px solid #ccc;
+    //border: 1px solid #ccc;
 }
+
 .main {
     width: 620px;
-    height: 100%;
+    height: 552px;
     display: flex;
     flex-direction: column;
     padding-bottom: 24px;
@@ -405,6 +441,7 @@ $blue: #4b71ee;
                 margin-right: 24px;
                 text-align: right;
             }
+
             .p_b_20 {
                 padding-bottom: 20px;
             }

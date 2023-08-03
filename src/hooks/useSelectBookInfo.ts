@@ -5,15 +5,16 @@ import {
     IGetChapters,
     IGetWindowCards
 } from "@/api/home";
-import { ITreeList, ICardList, IPageValue } from "@/types/home";
-import { reactive, ref } from "vue";
-import { useRoute } from "vue-router";
-import { Slide } from "wincard";
+import {ITreeList, ICardList, IPageValue} from "@/types/home";
+import {reactive, ref} from "vue";
+import {useRoute} from "vue-router";
+import {Slide} from "wincard";
 import useHome from "@/hooks/useHome";
-import { ElMessage } from "element-plus";
-import { getImageSize } from "@/utils/image";
-import { createRandomCode } from "@/utils/common";
-import { addTeachPageTemplateLinkCount, AddSourceMaterialCall } from "@/api/material";
+import {ElMessage} from "element-plus";
+import {getImageSize} from "@/utils/image";
+import {createRandomCode} from "@/utils/common";
+import {addTeachPageTemplateLinkCount, AddSourceMaterialCall} from "@/api/material";
+
 interface State {
     subjectPublisherBookList: ITreeList[];
     subjectPublisherBookValue: string[];
@@ -40,7 +41,7 @@ export default () => {
         TeachPageRelationID: "",
         State: false
     });
-    const cardsValue = ref({ ID: "" });
+    const cardsValue = ref({ID: ""});
     // const isSetCache = ref(false); // 是否需要更新窗下的数据
     const state = reactive<State>({
         subjectPublisherBookList: [],
@@ -56,7 +57,7 @@ export default () => {
         pastePage: null // 粘贴卡
     });
 
-    const { transformPageDetail } = useHome();
+    const {transformPageDetail} = useHome();
 
     const findFirstId = (tree: ITreeList[], ids: string[]) => {
         tree.forEach((item) => {
@@ -292,7 +293,7 @@ export default () => {
     //插入图片/插画
     const insertImgElement = (elData: any, currentPageData: any) => {
         //2 3是图片或者插画 image格式
-        getImageSize(elData.url).then(({ width, height }) => {
+        getImageSize(elData.url).then(({width, height}) => {
             const scale = height / width;
             if (scale < viewportRatio.value && width > VIEWPORT_SIZE) {
                 width = VIEWPORT_SIZE;
@@ -305,8 +306,8 @@ export default () => {
             const file = elData.Files?.length
                 ? elData.Files.find((item: any) => item.Type == 0)
                 : elData.SourceMaterialMainID
-                ? elData
-                : null;
+                    ? elData
+                    : null;
             console.log("file--", file);
 
             if (!file) return;

@@ -2,6 +2,9 @@
     <div class="origin" style="height: 100%;" v-if="dialogVisible">
         <div class="upper align-center">
             <span>检查原文</span>
+            <el-pagination class="pagers" background layout="prev, pager, next" :total="columnPager.total"
+                v-model:current-page="columnPager.current" v-model:page-size="columnPager.size"
+                @current-change="handleCurrentChange" />
             <div class="top" @click="viewNext">查看下一篇</div>
         </div>
 
@@ -11,6 +14,7 @@
                     <div :class="['img-wrapper', idx === active && 'active']" v-for="(item, idx) in photoList" :key="idx"
                         @click="switchPic(item, idx)">
                         <img :src="item.url" alt="" />
+                        <div class="tag">{{ idx + 1 }}</div>
                     </div>
                 </div>
                 <div class="img-box">
@@ -19,7 +23,10 @@
             </div>
             <div class="right">
                 <div class="head align-center">
-                    <el-input class="title" maxlength="15" v-model="title" />
+                    <div class="title-box">
+                        <el-input class="title" maxlength="15" v-model="title" />
+                        <div class="time" v-if="state.updateTime">最近修改：{{state.updateTime}}</div>
+                    </div>
                     <!-- <div contenteditable="true">我的母亲</div> -->
                     <div class="author align-center">
                         <span class="name">{{ state.author }}</span>
@@ -42,7 +49,7 @@ import { store } from '@/store';
 import { getOssUrl } from '@/utils/oss';
 import { ElMessage } from 'element-plus';
 import { reactive, ref, toRefs } from 'vue';
-import { checkContent, lookNextContent, saveContent } from '../api';
+import { checkContent, getColumnPages, lookNextContent, saveContent } from '../api';
 
 const setRef = ref()
 const scanRef = ref()
@@ -61,13 +68,34 @@ const state = reactive({
     author: '',
     stuList: [],
     StudentCompositionId: '',
+    updateTime: null,
+    columnPageList: [],
+    columnPager: {
+        total: 0,
+        current: 1,
+        size: 1
+    },
     photoList: [] as any
 })
 
 const emit = defineEmits(['close', 'save']);
 
-const { gradeList, grade, content, photoList, mainPic, active, stuList, title } = toRefs(state)
+const { gradeList, grade,columnPager, content, photoList, mainPic, active, stuList, title } = toRefs(state)
 
+const handleCurrentChange = (val: number) => {
+    getDetail(state.columnPageList[val-1], true)
+}
+// 获取分页
+const loadAllPages = () => {
+    getColumnPages({ StudentCompositionId: state.StudentCompositionId }).then((res: any) => {
+        if (res.success) {
+            let result = res.result
+            state.columnPageList = result.CompositionIds
+            state.columnPager.total = result.CompositionIds.length
+            state.columnPager.current = result.CompositionIds.findIndex((v: any) => v === result.CurrentCompositionId) + 1
+        }
+    })
+}
 const contentInput = (e: any) => {
     console.log('contentInput', e);
     state.content = e.target.innerText
@@ -90,6 +118,7 @@ const viewNext = () => {
             state.title = result.Title
             state.author = result.StudentName
             state.photoList = result.StudentCompositionFile
+            state.updateTime = result.UpdateTime || null
             await state.photoList.forEach(async (ele: any, i: number) => {
                 const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
                 const key = FileExtention
@@ -133,10 +162,15 @@ const close = () => {
 const openDialog = async (info?: any) => {
     const { StudentCompositionId } = info
     state.StudentCompositionId = StudentCompositionId
+    //
+    loadAllPages()
     getDetail(StudentCompositionId)
 }
 
-const getDetail = (id: string) => {
+const getDetail = (id: string, isRequestNext?: boolean) => {
+    if (isRequestNext) {
+        state.StudentCompositionId = id
+    }
     checkContent({ StudentCompositionId: id }).then(async (res: any) => {
         if (res.success) {
             let result = res.result
@@ -144,6 +178,7 @@ const getDetail = (id: string) => {
             state.title = result.Title
             state.author = result.StudentName
             state.photoList = result.StudentCompositionFile
+            state.updateTime = result.UpdateTime || null
             await state.photoList.forEach(async (ele: any, i: number) => {
                 const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
                 const key = FileExtention
@@ -164,6 +199,23 @@ defineExpose({
 })
 </script>
 <style lang="scss" scoped>
+:deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
+    background-color: #fff !important;
+    color: #4B71EE !important;
+}
+
+:deep(.el-pagination) {
+
+    .btn-next,
+    .btn-prev,
+    .el-pager li {
+        background-color: #4B71EE !important;
+        color: #fff !important;
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        cursor: pointer !important;
+    }
+}
+
 .origin {
     position: fixed;
     left: 0;
@@ -184,7 +236,8 @@ defineExpose({
 }
 
 .upper {
-    justify-content: space-between;
+    position: relative;
+    justify-content: center;
     width: 100%;
     height: 56px;
     padding: 0 16px;
@@ -194,8 +247,20 @@ defineExpose({
     font-family: PingFangSC-Semibold, PingFang SC;
     font-weight: 600;
     color: #FFFFFF;
+    -webkit-app-region: no-drag;
+
+    &>span {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
 
     .top {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
         width: 102px;
         height: 32px;
         line-height: 32px;
@@ -256,7 +321,7 @@ defineExpose({
                     height: 16px;
                     line-height: 16px;
                     text-align: center;
-                    background: fade-out($color: #000000, $amount: 0.8);
+                    background: fade-out($color: #000000, $amount: 0.7);
                     border-radius: 2px;
                     font-size: 12px;
                     font-family: PingFangSC-Regular, PingFang SC;
@@ -292,15 +357,17 @@ defineExpose({
 
         .words {
             width: 100%;
-            height: calc(100% - 60px);
+            height: calc(100% - 90px);
             overflow: auto;
             font-size: 14px;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
             color: #19203D;
             line-height: 22px;
-            padding: 24px 18px 50px 18px;
+            padding: 18px;
             white-space: pre-wrap;
+            border-radius: 4px;
+            border: 1px solid #E0E2E7;
         }
 
         .head {
@@ -308,6 +375,21 @@ defineExpose({
             border-bottom: 1px solid fade-out($color: #E0E2E7, $amount: 0.5);
             position: relative;
             justify-content: center;
+
+            .title-box {
+                width: fit-content;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .time {
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #A7AAB4;
+                margin-top: 8px;
+            }
 
             .title {
                 min-width: 168px;
@@ -339,10 +421,22 @@ defineExpose({
                     font-family: PingFangSC-Semibold, PingFang SC;
                     font-weight: 600;
                     color: #A7AAB4;
-                    margin-right: 24px;
+                    padding-right: 12px;
+                    position: relative;
+                    border-right: 1px solid #EFF0F3;
+                    // &::after{
+                    //     content: '';
+                    //     position: absolute;
+                    //     right: 12px;
+                    //     top: 0;
+                    //     width: 1px;
+                    //     height: 14px;
+                    //     background-color: #EFF0F3;
+                    // }
                 }
 
                 .count {
+                    margin-left: 12px;
                     font-size: 14px;
                     font-family: PingFangSC-Regular, PingFang SC;
                     font-weight: 400;

@@ -19,10 +19,6 @@
                         <img src="@/assets/edit/icon_cmm.png" alt=""/>
                         重命名
                     </div>
-                    <div @click.stop="handleItem(5)">
-                        <img src="@/assets/edit/icon_nt.png" alt=""/>
-                        粘贴页
-                    </div>
                     <div @click.stop="handleItem(8)" class="delete">
                         <img src="@/assets/edit/icon_delete.png" alt=""/>
                         删除
@@ -37,15 +33,15 @@
                         <img src="@/assets/edit/icon_yc.png" alt=""/>
                         {{ data.State ? "隐藏" : "显示" }}
                     </div>
-                    <!--游戏页暂不支持复制-->
-                    <div v-if="data.Type !== 20" @click.stop="handleItem(6)">
-                        <img src="@/assets/edit/icon_copy.png" alt=""/>
-                        复制页
+                    <div @click.stop="handleItem(5)">
+                        <img src="@/assets/edit/icon_nt.png" alt=""/>
+                        粘贴
                     </div>
                     <div v-show="data.Type !== 20" @click.stop="handleItem(7)">
                         <img src="@/assets/edit/icon_save.png" alt=""/>
                         保存为模板
-                        <img class="tips" src="@/assets/edit/icon_help.png" alt="" @click.prevent.stop="handleShowTips($event)"/>
+                        <img class="tips" src="@/assets/edit/icon_help.png" alt=""
+                             @click.prevent.stop="handleShowTips($event)"/>
                     </div>
                     <div @click.stop="handleItem(8)" class="delete">
                         <img src="@/assets/edit/icon_delete.png" alt=""/>
@@ -138,11 +134,11 @@ export default defineComponent({
         }
 
         onMounted(() => {
-            const slot = slots.default && slots.default()[0];
-            const slotDom = document.getElementById(slot?.props?.id);
-            const height = getElementHeight(operationRef.value);
-
             popoverRef.value?.addEventListener("mouseenter", function () {
+                const slot = slots.default && slots.default()[0];
+                const slotDom = document.getElementById(slot?.props?.id);
+                const height = getElementHeight(operationRef.value);
+
                 const t = slotDom?.getBoundingClientRect().top || 0;
                 const l = slotDom?.getBoundingClientRect().left || 0;
                 left.value = l + (slotDom?.clientWidth || 0);

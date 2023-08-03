@@ -14,6 +14,7 @@
                 </div>
                 <div class="fixedBox" ref="fixedBoxRef">
                     <div
+                        v-if="fourClassList.length"
                         class="header-left"
                         :style="
                             classList.length > 4
@@ -23,19 +24,18 @@
                                 : ''
                         "
                     >
-                        <div
+                        <el-button
                             @click="switchClass(item)"
-                            class="class-item"
-                            :key="item.ID"
+                            :key="item.ClassAixueshiId"
                             :class="
-                                item.ID == state.currentClassId
+                                item.ClassAixueshiId == state.currentClassId
                                     ? 'isActive'
                                     : ''
                             "
-                            v-for="item in (fourClassList as any)"
+                            v-for="item in fourClassList"
+                        >{{ item.ClassName }}
+                        </el-button
                         >
-                            <span>{{ item.Name }}</span>
-                        </div>
                     </div>
                 </div>
                 <div
@@ -93,7 +93,8 @@
                         :class="{
                             dateActive: item.id == state.currentDateIndex,
                         }"
-                        >{{ item.name }}</el-button
+                    >{{ item.name }}
+                    </el-button
                     >
                     <!-- <el-button  @click="toFormatDate(1)"
                         >今日</el-button
@@ -117,7 +118,22 @@
         <main class="wrongbook-main">
             <header class="top-search">
                 <div class="left-btn">
-                    <el-button
+                    <!--                    <el-button-->
+                    <!--                        v-for="item in state.wrongTypeButtonList"-->
+                    <!--                        :key="item.id"-->
+                    <!--                        @click="-->
+                    <!--                            state.currentWrongType = item.id;-->
+                    <!--                            state.currentWrongTypeIndex = item.id;-->
+                    <!--                        "-->
+                    <!--                        :class="{-->
+                    <!--                            isActive: item.id == state.currentWrongTypeIndex,-->
+                    <!--                        }"-->
+                    <!--                    >{{ item.name }}-->
+                    <!--                    </el-button-->
+                    <!--                    >-->
+
+                    <div
+                        class="class-item"
                         v-for="item in state.wrongTypeButtonList"
                         :key="item.id"
                         @click="
@@ -127,8 +143,9 @@
                         :class="{
                             isActive: item.id == state.currentWrongTypeIndex,
                         }"
-                        >{{ item.name }}</el-button
                     >
+                        <span>{{ item.name }}</span>
+                    </div>
                 </div>
                 <div class="right-sel">
                     <span
@@ -367,15 +384,7 @@
 </template>
 
 <script lang="ts" setup>
-import {
-    reactive,
-    ref,
-    watch,
-    onMounted,
-    nextTick,
-    onActivated,
-    onDeactivated,
-} from "vue";
+import {nextTick, onActivated, onDeactivated, onMounted, reactive, ref, watch,} from "vue";
 import LeftOne from "./components/LeftOne.vue";
 import LeftTwo from "./components/LeftTwo.vue";
 import LeftThree from "./components/LeftThree.vue";
@@ -384,17 +393,18 @@ import LessonList from "./components/LessonList.vue";
 import WrongDetails from "./components/WrongDetails.vue";
 import QuestionBasket from "./components/QuestionBasket.vue";
 import GenerateExercise from "./components/GenerateExercise.vue";
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import { getFormatDate } from "@/utils";
-import { fetchGradeClassStudents } from "@/views/assignHomework/api";
-import { useRoute } from "vue-router";
+import {set, STORAGE_TYPES} from "@/utils/storage";
+import {getFormatDate} from "@/utils";
+import {fetchGradeClassStudents} from "@/views/assignHomework/api";
+import {useRoute} from "vue-router";
 import useWrongBook from "./hooks/useWrongBook";
-import { store } from "@/store";
+import {store} from "@/store";
 
-const { questionTypeList, frequencyList } = useWrongBook();
+const {questionTypeList, frequencyList} = useWrongBook();
 const route = useRoute();
-const classList = get(STORAGE_TYPES.USER_INFO).Classes;
-const gradeId = ref(classList.length ? classList[0]?.GradeID : "");
+const classList = ref(store.state.userInfo.classList);
+const currentClass = ref(store.state.userInfo.currentSelectClass);
+const gradeId = ref(currentClass.value?.ClassAixueshiId ? currentClass.value?.GradeId : classList.value.length ? classList.value[0]?.GradeId : "");
 const isActivited = ref(false);
 const state = reactive({
     tagTypeList: [
@@ -417,10 +427,8 @@ const state = reactive({
     ],
     //顶部时间选择区间
     dateRange: getFormatDate(1) || [],
-    //顶部年级列表
-    classList: "",
     //当前选中的班级
-    currentClassId: classList.length ? classList[0]?.ID : "",
+    currentClassId: currentClass.value?.ClassAixueshiId ? currentClass.value?.ClassAixueshiId : classList.value.length ? classList.value[0]?.ClassAixueshiId : "",
     //当前班级的所有学生
     currentClassStudents: [],
     //显示内容：1列表 2详情 3练习
@@ -520,7 +528,7 @@ const state = reactive({
             value: 2,
         },
     ],
-    gradeName: classList.length ? classList[0]?.Name : "",
+    gradeName: currentClass.value?.GradeId ? currentClass.value.GradeId : classList.value.length ? classList.value[0]?.GradeName : "",
     exerciseData: [],
 });
 //分层筛选
@@ -549,14 +557,40 @@ const sortDataName = ref({
     currentSortConName: "平均错误率",
 });
 console.log("错题本页面.......");
+const fixedBoxRef = ref();
+const fourClassList: any = ref([]);
+const isShowIcon = ref(false);
+//初始化判断是否可以向右滚动
+const initgoRightArrow = () => {
+    fourClassList.value =
+        classList.value.length > 4 ? classList.value?.slice(0, 4) : classList.value;
+    isShowIcon.value = classList.value.length > 4 ? true : false;
+
+};
 watch(
     () => state.currentHomeworkBookId,
     (val) => {
         console.log("currentHomeworkBookId", val);
     },
-    { deep: true }
+    {deep: true}
 );
 
+//监听选择的全局班级
+watch(() => store.state.userInfo.currentSelectClass, (val) => {
+    if (!val.ClassAixueshiId) return;
+    state.currentClassId = val.ClassAixueshiId;
+    switchClass(val)
+}, {deep: true})
+
+//监听全局班级列表
+watch(() => store.state.userInfo.classList, (val) => {
+    if (val.length) {
+        classList.value = val
+        initgoRightArrow();
+    } else {
+        classList.value = []
+    }
+}, {deep: true})
 //监听日期区间
 watch(
     () => state.dateRange,
@@ -574,7 +608,7 @@ watch(
             searchForm.value.EndTime = value[1];
         }
     },
-    { deep: true }
+    {deep: true}
 );
 watch(
     () => state.currentWrongType,
@@ -634,7 +668,7 @@ watch(
 
         filterClassStudent(val);
     },
-    { deep: true }
+    {deep: true}
 );
 //过滤班级学生
 const filterClassStudent = (val: any) => {
@@ -657,10 +691,10 @@ const basketGenerateExercise = async (type: number) => {
     state.preContent = type;
     // state.exerciseData = store.state.wrongbook.questionBasket as any;
 };
+
 onMounted(() => {
     nextTick(() => {
         isActivited.value = true;
-
         setTimeout(() => {
             initgoRightArrow();
         });
@@ -672,22 +706,6 @@ onActivated(() => {
 onDeactivated(() => {
     isActivited.value = false;
 });
-const fixedBoxRef = ref();
-const fourClassList = ref([]);
-const isShowIcon = ref(false);
-//初始化判断是否可以向右滚动
-const initgoRightArrow = () => {
-    fourClassList.value =
-        classList.length > 4 ? classList?.slice(0, 4) : classList;
-    isShowIcon.value = classList.length > 4 ? true : false;
-    // const currentScrollWidth = fixedBoxRef.value.clientWidth;
-    // const canNumber = Math.floor(currentScrollWidth / signleWidth.value); //可以放下的个数
-    // //如果最后一个流程图标已经展示出来，则停止滚动
-    // if (currentClickNumber.value + canNumber >= classList.length) {
-    //     noScrollRight.value = false;
-    //     return;
-    // }
-};
 //点击左滑
 const fnPrev = () => {
     if (currentClickNumber.value > 0) {
@@ -704,13 +722,13 @@ const fnNext = () => {
     const currentScrollWidth = fixedBoxRef.value.clientWidth;
     const canNumber = Math.floor(currentScrollWidth / signleWidth.value); //可以放下的个数
     //如果最后一个流程图标已经展示出来，则停止滚动
-    if (currentClickNumber.value + canNumber >= classList.length) {
+    if (currentClickNumber.value + canNumber >= classList.value.length) {
         return;
     }
     //说明放不下有滚动条
-    if (classList.length > canNumber) {
+    if (classList.value.length > canNumber) {
         currentClickNumber.value += 1;
-        if (currentClickNumber.value + canNumber >= classList.length) {
+        if (currentClickNumber.value + canNumber >= classList.value.length) {
             noScrollRight.value = false;
         }
         fnScrollWidth("add");
@@ -737,22 +755,22 @@ const toFormatDate = (type: number) => {
 };
 //顶部表单搜索项
 const searchForm = ref({
-    ClassId: classList.length ? classList[0]?.ID : "", //班级Id
+    ClassId: classList.value.length ? classList.value[0]?.ClassAixueshiId : "", //班级Id
     EndTime: state.dateRange[1],
     StartTime: state.dateRange[0], //日期范围
 });
 //切换顶部选中的班级
 const switchClass = (value: any) => {
     console.log("选中的班级", value);
-
-    state.currentClassId = value.ID;
-    searchForm.value.ClassId = value.ID;
+    state.currentClassId = value.ClassAixueshiId;
+    searchForm.value.ClassId = value.ClassAixueshiId;
     filterClassStudent(allClassStudents.value);
-
     //传年级id
     gradeId.value = value.GradeID;
-    state.gradeName = value.Name;
-    console.log("gradeId.value", gradeId.value);
+    state.gradeName = value.GradeName;
+    // 改变全局选择的班级
+    store.state.userInfo.currentSelectClass = value;
+    set(STORAGE_TYPES.CURRENT_SELECT_CLASS, value)
 };
 //返回到班级错题本页面
 const onBackWrongBook = () => {
@@ -776,14 +794,17 @@ const onBackWrongBook = () => {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
         .header-left-con {
             // max-width: 40%;
             display: flex;
             justify-content: space-between;
             align-items: center;
+
             .fixedBox {
                 flex: 1;
                 overflow: hidden;
+
                 .header-left {
                     display: flex;
                     height: 100%;
@@ -793,33 +814,55 @@ const onBackWrongBook = () => {
                     font-size: 14px;
                     color: #a7aab4;
                     font-family: HarmonyOS_Sans_SC;
-                    .class-item {
-                        transition: all 0.3s ease;
 
-                        margin-right: 32px;
-                        cursor: pointer;
-                        white-space: nowrap;
-                    }
-
-                    .isActive {
-                        font-size: 16px;
+                    :deep(.el-button) {
+                        min-width: 88px;
+                        background: #f3f7ff;
+                        border-radius: 4px;
+                        border: none;
+                        // border: 1px solid rgba(75, 113, 238, 0.5);
                         color: #19203d;
-                        font-weight: bold;
-                        transition: 0.2s;
+                        font-size: 13px;
                     }
 
-                    .isActive::after {
-                        content: "";
-                        display: block;
-                        position: relative;
-                        width: 100%;
-                        height: 3px;
-                        background: #4b71ee;
-                        bottom: -16px;
-                        /* left: -74px; */
-                        right: 0;
-                        transition: 0.2s;
+                    :deep(.el-button.isActive) {
+                        color: #4b71ee;
+                        border: 1px solid rgba(75, 113, 238, 0.5);
                     }
+
+                    :deep(.el-button:focus, .el-button:hover, .isActive) {
+                        color: #4b71ee;
+                        border: 1px solid rgba(75, 113, 238, 0.5);
+                    }
+
+                    //.class-item {
+                    //    transition: all 0.3s ease;
+                    //
+                    //    margin-right: 32px;
+                    //    cursor: pointer;
+                    //    white-space: nowrap;
+                    //}
+                    //
+                    //
+                    //.isActive {
+                    //    font-size: 16px;
+                    //    color: #19203d;
+                    //    font-weight: bold;
+                    //    transition: 0.2s;
+                    //}
+                    //
+                    //.isActive::after {
+                    //    content: "";
+                    //    display: block;
+                    //    position: relative;
+                    //    width: 100%;
+                    //    height: 3px;
+                    //    background: #4b71ee;
+                    //    bottom: -16px;
+                    //    /* left: -74px; */
+                    //    right: 0;
+                    //    transition: 0.2s;
+                    //}
                 }
             }
         }
@@ -828,11 +871,13 @@ const onBackWrongBook = () => {
             // flex: 1;
             display: flex;
             justify-content: flex-end;
+
             :deep(.el-button:focus, .el-button:hover),
             :deep(.el-button-group) {
                 span {
                     font-size: 12px;
                 }
+
                 .el-button.dateActive {
                     background-color: #f3f7ff;
                     border: 1px solid rgba(75, 113, 238, 0.5);
@@ -856,29 +901,62 @@ const onBackWrongBook = () => {
             padding: 0 16px;
 
             .left-btn {
-                :deep(.el-button) {
-                    min-width: 88px;
-                    background: #f3f7ff;
-                    border-radius: 4px;
-                    border: none;
-                    // border: 1px solid rgba(75, 113, 238, 0.5);
+                display: flex;
+
+                .class-item {
+                    transition: all 0.3s ease;
+
+                    margin-right: 32px;
+                    cursor: pointer;
+                    white-space: nowrap;
+                }
+
+
+                .isActive {
+                    font-size: 16px;
                     color: #19203d;
-                    font-size: 13px;
+                    font-weight: bold;
+                    transition: 0.2s;
                 }
 
-                :deep(.el-button.isActive) {
-                    color: #4b71ee;
-                    border: 1px solid rgba(75, 113, 238, 0.5);
+                .isActive::after {
+                    content: "";
+                    display: block;
+                    position: relative;
+                    width: 100%;
+                    height: 3px;
+                    background: #4b71ee;
+                    bottom: -16px;
+                    /* left: -74px; */
+                    right: 0;
+                    transition: 0.2s;
                 }
 
-                :deep(.el-button:focus, .el-button:hover, .isActive) {
-                    color: #4b71ee;
-                    border: 1px solid rgba(75, 113, 238, 0.5);
-                }
+                //:deep(.el-button) {
+                //    min-width: 88px;
+                //    background: #f3f7ff;
+                //    border-radius: 4px;
+                //    border: none;
+                //    // border: 1px solid rgba(75, 113, 238, 0.5);
+                //    color: #19203d;
+                //    font-size: 13px;
+                //}
+                //
+                //:deep(.el-button.isActive) {
+                //    color: #4b71ee;
+                //    border: 1px solid rgba(75, 113, 238, 0.5);
+                //}
+                //
+                //:deep(.el-button:focus, .el-button:hover, .isActive) {
+                //    color: #4b71ee;
+                //    border: 1px solid rgba(75, 113, 238, 0.5);
+                //}
             }
+
             .right-sel {
                 .tagtypelist {
                     margin-left: 20px;
+
                     :deep(.el-select .el-input) {
                         box-shadow: none;
 

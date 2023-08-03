@@ -1,4 +1,5 @@
-import { BrowserWindow, BrowserWindowConstructorOptions } from "electron";
+import {BrowserWindow, BrowserWindowConstructorOptions} from "electron";
+
 const path = require("path");
 
 export const createWindow = (url: string, option: BrowserWindowConstructorOptions) => {
@@ -6,7 +7,7 @@ export const createWindow = (url: string, option: BrowserWindowConstructorOption
         ...option,
         webPreferences: {
             webSecurity: false, // 取消跨域限制
-            enableRemoteModule: true,
+            // enableRemoteModule: true,
             nodeIntegration: true,
             preload: path.join(__dirname, "preload.js"),
             nodeIntegrationInWorker: true,

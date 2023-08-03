@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, getCurrentInstance, watch } from "vue-demi";
+import { defineComponent, ref, getCurrentInstance, watch } from "vue";
 
 export default defineComponent({
     props: {

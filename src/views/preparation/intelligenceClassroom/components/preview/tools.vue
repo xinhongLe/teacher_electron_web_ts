@@ -1,71 +1,59 @@
 <template>
     <div v-dragLine="'left'" class="nextpage">
-        <!-- :style="{
-            left: '30px',
-            bottom: isTKdialog
-                ? '56px'
-                : isFullScreenStatus || isShowFullscreen
-                ? '30px'
-                : 0,
-        }" -->
         <div class="me-tools-steps-new">
             <div class="me-tool-btn-new" :disabled="isFirst" @click="prevStep">
                 <div class="icon-text">
                     <img src="../../images/slices/arrow_left.png" alt=""/>
                     <span class="text">上一页</span>
                 </div>
-                <!-- <img v-if="!isFirst" src="../../images/shangyiye_rest.png" alt="" />
-                <img v-if="isFirst" src="../../images/shangyiye_disabled.png" alt="" /> -->
             </div>
-            <div class="me-tool-btn-new next-step" @click="nextStep" v-show="
-                selectNextType === NextSettingType.Left ||
-                selectNextType === NextSettingType.All
-            ">
+            <div
+                @click="nextStep"
+                class="me-tool-btn-new next-step"
+                v-show=" selectNextType === NextSettingType.Left || selectNextType === NextSettingType.All"
+            >
                 <div class="icon-text">
-                    <!-- <img src="../../images/slices/arrow_right_blue.png" alt="" /> -->
-                    <div class="next-icon">
-                    </div>
+                    <div class="next-icon"></div>
                     <span class="text">下一页</span>
                 </div>
             </div>
         </div>
     </div>
     <div class="me-tools" ref="metools" v-drag>
-        <!-- <div class="me-tool-btn invoking-btn-warp" @click="showResourceDialog = true">
-            <img src="../../images/btn_diaoyong@2x.png"/>
-        </div> -->
         <div class="me-tools-draw">
             <!-- 左边可收起的按钮 -->
             <div class="draw-content">
-                <!-- <el-scrollbar :always="true"> -->
                 <div class="me-tools-drag" style="display: flex">
-
                     <!-- 展开后工具栏最左边按钮 -->
                     <div class="me-tools-set">
                         <div class="setting" v-show="isShowMenu">
-                            <span @click.stop="isShowSubMenu = true" class="setting-item">【下一步】位置设置 ></span>
+                            <span @click.stop="isShowSubMenu = true" class="setting-item">
+                                【下一步】位置设置 >
+                            </span>
                             <div class="setting-sub-menu" v-show="isShowSubMenu">
-                                <div v-for="item in nextSettingTypeList" :key="item.text" class="menu"
-                                     @click="changeNextType(item.type)">
+                                <div
+                                    class="menu"
+                                    :key="item.text"
+                                    @click="changeNextType(item.type)"
+                                    v-for="item in nextSettingTypeList"
+                                >
                                     {{ item.text }}
                                 </div>
                             </div>
                         </div>
                         <!-- 更多设置 -->
                         <div class="me-tool-btn-new" @click.stop="moreSet($event)">
-                            <!-- <img src="../../images/btn_more.png" /> -->
                             <div class="icon-text">
                                 <img src="../../images/slices/icon_gdsz.png" alt=""/>
                                 <span class="text">更多设置</span>
                             </div>
                         </div>
-
                         <!-- 隐藏显示教案 -->
                         <div class="me-tool-btn-new" @click="toggleRemark()" v-if="isShowRemarkBtn">
                             <div class="icon-text">
-                                <img v-if="!showremark" src="../../images/slices/icon_pbja.png" alt=""/>
-                                <img v-if="showremark" src="../../images/slices/icon_xsja.png" alt=""/>
-                                <span class="text">{{ showremark ? '隐藏教案' : '显示教案' }}</span>
+                                <img v-if="showRemark" src="../../images/slices/icon_pbja.png" alt=""/>
+                                <img v-else src="../../images/slices/icon_xsja.png" alt=""/>
+                                <span class="text">{{ showRemark ? "隐藏教案" : "显示教案" }}</span>
                             </div>
                         </div>
                         <!-- 教具页发送-->
@@ -76,62 +64,56 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- 展开后工具栏中间四个按钮 -->
                     <div class="me-tools-canvas">
-                        <!-- <div class="me-tool-btn" @click="openPaintTool($event, 'undo')">
-                            <div class="icon-text" :class="{ disabled: !isCanUndo }">
-                                <IconBack />
-                                <span class="text">撤销</span>
-                            </div>
-                        </div>
-                        <div class="me-tool-btn" @click="openPaintTool($event, 'redo')">
-                            <div class="icon-text" :class="{ disabled: !isCanRedo }">
-                                <IconNext />
-                                <span class="text">恢复</span>
-                            </div>
-                        </div> -->
-                        <!-- 鼠标 -->
-                        <div class="me-tool-btn-new" :class="type === 'mouse' && 'btn-active'" @click="
-                            hideWriteBoard(),
-                            openPaintTool($event, 'mouse'),
-                            (type = 'mouse')
-                        ">
-                            <div class="icon-text">
-                                <img v-if="type !== 'mouse'" src="../../images/slices/icon_shubiao.png" alt=""/>
-                                <img v-if="type === 'mouse'" src="../../images/slices/icon_shubiao_white.png" alt=""/>
-                                <span class="text">鼠标</span>
-                            </div>
-                        </div>
-                        <!-- 画笔 -->
-                        <!-- <div class="me-tool-btn" :class="type === 'pen' && 'active'" @click="
-                                openPaintTool($event, 'paint'),
-                                (type = 'pen')
-                            ">
-                                <img v-if="type !== 'pen'" src="../../images/huabi_rest.png" alt="" />
-                                <img v-if="type === 'pen'" src="../../images/huabi_selected.png" alt="" />
-                            </div> -->
 
                         <!-- 橡皮擦 -->
-                        <div class="me-tool-btn-new" :class="type === 'eraser' && 'btn-active'" @click="
-                            openPaintTool($event, 'eraser'),
-                            (type = 'eraser')
-                        ">
-                            <div class="icon-text">
-                                <img v-if="type !== 'eraser'" src="../../images/slices/icon_xp.png" alt=""/>
-                                <img v-if="type === 'eraser'" src="../../images/slices/icon_xp_white.png" alt=""/>
-                                <span class="text">橡皮</span>
-                            </div>
-                        </div>
-                        <!-- 清空笔记 -->
-                        <!-- <div class="me-tool-btn" @click="openPaintTool($event, 'rest')">
-                            <img src="../../images/qingkong_rest.png" alt="" />
-                        </div> -->
+                        <!--                        <div-->
+                        <!--                            class="me-tool-btn-new"-->
+                        <!--                            :class="type === 'eraser' && 'btn-active'"-->
+                        <!--                            @click="openPaintTool($event, 'eraser'),(type = 'eraser')"-->
+                        <!--                        >-->
+                        <!--                            <div class="icon-text">-->
+                        <!--                                <img v-if="type !== 'eraser'" src="../../images/slices/icon_xp.png" alt=""/>-->
+                        <!--                                <img v-if="type === 'eraser'" src="../../images/slices/icon_xp_white.png" alt=""/>-->
+                        <!--                                <span class="text">橡皮</span>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
+
+                        <el-popover
+                            :width="140"
+                            placement="top" trigger="click">
+                            <el-input-number
+                                :min="2"
+                                :max="999"
+                                v-model="toolEraserLineWidth"
+                                @change="setEraserSize"
+                                style="width: 125px"
+                            />
+                            <template #reference>
+                                <div
+                                    class="me-tool-btn-new"
+                                    :class="type === 'eraser' && 'btn-active'"
+                                    @click="openPaintTool($event, 'eraser'),(type = 'eraser')"
+                                >
+                                    <div class="icon-text">
+                                        <img v-if="type !== 'eraser'"
+                                             src="@/views/preparation/intelligenceClassroom/images/slices/icon_xp.png"
+                                             alt=""/>
+                                        <img v-if="type === 'eraser'"
+                                             src="@/views/preparation/intelligenceClassroom/images/slices/icon_xp_white.png"
+                                             alt=""/>
+                                        <span class="text">橡皮</span>
+                                    </div>
+                                </div>
+                            </template>
+                        </el-popover>
                         <!-- 尺规:三合一-->
-                        <div class="me-tool-btn-new" :class="type === 'rulers' && 'btn-active'" @click="
-                            openPaintTool($event, 'rulers'),
-                            (type = 'rulers')
-                        ">
+                        <div
+                            class="me-tool-btn-new"
+                            :class="type === 'rulers' && 'btn-active'"
+                            @click="openPaintTool($event, 'rulers'),(type = 'rulers')"
+                        >
                             <div class="icon-text">
                                 <img v-if="type !== 'rulers'" src="../../images/slices/icon_cg.png" alt=""/>
                                 <img v-if="type === 'rulers'" src="../../images/slices/icon_cg_white.png" alt=""/>
@@ -139,12 +121,10 @@
                             </div>
                         </div>
                         <!-- 形状 -->
-                        <div class="me-tool-btn-new" @click="
-                            openPaintTool($event, 'mouse'),
-                            (type = 'mouse'),
-                            openShape($event)
-                        ">
-                            <!-- <img src="../../images/icon_rest_xz_big.png" alt="" /> -->
+                        <div
+                            class="me-tool-btn-new"
+                            @click="openPaintTool($event, 'mouse'),(type = 'mouse'),openShape($event)"
+                        >
                             <div class="icon-text">
                                 <img src="../../images/slices/icon_xz.png" alt=""/>
                                 <span class="text">形状</span>
@@ -152,62 +132,41 @@
                         </div>
 
                     </div>
-                    <!-- <div class="me-tools-system">
-                        <div class="me-tool-btn" @click="toggleRemark" v-if="isShowRemarkBtn">
-                            <img v-if="!showremark" src="../../images/xianshibeizhu_rest.png" alt="" />
-                            <img v-if="showremark" src="../../images/yincangbeizhu_rest.png" alt="" />
-                        </div>
-                        <template v-if="isShowFullscreen && !dialog">
-                            <div class="me-tool-btn" @click="fullScreen" v-if="!activeFlag">
-                                <img src="../../images/quanping_rest.png" alt="" />
-                            </div>
-                            <div class="me-tool-btn" @click="fillScreen" v-else>
-                                <img src="../../images/tuichuquanping_rest.png" alt="" />
-                            </div>
-                        </template>
-                        <div @click.stop="closeWincard" v-if="showClose && !dialog" class="me-tool-btn close-button">
-                            <p>关闭</p>
-                        </div>
-                    </div> -->
-                    <!-- <div class="me-tools-steps">
-                            <div class="me-tool-btn" :disabled="isFirst" @click="prevStep">
-                                <img v-if="!isFirst" src="../../images/shangyiye_rest.png" alt="" />
-                                <img v-if="isFirst" src="../../images/shangyiye_disabled.png" alt="" />
-                            </div>
-                        </div> -->
                 </div>
-                <!-- </el-scrollbar> -->
             </div>
             <!-- 右边固定展开的按钮 -->
             <div class="me-tools-righttool">
                 <!-- 展开/收起 -->
                 <div @click.prevent.stop="showDrawToos" class="arrows">
-                    <!-- <el-icon v-if="!isOpen">
-                        <ArrowLeftBold />
-                    </el-icon>
-                    <el-icon v-else>
-                        <ArrowRightBold />
-                    </el-icon> -->
                     <img v-if="!isOpen" src="../../images/slices/icon_zhankai.png" alt=""/>
                     <img v-else src="../../images/slices/icon_shouqi.png" alt=""/>
                     <span class="text" v-if="!isOpen">展开</span>
                     <span class="text" v-else>收起</span>
                 </div>
-
-                <div class="me-tool-btn-line">
+                <div class="me-tool-btn-line"></div>
+                <!-- 鼠标 -->
+                <div
+                    class="me-tool-btn-new"
+                    :class="type === 'mouse' && 'btn-active'"
+                    @click="hideWriteBoard(),openPaintTool($event, 'mouse'),(type = 'mouse')"
+                >
+                    <div class="icon-text">
+                        <img v-if="type !== 'mouse'" src="../../images/slices/icon_shubiao.png" alt=""/>
+                        <img v-if="type === 'mouse'" src="../../images/slices/icon_shubiao_white.png" alt=""/>
+                        <span class="text">鼠标</span>
+                    </div>
                 </div>
                 <!-- 画笔 -->
-                <div class="me-tool-btn-new" :class="type === 'pen' && 'btn-active'" @click="
-                    openPaintTool($event, 'paint'),
-                    (type = 'pen')
-                ">
+                <div
+                    class="me-tool-btn-new"
+                    :class="type === 'pen' && 'btn-active'"
+                    @click="openPaintTool($event, 'paint'),(type = 'pen')"
+                >
                     <div class="icon-text">
                         <img v-if="type !== 'pen'" src="../../images/slices/icon_hb.png" alt=""/>
                         <img v-if="type === 'pen'" src="../../images/slices/icon_hb_white.png" alt=""/>
                         <span class="text">画笔</span>
                     </div>
-                    <!-- <img v-if="type !== 'pen'" src="../../images/huabi_rest.png" alt="" />
-                    <img v-if="type === 'pen'" src="../../images/huabi_selected.png" alt="" /> -->
                 </div>
                 <!-- 上一页 -->
                 <div class="me-tool-btn-new" :disabled="isFirst" @click="prevStep">
@@ -215,21 +174,17 @@
                         <img src="../../images/slices/arrow_left.png" alt=""/>
                         <span class="text">上一页</span>
                     </div>
-                    <!-- <img v-if="!isFirst" src="../../images/shangyiye_rest.png" alt="" />
-                <img v-if="isFirst" src="../../images/shangyiye_disabled.png" alt="" /> -->
                 </div>
                 <!-- 下一页 -->
-                <div class="me-tool-btn-new next-step" style="width: 90px;" :disabled="isLast" @click="nextStep"
-                     v-show="
-                    selectNextType === NextSettingType.Right ||
-                    selectNextType === NextSettingType.All
-                ">
-                    <!-- <img v-if="!isLast" src="../../images/xiayiye_rest.png" alt="" />
-                    <img v-if="isLast" src="../../images/xiayiye_disabled.png" alt="" /> -->
+                <div
+                    @click="nextStep"
+                    :disabled="isLast"
+                    style="width: 90px;"
+                    class="me-tool-btn-new next-step"
+                    v-show="selectNextType === NextSettingType.Right || selectNextType === NextSettingType.All"
+                >
                     <div class="icon-text">
-                        <!-- <img src="../../images/slices/arrow_right_blue.png" alt="" /> -->
-                        <div class="next-icon">
-                        </div>
+                        <div class="next-icon"></div>
                         <span class="text">下一页</span>
                     </div>
                 </div>
@@ -249,13 +204,19 @@
                     </div>
                 </template>
                 <!-- 关闭 -->
-                <div class="me-tool-btn-new" v-if="isShowClose" @click="$emit('close')">
+                <div class="me-tool-btn-new" @click="handleMinSize">
                     <div class="icon-text">
-                        <img src="../../images/slices/close.png"/>
+                        <img src="../../images/slices/icon_zxh.png" alt=""/>
+                        <span class="text">最小化</span>
+                    </div>
+                </div>
+                <div class="me-tool-btn-new" v-if="isShowClose" @click="handleClose">
+                    <div class="icon-text">
+                        <img src="../../images/slices/close.png" alt=""/>
                         <span class="text">关闭</span>
                     </div>
                 </div>
-                <div @click.stop="closeWincard" v-if="showClose && !dialog" class="me-tool-btn-new">
+                <div @click.stop="closeWinCard" v-if="!isShowClose && !dialog" class="me-tool-btn-new">
                     <div class="icon-text">
                         <img src="../../images/slices/close.png" alt=""/>
                         <span class="text">关闭</span>
@@ -266,108 +227,127 @@
 
         <ResourceDialog v-if="showResourceDialog" v-model="showResourceDialog"/>
 
-        <PenTool v-if="isShowPen" v-model:isShowPen="isShowPen" :penTop="penTop" :penLeft="penLeft"
-                 :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth" @undo="undo()" @redo="redo()"
-                 @setEraser="whiteboardOption('setEraser')" @clear="whiteboardOption('clear')" :canUndo="isCanUndo"
-                 :canRedo="isCanRedo" @setPenSize="(value) => whiteboardOption('setPenSize', value)"
-                 @setPenColor="(value) => whiteboardOption('setPenColor', value)"></PenTool>
 
-        <!-- <RulersTool v-if="isShowRulers" v-model:isShowRulers="isShowRulers" :rulersTop="rulersTop" :rulersLeft="rulersLeft"
-            @setRulersTool="setRulersTool"></RulersTool> -->
     </div>
+    <PenTool
+        @undo="undo()"
+        @redo="redo()"
+        :penTop="penTop"
+        v-if="isShowPen"
+        :penLeft="penLeft"
+        :canUndo="isCanUndo"
+        :canRedo="isCanRedo"
+        v-model:isShowPen="isShowPen"
+        :currentDrawColor="currentDrawColor"
+        :currentLineWidth="currentLineWidth"
+        :eraserLineWidth="toolEraserLineWidth"
+        @clear="whiteboardOption('clear')"
+        @setEraser="whiteboardOption('setEraser')"
+        @setEraserSize="setEraserSize"
+        @setPenSize="(value) => whiteboardOption('setPenSize', value)"
+        @setPenColor="(value) => whiteboardOption('setPenColor', value)"
+    />
 </template>
 
 <script lang="ts">
-import {
-    ref,
-    defineComponent,
-    watch,
-    onMounted,
-    onUnmounted,
-    computed,
-    onActivated,
-    onDeactivated, inject,
-} from "vue";
-import {ArrowLeftBold, ArrowRightBold} from "@element-plus/icons-vue";
-import {
-    enterFullscreen,
-    exitFullscreen,
-    isFullscreen,
-} from "@/utils/fullscreen";
-import {useRouter} from "vue-router";
-import isElectron from "is-electron";
-import {sleep} from "@/utils/common";
-import {STORAGE_TYPES, set, get} from "@/utils/storage";
-import {MutationTypes, store} from "@/store";
-import {NextSettingType} from "@/types/preparation";
-import ResourceDialog from "./resourceDialog.vue";
 import emitter from "@/utils/mitt";
 import PenTool from "./PenTool.vue";
-import {windowInfoKey} from "@/hooks/useWindowInfo";
+import isElectron from "is-electron";
+import {sleep} from "@/utils/common";
+import {MutationTypes, store} from "@/store";
+import ResourceDialog from "./resourceDialog.vue";
+import {NextSettingType} from "@/types/preparation";
+import {STORAGE_TYPES, set, get} from "@/utils/storage";
+import {enterFullscreen, exitFullscreen, isFullscreen} from "@/utils/fullscreen";
+import {ref, defineComponent, watch, onMounted, onUnmounted, computed, onActivated, onDeactivated} from "vue";
 
 export default defineComponent({
+    components: {ResourceDialog, PenTool},
     props: {
         showRemark: {
             type: Boolean,
-            default: true,
+            default: true
         },
         isShowRemarkBtn: {
             type: Boolean,
-            default: true,
+            default: true
         },
         isShowFullscreen: {
             type: Boolean,
-            default: true,
+            default: true
         },
         isFullScreenStatus: {
             type: Boolean,
-            default: true,
+            default: true
         },
         isShowClose: {
             type: Boolean,
-            default: false,
+            default: false
         },
         dialog: {
             type: Boolean,
-            default: false,
+            default: false
         },
         showClose: {
             type: Boolean,
-            default: true,
+            default: true
         },
         id: {
             type: String,
-            default: "",
+            default: ""
         },
         isCanUndo: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isCanRedo: {
             type: Boolean,
-            default: false,
+            default: false
         },
         currentDrawColor: {
             type: String,
-            default: "#f60000",
+            default: "#f60000"
         },
         currentLineWidth: {
             type: Number,
-            default: 2,
+            default: 2
+        },
+        eraserLineWidth: {
+            type: Number,
+            default: 30
         },
         isTKdialog: {
             type: Boolean,
-            default: false,
+            default: false
         },
         cardClass: {
             type: String,
-            default: "intelligence",
+            default: "intelligence"
         },
+        currentSlide: {
+            type: Object
+        }
     },
+    emits: [
+        "undo",
+        "redo",
+        "close",
+        "prevStep",
+        "nextStep",
+        "openShape",
+        "ullScreen",
+        "fullScreen",
+        "toggleRemark",
+        "closeWinCard",
+        "openPaintTool",
+        "hideWriteBoard",
+        "openClassDialog",
+        "clockFullScreen",
+        "whiteboardOption",
+        "handleMinSize",
+        "setEraserSize"
+    ],
     setup(props, {emit}) {
-        const {
-            currentSlide
-        } = inject(windowInfoKey)!;
         const isShowPen = ref(false);
         const isShowRulers = ref(false);
         const penLeft = ref(0);
@@ -375,65 +355,48 @@ export default defineComponent({
         const rulersLeft = ref(0);
         const rulersTop = ref(0);
         const isOpen = ref(false);
-        // const currentLineWidth: any = ref(2); // 当前选择的画笔宽度
-        // const currentDrawColor: any = ref("#f60000"); // 当前选择的画笔颜色
+        const toolEraserLineWidth = computed(() => props.eraserLineWidth);
         const showDrawToos = () => {
             const dom: any = document.querySelector(".draw-content");
             const outdom: any = document.querySelector(".me-tools");
-            const dominner: HTMLElement = document.querySelector('.me-tools-set') as HTMLElement;
-
-            // const btn_class =
-            //     "." + props.cardClass + " " + ".me-tools-drag .me-tool-btn";
-            // const btndom: any = document.querySelectorAll(btn_class);
-            // const widths = btndom.length * 81 + 378;
-            // if(props.isShowClose){
-
-            // }
+            const dominner: HTMLElement = document.querySelector(".me-tools-set") as HTMLElement;
             if (isTeach.value) {
-                if (outdom.style.width == "786px") {
+                if (outdom.style.width === "834px") {
                     isOpen.value = false;
-                    outdom.style.width = "378px";
+                    outdom.style.width = "478px";
                 } else {
                     isOpen.value = true;
-                    outdom.style.width = "786px";
+                    outdom.style.width = "834px";
                 }
-                const width2 = 786 - 378;
-                if (dom.style.width == width2 + "px") {
+                const width2 = 834 - 478;
+                if (dom.style.width === width2 + "px") {
                     dom.style.width = 0;
                 } else {
                     dom.style.width = width2 + "px";
                 }
-                dominner.style.width = "174px";
+                dominner.style.width = "180px";
             } else {
-                if (outdom.style.width == "730px") {
+                if (outdom.style.width === "778px") {
                     isOpen.value = false;
-                    outdom.style.width = "378px";
+                    outdom.style.width = "478px";
                 } else {
                     isOpen.value = true;
-                    outdom.style.width = "730px";
+                    outdom.style.width = "778px";
                 }
-                const width2 = 730 - 378;
-                if (dom.style.width == width2 + "px") {
+                const width2 = 778 - 478;
+                if (dom.style.width === width2 + "px") {
                     dom.style.width = 0;
                 } else {
                     dom.style.width = width2 + "px";
                 }
                 dominner.style.width = "118px";
             }
-
         };
-        const router = useRouter();
         const type = ref("mouse");
         const isLast = ref(false);
         const isFirst = ref(false);
-        const showremark = ref(true);
         const scale = ref(1);
-        const selectNextType = computed(
-            () => store.state.preparation.selectNextType
-        );
-        const goback = () => {
-            router.push("/");
-        };
+        const selectNextType = computed(() => store.state.preparation.selectNextType);
         const switchFlag = ref(false);
         const activeFlag = ref(false);
         const isShowMenu = ref(false);
@@ -442,68 +405,47 @@ export default defineComponent({
         const nextSettingTypeList = [
             {
                 text: "仅右侧",
-                type: NextSettingType.Right,
+                type: NextSettingType.Right
             },
-            // {
-            //     text: "仅左侧",
-            //     type: NextSettingType.Left,
-            // },
             {
                 text: "左右侧",
-                type: NextSettingType.All,
-            },
-        ];
-        watch(
-            () => props.showRemark,
-            () => {
-                showremark.value = props.showRemark;
+                type: NextSettingType.All
             }
-        );
-        watch(
-            () => props.isFullScreenStatus,
-            (val: any) => {
-                // console.log(
-                //     "---------------isFullScreenStatus",
-                //     props.isFullScreenStatus
-                // );
-            },
-            {deep: true}
-        );
+        ];
         const isTeach = ref(false);
         watch(
-            () => currentSlide.value,
+            () => props.currentSlide,
             (val: any) => {
-                const dom: HTMLElement = document.querySelector('.me-tools-set') as HTMLElement;
-                const dom2: HTMLElement = document.querySelector('.draw-content') as HTMLElement;
-                const dom3: HTMLElement = document.querySelector('.me-tools') as HTMLElement;
-                if (val.type === "teach") {
+                const dom: HTMLElement = document.querySelector(".me-tools-set") as HTMLElement;
+                const dom2: HTMLElement = document.querySelector(".draw-content") as HTMLElement;
+                const dom3: HTMLElement = document.querySelector(".me-tools") as HTMLElement;
+                console.log('val', val)
+                if (val && val.type === "teach") {
                     isTeach.value = true;
                     if (isOpen.value) {
-                        dom.style.width = "174px";
-                        dom2.style.width = "406px";
-                        dom3.style.width = "786px";
+                        dom.style.width = "180px";
+                        dom2.style.width = "356px";
+                        dom3.style.width = "834px";
                     } else {
-                        dom.style.width = "118px";
-                        dom2.style.width = "352px";
-                        dom3.style.width = "378px";
+                        dom.style.width = "0px";
+                        dom2.style.width = "0px";
+                        dom3.style.width = "478px";
                     }
                 } else {
-                    isTeach.value = false
+                    isTeach.value = false;
                     if (isOpen.value) {
                         dom.style.width = "118px";
-                        dom2.style.width = "352px";
-                        dom3.style.width = "730px";
+                        dom2.style.width = "300px";
+                        dom3.style.width = "778px";
                     } else {
                         if (dom) {
                             dom.style.width = "0px";
                         }
-                        ;
                         if (dom2) {
                             dom2.style.width = "0px";
                         }
-                        ;
                         if (dom3) {
-                            dom3.style.width = "378px";
+                            dom3.style.width = "478px";
                         }
                     }
                 }
@@ -585,12 +527,8 @@ export default defineComponent({
         };
         // 点击全屏
         const fullScreen = async () => {
-            if (
-                (window as any).electron &&
-                !(window as any).electron.isFullScreen() &&
-                !(window as any).electron.isMac()
-            ) {
-                (window as any).electron.setFullScreen();
+            if (window.electron && !window.electron.isFullScreen() && !window.electron.isMac()) {
+                window.electron.setFullScreen(true);
                 await sleep(300);
             }
             activeFlag.value = true;
@@ -605,17 +543,12 @@ export default defineComponent({
             exitFullscreen();
             emit("clockFullScreen");
         };
-        const showWriteBoard = () => {
-            emit("showWriteBoard");
-        };
         const openShape = (event: MouseEvent) => {
             emit("openShape", event);
         };
-        //橡皮擦
+        // 橡皮擦
         const openPaintTool = (event: MouseEvent, type: string) => {
-            // console.log("event, type", event, type);
-
-            if (type === 'paint') {
+            if (type === "paint") {
                 const target = event.target as HTMLDivElement;
                 const {left, top} = target.getBoundingClientRect();
                 isShowPen.value = true;
@@ -625,10 +558,9 @@ export default defineComponent({
             emit("openPaintTool", event, type);
         };
 
-        //教具页发送
+        // 教具页发送
         const sendTeachTool = () => {
-            console.log("sendTeachTool-----", currentSlide.value)
-            emit("openClassDialog", currentSlide.value)
+            emit("openClassDialog");
         };
         const hideWriteBoard = () => {
             emit("hideWriteBoard");
@@ -643,21 +575,22 @@ export default defineComponent({
 
         getLocalNextType();
 
-        const closeWincard = () => {
+        const closeWinCard = () => {
             store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
                 id: props.id,
-                openMore: true,
+                openMore: true
             });
-            emit("closeWincard");
+            window.electron.ipcRenderer.invoke("closeCourse");
+            emit("closeWinCard");
         };
-        //更多设置时 改变固定定位位置
+        // 更多设置时 改变固定定位位置
         const moreSet = (e: any) => {
             const dom: any = document.querySelector(".setting");
             dom.style.left = e.clientX + "px";
             dom.style.top = e.clientY - 82 + "px";
             isShowMenu.value = true;
         };
-        //关闭工具
+        // 关闭工具
         const closeRulersTool = (e: any) => {
             openPaintTool(e, "paint");
             type.value = "pen";
@@ -665,11 +598,22 @@ export default defineComponent({
         const whiteboardOption = (option: string, value?: number) => {
             emit("whiteboardOption", option, value);
         };
+        const setEraserSize = (value: number) => {
+            emit("whiteboardOption", "setEraserSize", value);
+        };
         const undo = () => {
             emit("undo");
         };
         const redo = () => {
             emit("redo");
+        };
+
+        const handleClose = () => {
+            emit("close");
+        };
+        // 最小化
+        const handleMinSize = () => {
+            emit("handleMinSize");
         };
 
         return {
@@ -679,7 +623,6 @@ export default defineComponent({
             isLast,
             isFirst,
             activeFlag,
-            showremark,
             penLeft,
             penTop,
             isShowPen,
@@ -687,7 +630,7 @@ export default defineComponent({
             rulersLeft,
             rulersTop,
             isTeach,
-            goback,
+            toolEraserLineWidth,
             toggleRemark,
             showResourceDialog,
             prevStep,
@@ -697,23 +640,24 @@ export default defineComponent({
             changeNextType,
             isShowSubMenu,
             nextSettingTypeList,
-            showWriteBoard,
             NextSettingType,
             isShowMenu,
             selectNextType,
             openShape,
             hideWriteBoard,
-            closeWincard,
+            closeWinCard,
             openPaintTool,
             showDrawToos,
             moreSet,
             whiteboardOption,
             undo,
             redo,
-            sendTeachTool
+            handleClose,
+            sendTeachTool,
+            handleMinSize,
+            setEraserSize
         };
-    },
-    components: {ResourceDialog, ArrowLeftBold, ArrowRightBold, PenTool},
+    }
 });
 </script>
 
@@ -767,11 +711,6 @@ export default defineComponent({
     }
 }
 
-.me-tool-btn-img {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
 
 .me-tool-btn-line {
     width: 1px;
@@ -825,11 +764,6 @@ export default defineComponent({
     }
 }
 
-.me-tool-btn-img:active {
-    top: 2px;
-    box-shadow: 0 0 0 !important;
-}
-
 .me-tools {
     // background: rgba(15, 39, 91, 0.15);
     border-radius: 12px;
@@ -841,9 +775,9 @@ export default defineComponent({
     height: 64px;
     display: flex;
     overflow: auto;
-    bottom: 9vh;
+    bottom: 4vh;
     right: 6vw;
-    width: 378px;
+    width: 478px;
     transition: width 0.5s, transform 0.5s;
     overflow-y: hidden;
 
@@ -859,7 +793,7 @@ export default defineComponent({
             position: absolute;
             width: 0;
             overflow: hidden;
-            right: 378px;
+            right: 478px;
             height: 100%;
             transition: width 0.5s, transform 0.5s;
         }
@@ -867,7 +801,7 @@ export default defineComponent({
         .me-tools-righttool {
             position: absolute;
             right: 0;
-            width: 378px;
+            width: 478px;
             height: 64px;
             // background: rgba(15, 39, 91, 0.15);
             border-radius: 12px;
@@ -917,7 +851,6 @@ export default defineComponent({
     }
 
     .me-tools-set {
-        width: fit-content;
         position: relative;
         width: 118px;
         justify-content: space-evenly;
@@ -981,7 +914,7 @@ export default defineComponent({
 
 .me-tools-canvas {
     flex: 1;
-    width: 230px;
+    width: 176px;
     align-items: center;
     // margin-left: 24px;
     justify-content: space-evenly;
@@ -990,154 +923,7 @@ export default defineComponent({
 .me-tools-canvas,
 .me-tools-screen,
 .me-tools-system,
-.me-tools-set,
-.me-tools-steps {
+.me-tools-set {
     display: flex;
-}
-
-.me-tools-steps {
-    // flex: 1;
-    // margin-left: 50px;
-}
-
-.me-tool-btn {
-    // margin: 0 10px;
-    margin: 10px 10px;
-    border: 2px solid #77a1ed;
-    box-sizing: border-box;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 3px 0 #77a1ed;
-    cursor: pointer;
-    position: relative;
-    top: 0;
-    transition: all 0.1s;
-
-    width: 59px;
-    height: 59px;
-}
-
-.me-tool-btn.next-step {
-    border: 2px solid #2f4fd8;
-    box-shadow: 0 3px 0 #2f4fd8;
-    height: 55px;
-    width: 110px;
-}
-
-.me-tool-btn.next-step img {
-    width: auto;
-    position: relative;
-    top: -1px;
-    left: -1px;
-}
-
-.me-tool-btn.close {
-    border: 2px solid #f04141;
-    box-shadow: 0 3px 0 #f04141;
-}
-
-.me-tool-btn:active {
-    top: 2px;
-    box-shadow: 0 0 0 !important;
-}
-
-.me-tool-btn[disabled="disabled"] {
-    top: 0;
-    border: 2px solid #bdc0c5 !important;
-    box-shadow: 0 3px 0 #bdc0c5 !important;
-}
-
-.me-tool-btn img {
-    display: block;
-    width: 55px;
-    height: 55px;
-}
-
-.me-draw-board {
-    position: fixed;
-    z-index: 100;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    /* transform: translate(83px, -43px); */
-    margin: auto;
-}
-
-.me-tool-btn.active {
-    border-color: #4b71ee;
-    box-shadow: 0 3px 0 #4b71ee;
-}
-
-.me-tool-btn {
-    .icon-text {
-        background: #e5eeff;
-        width: 55px;
-        height: 55px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-around;
-        padding: 4px 0;
-
-        .i-icon {
-            font-size: 28px;
-        }
-
-        .text {
-            font-size: 9px;
-            font-weight: bold;
-            color: #4467a9;
-        }
-
-        &.disabled {
-            color: #aaa;
-            cursor: not-allowed;
-        }
-    }
-}
-
-.me-draw-board.move {
-    pointer-events: none;
-}
-
-.me-draw-board.cursor-pen {
-    cursor: url("../../images/mouse_pic.png"), auto;
-}
-
-.me-draw-board.cursor-eraser {
-    cursor: url("../../images/mouse_xiangpi.png"), auto;
-}
-
-.invoking-btn-warp {
-    display: flex;
-    width: 180px;
-    height: 64px;
-    border-color: #2085ef;
-    box-shadow: 0 3px 0 #2085ef;
-    margin-left: 20px;
-
-    img {
-        width: 180px;
-        height: 64px;
-    }
-}
-
-.close-button {
-    background: url("~@/assets/look/btn_guanbi@2x.png");
-    background-size: 100% 100%;
-    box-sizing: content-box;
-    width: 55px;
-    height: 55px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-
-    p {
-        color: #fff;
-        font-size: 12px;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
 }
 </style>

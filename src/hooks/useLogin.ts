@@ -5,7 +5,7 @@ import {
 import { get, set, STORAGE_TYPES } from "@/utils/storage";
 import {
     Login, LoginForCloud
-} from "@/views/login/api";
+} from "@/api/login";
 import useUserInfo from "@/hooks/useUserInfo";
 import { NavigationGuardNext } from "vue-router";
 import md5 from "js-md5";

@@ -1,4 +1,4 @@
-import {createApp} from "vue";
+import { createApp } from "vue";
 import App from "./App.vue";
 import ElementPlus from "element-plus";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
@@ -8,10 +8,9 @@ import "@/styles/index.scss";
 import "@/types";
 import "@/utils/web";
 
-
 const app = createApp(App);
 // @ts-ignore
-app.use(ElementPlus, {locale: zhCn})
+app.use(ElementPlus, { locale: zhCn })
     .mount("#app");
 
 app.config.errorHandler = (err, vm, info) => {

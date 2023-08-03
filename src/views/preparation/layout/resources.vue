@@ -1,14 +1,11 @@
 <template>
     <div class="p-layout">
         <div class="tip" v-if="isLaoding && resourceList.length === 0">
-            <img src="@/assets/images/preparation/pic_loading.png" alt="" />
+            <img src="@/assets/images/preparation/pic_loading.png" alt=""/>
             资源正在加载，请稍候…
         </div>
         <div class="tip" v-if="!isLaoding && resourceList.length === 0">
-            <img
-                src="@/assets/images/preparation/pic_finish_buzhi.png"
-                alt=""
-            />
+            <img src="@/assets/images/preparation/pic_finish_buzhi.png" alt=""/>
             没有相关资源
         </div>
         <!-- <div class="p-layout-lesson" v-if="source == 'me'">
@@ -21,9 +18,9 @@
             v-infinite-scroll="load"
             :style="{
                 height:
-                    source == 'me'
+                    source === 'me'
                         ? 'calc(100vh - 160px)'
-                        : 'calc(100vh - 240px)',
+                        : 'calc(100vh - 240px)'
             }"
             :infinite-scroll-disabled="disabledScrollLoad"
         >
@@ -94,10 +91,7 @@
                     v-model="showDownload"
                 >
                     <div class="download-progress-bar">
-                        <div
-                            class="download-progress-line"
-                            :style="{ width: downloadProgress + '%' }"
-                        ></div>
+                        <div class="download-progress-line" :style="{ width: downloadProgress + '%' }"></div>
                     </div>
                     <div class="download-progress-tip">
                         打包下载中，请稍等...
@@ -113,13 +107,12 @@ import {
     computed,
     defineComponent,
     nextTick,
-    onDeactivated,
     onMounted,
     onUnmounted,
     PropType,
     ref,
     toRefs,
-    watch,
+    watch
 } from "vue";
 import ResourceItem from "./resourceItem.vue";
 import LessonPackage from "./lessonPackage.vue";
@@ -128,67 +121,74 @@ import EditTip from "./dialog/editTip.vue";
 import ResourceVersion from "./dialog/resourceVersion.vue";
 import DeleteVideoTip from "./dialog/deleteVideoTip.vue";
 import ResourceView from "./dialog/resourceView.vue";
-import { getDomOffset, sleep } from "@/utils/common";
+import {getDomOffset, sleep} from "@/utils/common";
 import useDownloadFile from "@/hooks/useDownloadFile";
-import { RESOURCE_TYPE } from "@/config/resource";
+import {RESOURCE_TYPE} from "@/config/resource";
 import {
     addPreparationPackage,
     fetchResourceList,
     IResourceItem,
     logDownload,
     logView,
-    removePreparationPackage,
+    removePreparationPackage
 } from "@/api/resource";
-import { MutationTypes, useStore } from "@/store";
+import {MutationTypes, useStore} from "@/store";
 import emitter from "@/utils/mitt";
-import { getOssUrl } from "@/utils/oss";
-import { IViewResourceData } from "@/types/store";
-import { ElMessage } from "element-plus";
+import {getOssUrl} from "@/utils/oss";
+import {IViewResourceData} from "@/types/store";
+import {ElMessage} from "element-plus";
 import LocalCache from "@/utils/localcache";
 import isElectron from "is-electron";
-import { get, set, STORAGE_TYPES } from "@/utils/storage";
-import { IGetLessonBagOutDto } from "@/api/prepare";
+import {set, STORAGE_TYPES} from "@/utils/storage";
+import {IGetLessonBagOutDto} from "@/api/prepare";
 import useLessonPackage from "@/hooks/useLessonPackage";
+
 interface ICourse {
     chapterId: string;
     lessonId: string;
     lessonName: string;
     chapterName: string;
 }
+
 export default defineComponent({
     props: {
         course: {
             type: Object as PropType<ICourse>,
-            required: true,
+            required: true
         },
         source: {
             type: String,
-            required: true,
+            required: true
         },
         type: {
             type: String,
-            required: true,
+            required: true
         },
         bookId: {
-            type: String,
+            type: String
             // required: true
         },
         name: {
             type: String,
-            default: "",
+            default: ""
         },
         bagType: {
             type: String,
-            default: "",
+            default: ""
         },
+        // 进入备件预览的 类型
+        resourceIntoType: {
+            type: Number,
+            default: 0
+        }
     },
     emits: [
         "updateResourceList",
         "toMyLessonPackage",
         "toArrangeClass",
-        "deleteLessonPackage",
+        "deleteLessonPackage"
     ],
-    setup(props, { expose, emit }) {
+    setup(props, {expose, emit}) {
         const {
             lessonPackageList,
             getMyLessonBagNew,
@@ -196,7 +196,7 @@ export default defineComponent({
             delResourceLessonBag,
             addLessonPackage,
             addLessonBag,
-            setValueAddLessonBag,
+            setValueAddLessonBag
         } = useLessonPackage();
         const resourceList = ref<IResourceItem[]>([]);
         const deleteTipVisible = ref(false);
@@ -246,7 +246,7 @@ export default defineComponent({
                     (book && book.ChapterName) || course.value.chapterName,
                 lessonId: (book && book.LessonID) || course.value.lessonId,
                 lessonName:
-                    (book && book.LessonName) || course.value.lessonName,
+                    (book && book.LessonName) || course.value.lessonName
             });
 
             if (res.success) {
@@ -258,7 +258,7 @@ export default defineComponent({
 
         // 移出备课包
         const removePackage = async (data: IResourceItem) => {
-            const res = await removePreparationPackage({ id: data.BagId });
+            const res = await removePreparationPackage({id: data.BagId});
             if (res.success) {
                 data.IsBag = !data.IsBag;
                 emitter.emit("updatePackageCount", null);
@@ -273,70 +273,77 @@ export default defineComponent({
         };
 
         const loadingShow = ref(false);
-        const { download } = useDownloadFile();
+        const {download} = useDownloadFile();
         let localCache: any = null;
 
         const downloadFile = async (data: IResourceItem) => {
+            logDownload({id: data.ResourceId});
+            data.DownloadNum++;
             if (data.ResourceShowType === 1) {
+                store.commit(MutationTypes.SET_DOWNLOAD_LIST, {
+                    type: "wincard",
+                    data
+                });
                 // 下载窗卡页
-                window.electron
-                    .showOpenDialog({
-                        title: "选择保存路径",
-                        buttonLabel: "确定",
-                        properties: ["openDirectory"],
-                    })
-                    .then(async (file: any) => {
-                        if (!file.canceled) {
-                            const path = file.filePaths[0];
-                            downloadProgress.value = 0;
-                            showDownload.value = true;
-                            localCache = new LocalCache({
-                                cachingStatus: (status) => {
-                                    console.log(`status: ${status}`);
-                                    downloadProgress.value = status;
-                                    if (status === 100 && showDownload.value) {
-                                        showDownload.value = false;
-                                        ElMessage.success("打包下载完成！");
-                                        logDownload({ id: data.ResourceId });
-                                        data.DownloadNum++;
-                                    }
-                                },
-                            });
+                // window.electron.showOpenDialog({
+                //     title: "选择保存路径",
+                //     buttonLabel: "确定",
+                //     properties: ["openDirectory"]
+                // }).then(async (file: any) => {
+                //     if (!file.canceled) {
+                //         const path = file.filePaths[0];
+                //         downloadProgress.value = 0;
+                //         showDownload.value = true;
 
-                            localCache.doCache(
-                                {
-                                    WindowID: data.OldResourceId,
-                                    OriginType: data.IsSysFile === 1 ? 0 : 1,
-                                },
-                                data.Name,
-                                path,
-                                () => {
-                                    showDownload.value = false;
-                                    ElMessage.error("网络异常，打包下载失败！");
-                                }
-                            );
-                        }
-                    })
-                    .catch((err: any) => {
-                        ElMessage({ type: "error", message: "下载失败" });
-                    });
+                //         localCache = new LocalCache({
+                //             cachingStatus: (status) => {
+                //                 console.log(`status: ${status}`);
+                //                 downloadProgress.value = status;
+                //                 if (status === 100 && showDownload.value) {
+                //                     showDownload.value = false;
+                //                     ElMessage.success("打包下载完成！");
+                //                     logDownload({id: data.ResourceId});
+                //                     data.DownloadNum++;
+                //                 }
+                //             }
+                //         });
+                //         localCache.doCache(
+                //             {
+                //                 WindowID: data.OldResourceId,
+                //                 OriginType: data.IsSysFile === 1 ? 0 : 1
+                //             },
+                //             data.Name,
+                //             path,
+                //             () => {
+                //                 showDownload.value = false;
+                //                 ElMessage.error("网络异常，打包下载失败！");
+                //             }
+                //         );
+                //     }
+                // }).catch(() => {
+                //     ElMessage({type: "error", message: "下载失败"});
+                // });
                 return;
             }
             if (data.File) {
-                const url = await getOssUrl(
-                    `${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`,
-                    data.File.FileBucket
-                );
-                const success = await download(
-                    url,
-                    data.File.FileName,
-                    data.File.FileExtention
-                );
+                store.commit(MutationTypes.SET_DOWNLOAD_LIST, {
+                    type: "file",
+                    data
+                });
+                // const url = await getOssUrl(
+                //     `${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`,
+                //     data.File.FileBucket
+                // );
+                // const success = await download(
+                //     url,
+                //     data.File.FileName,
+                //     data.File.FileExtention
+                // );
 
-                if (success) {
-                    logDownload({ id: data.ResourceId });
-                    data.DownloadNum++;
-                }
+                // if (success) {
+                //     logDownload({id: data.ResourceId});
+                //     data.DownloadNum++;
+                // }
             }
         };
 
@@ -346,22 +353,14 @@ export default defineComponent({
             ElMessage.warning("打包下载取消！");
         };
 
-        const eventEmit = (
-            event: string,
-            data: IResourceItem,
-            e?: MouseEvent | TouchEvent
-        ) => {
+        const eventEmit = (event: string, data: IResourceItem, e?: MouseEvent | TouchEvent) => {
             switch (event) {
                 case "delete":
                     targetDelete.value = data.ResourceId;
                     deleteTipVisible.value = true;
                     break;
                 case "edit":
-                    if (
-                        (data.ResourceShowType === 1 ||
-                            data.ResourceShowType === 0) &&
-                        data.UserId !== userId.value
-                    ) {
+                    if ((data.ResourceShowType === 1 || data.ResourceShowType === 0) && data.UserId !== userId.value) {
                         resource.value = data;
                         editTipVisible.value = true;
                     } else if (data.IsMine === 1 && data.IsSchool !== 1) {
@@ -383,18 +382,18 @@ export default defineComponent({
                     removePackage(data);
                     break;
                 case "detail":
-                    // if (props.name === "attendClass") {
+                    // 断点视频
                     if (data.ResourceShowType === 2) {
-                        // 断点视频
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                             component: "LookVideo",
                             resource: {
                                 id: data.OldResourceId,
-                                openMore: true,
-                            },
+                                openMore: true
+                            }
                         });
-                    } else if (data.ResourceShowType === 3) {
-                        // 练习卷
+                    }
+                    // 练习卷
+                    if (data.ResourceShowType === 3) {
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                             component: "LookQuestion",
                             resource: {
@@ -402,51 +401,56 @@ export default defineComponent({
                                 courseBagId: "",
                                 deleteQuestionIds: [],
                                 type: 1,
-                                openMore: true,
-                            },
+                                openMore: true
+                            }
                         });
-                    } else if (data.ResourceShowType === 1) {
-                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                            component: "Wincard",
-                            resource: {
+                    }
+                    if (data.ResourceShowType === 1) {
+                        if (store.state.common.showResourceFullScreen.length) {
+                            const params = {
                                 id: data.OldResourceId,
-                                isSystem: data.IsSysFile === 1,
-                                openMore: true,
-                            },
-                        });
-                    } else if (
-                        data.ResourceShowType === 0 ||
-                        data.ResourceShowType === 4
-                    ) {
+                                name: data.Name,
+                                isMinimized: false
+                            };
+                            window.electron.ipcRenderer.invoke("setCourseMaximize", JSON.stringify(params));
+                        } else {
+                            store.commit(MutationTypes.SET_RESOURCE_INTO, props.resourceIntoType);
+                            store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                                component: "WinCard",
+                                resource: {
+                                    id: data.OldResourceId,
+                                    isSystem: data.IsSysFile,
+                                    openMore: true
+                                }
+                            });
+                        }
+                    }
+                    if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                             component: "ScreenViewFile",
                             resource: {
                                 ...data,
                                 id: data.OldResourceId,
-                                openMore: true,
-                            },
+                                openMore: true
+                            }
                         });
-                    } else if (data.ResourceShowType === 5) {
+                    }
+                    if (data.ResourceShowType === 5) {
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                             component: "AnswerMachine",
                             resource: {
                                 ...data,
                                 lessonId: course.value.lessonId,
                                 id: new Date().getTime(),
-                                openMore: true,
-                            },
+                                openMore: true
+                            }
                         });
                     }
-                    // } else {
-                    //     openResource(data);
-                    // }
-
-                    logView({ id: data.ResourceId });
+                    logView({id: data.ResourceId});
                     data.BrowseNum++;
                     break;
                 case "property":
                     emitter.emit("openEditResource", data);
-
                     break;
             }
         };
@@ -461,7 +465,7 @@ export default defineComponent({
                 id: cacheResource.OldResourceId,
                 name: cacheResource.Name,
                 lessonId: store.state.preparation.selectLessonId,
-                originType: 1,
+                originType: 1
             };
             set(STORAGE_TYPES.WINDOW_INFO, windowInfo);
             openWinCard(cacheResource.Name);
@@ -479,22 +483,22 @@ export default defineComponent({
         const openResource = (data: IResourceItem) => {
             if (data.ResourceShowType === 1) {
                 store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                    component: "Wincard",
+                    component: "WinCard",
                     resource: {
                         id: data.OldResourceId,
                         isSystem: data.IsSysFile === 1,
-                        openMore: true,
-                    },
+                        openMore: true
+                    }
                 });
             } else {
                 if (data.ResourceShowType === 2) {
-                    resourceData.value = { id: data.OldResourceId };
+                    resourceData.value = {id: data.OldResourceId};
                 } else if (data.ResourceShowType === 3) {
                     resourceData.value = {
                         id: data.OldResourceId,
                         courseBagId: "",
                         deleteQuestionIds: [],
-                        type: 1,
+                        type: 1
                     };
                 }
                 resource.value = data;
@@ -536,7 +540,7 @@ export default defineComponent({
         onMounted(() => {
             const cart = document.getElementById("myCourseCart");
             if (cart) {
-                const { left, top } = getDomOffset(cart);
+                const {left, top} = getDomOffset(cart);
                 leftEnd.value = left + 20;
                 topEnd.value = top - 40;
             }
@@ -555,7 +559,7 @@ export default defineComponent({
         const schoolId = computed(() => store.state.userInfo.schoolId);
         const userId = computed(() => store.state.userInfo.userCenterUserID);
 
-        const { source, type, course, bookId, bagType } = toRefs(props);
+        const {source, type, course, bookId, bagType} = toRefs(props);
 
         watch(
             [source, type, course, schoolId, bookId],
@@ -563,17 +567,17 @@ export default defineComponent({
                 if (source.value === "me") return;
                 if (!course.value.lessonId) return;
                 update("");
-                await getMyLessonBagNew({ id: course.value.lessonId });
+                await getMyLessonBagNew({id: course.value.lessonId});
                 if (!lessonPackageList.value.length) {
                     setValueAddLessonBag(props.course);
                     addLessonBag.value.name = "备课包1";
                     const res = await addLessonPackage(addLessonBag.value);
                     if (res) {
-                        getMyLessonBagNew({ id: course.value.lessonId });
+                        getMyLessonBagNew({id: course.value.lessonId});
                     }
                 }
             },
-            { deep: true }
+            {deep: true}
         );
         watch(
             () => bagType.value,
@@ -581,7 +585,7 @@ export default defineComponent({
                 pageNumber.value = 1;
                 getResources(currentSelectBagIds.value, true);
             },
-            { deep: true }
+            {deep: true}
         );
         const update = (id: any) => {
             resourceList.value = [];
@@ -602,56 +606,62 @@ export default defineComponent({
                 const params =
                     source.value == "me"
                         ? {
-                              ids: id,
-                              typeId: isBag ? type.value : "",
-                              pager: {
-                                  pageNumber: pageNumber.value,
-                                  pageSize: pageSize.value,
-                              },
-                              resourceType: source.value,
-                          }
+                            ids: id,
+                            typeId: isBag ? type.value : "",
+                            pager: {
+                                pageNumber: pageNumber.value,
+                                pageSize: pageSize.value
+                            },
+                            resourceType: source.value
+                        }
                         : {
-                              chapterId: course.value.chapterId,
-                              lessonId: course.value.lessonId,
-                              resourceTypeId: type.value,
-                              resourceType: source.value,
-                              schoolId: schoolId.value,
-                              bookId: bookId.value,
-                              pager: {
-                                  pageNumber: pageNumber.value,
-                                  pageSize: pageSize.value,
-                              },
-                          };
+                            chapterId: course.value.chapterId,
+                            lessonId: course.value.lessonId,
+                            resourceTypeId: type.value,
+                            resourceType: source.value,
+                            schoolId: schoolId.value,
+                            bookId: bookId.value,
+                            pager: {
+                                pageNumber: pageNumber.value,
+                                pageSize: pageSize.value
+                            }
+                        };
 
                 const res = await fetchResourceList(params);
                 if (res.resultCode === 200) {
-                    // 判断丢弃部分数据
-                    if (backSource !== source.value || backType !== type.value || backCourseChapterId !== course.value.chapterId || backCourseLessonId !== course.value.lessonId) return;
+                    if (res.result.list.length) {
+                        // 判断丢弃部分数据
+                        if (backSource !== source.value || backType !== type.value || backCourseChapterId !== course.value.chapterId || backCourseLessonId !== course.value.lessonId) return;
+                        resourceList.value = pageNumber.value === 1 ? res.result.list : resourceList.value.concat(res.result.list);
+                        disabledScrollLoad.value = res.result.list.length === 0 ? true : res.result.pager.IsLastPage;
+                        // console.log('resourceList.value', resourceList.value);
 
-                    resourceList.value = pageNumber.value === 1 ? res.result.list : resourceList.value.concat(res.result.list);
-                    disabledScrollLoad.value = res.result.list.length === 0 ? true : res.result.pager.IsLastPage;
-                    // console.log('resourceList.value', resourceList.value);
-
-                    emit("updateResourceList", resourceList.value);
-                    isLaoding.value = false;
-                    nextTick(() => {
-                        if (resourceId.value && resourceScroll.value) {
-                            const resourceDom =
-                                resourceScroll.value.getElementsByClassName(
-                                    `resource-${resourceId.value}`
-                                );
-                            if (resourceDom.length > 0) {
-                                // 找到目标dom
-                                const top = (resourceDom[0] as HTMLElement)
-                                    .offsetTop;
-                                resourceScroll.value.scrollTo({
-                                    top,
-                                    behavior: "smooth",
-                                });
+                        emit("updateResourceList", resourceList.value);
+                        isLaoding.value = false;
+                        nextTick(() => {
+                            if (resourceId.value && resourceScroll.value) {
+                                const resourceDom =
+                                    resourceScroll.value.getElementsByClassName(
+                                        `resource-${resourceId.value}`
+                                    );
+                                if (resourceDom.length > 0) {
+                                    // 找到目标dom
+                                    const top = (resourceDom[0] as HTMLElement)
+                                        .offsetTop;
+                                    resourceScroll.value.scrollTo({
+                                        top,
+                                        behavior: "smooth"
+                                    });
+                                }
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        isLaoding.value = false;
+                        resourceList.value = [];
+                    }
+
                 } else {
+                    isLaoding.value = false;
                     resourceList.value = [];
                     emit("updateResourceList", []);
                 }
@@ -691,7 +701,7 @@ export default defineComponent({
             });
             const res = await addLessonPackage(addLessonBag.value);
             if (res) {
-                getMyLessonBagNew({ id: course.value.lessonId });
+                getMyLessonBagNew({id: course.value.lessonId});
             }
         };
         // 去排课
@@ -705,7 +715,7 @@ export default defineComponent({
         ) => {
             const params = {
                 resourceId: data.ResourceId,
-                lessonBagId: item.Id,
+                lessonBagId: item.Id
             };
             const res = await addResourceLessonBag(params);
             if (res) {
@@ -717,7 +727,7 @@ export default defineComponent({
                         resource.JoinBags.push({
                             BagId: item.Id,
                             BagName: item.Name,
-                            Id: "",
+                            Id: ""
                         });
                         resource.IsBag = true;
                     }
@@ -726,7 +736,7 @@ export default defineComponent({
         };
         // 资源移出备课包
         const handleRemoveLessonBag = async (data: IResourceItem) => {
-            const res = await delResourceLessonBag({ id: data.BagId });
+            const res = await delResourceLessonBag({id: data.BagId});
             if (res) {
                 emitter.emit("updatePackageCount", null);
                 update(currentSelectBagIds.value);
@@ -742,7 +752,7 @@ export default defineComponent({
             eventEmit,
             addNewLessonPackage,
             toArrangeClass,
-            getResources,
+            getResources
         });
 
         return {
@@ -779,7 +789,7 @@ export default defineComponent({
             deleteLessonPackage,
             handleSelectLessonBag,
             handleRemoveLessonBag,
-            getResources,
+            getResources
         };
     },
     components: {
@@ -789,8 +799,8 @@ export default defineComponent({
         EditTip,
         ResourceVersion,
         DeleteVideoTip,
-        ResourceView,
-    },
+        ResourceView
+    }
 });
 </script>
 

@@ -7,7 +7,7 @@
             :before-close="close"
             :show-close="false"
         >
-            <template #title>
+            <template #header>
                 <p class="custitle">
                     <span></span>
                     <span class="text">讲解题目</span>

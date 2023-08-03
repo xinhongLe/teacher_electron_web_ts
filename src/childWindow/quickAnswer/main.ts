@@ -1,4 +1,4 @@
-import { createApp } from "vue";
+import {createApp} from "vue";
 import App from "./App.vue";
 
 import "element-plus/dist/index.css";
@@ -13,10 +13,11 @@ import {
     ElOption,
     ElCheckbox,
     ElProgress,
-    ElConfigProvider
+    ElConfigProvider,
+    ElCheckboxGroup, ElRadio, ElRadioGroup
 } from "element-plus";
 
-import { Close } from "@element-plus/icons-vue";
+import {Close} from "@element-plus/icons-vue";
 
 const components = [
     ElAvatar,
@@ -28,7 +29,8 @@ const components = [
     ElProgress,
     ElSwitch,
     Close,
-    ElConfigProvider
+    ElConfigProvider,
+    ElCheckboxGroup, ElRadio, ElRadioGroup
 ];
 
 const app = createApp(App);

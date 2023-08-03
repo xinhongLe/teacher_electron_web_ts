@@ -1,0 +1,217 @@
+<template>
+    <el-dialog
+        v-model="updateVisibleDio"
+        title="更新下载"
+        :show-close="false"
+        :close-on-click-modal="false"
+    >
+        <div style="padding: 0 20px 20px">
+            <el-progress
+                :text-inside="true"
+                :show-text="false"
+                :stroke-width="20"
+                :percentage="downloadPercentDio"
+            ></el-progress>
+        </div>
+    </el-dialog>
+    <el-dialog
+        v-model="newVersionViewDio"
+        width="400px"
+        center
+        class="versionView"
+        :show-close="false"
+        :close-on-click-modal="false"
+    >
+        <div class="content">
+            <img class="update-img" src="/img/pic_update@2x.png" alt=""/>
+            <div class="title">检测到有新的版本</div>
+            <div class="info-list">
+                <div v-for="(item, index) in showUpdateInfo" :key="index">
+                    <div class="info">
+                        <span> {{ item }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <template #footer>
+            <span class="dialog-footer">
+                <el-button
+                    style="width: 40%"
+                    v-if="ifShowCancelButton"
+                    @click="cancleUpdate"
+                >取消</el-button
+                >
+                <el-button
+                    style="width: 40%"
+                    type="primary"
+                    @click="handleUpdate"
+                >更新</el-button
+                >
+            </span>
+        </template>
+    </el-dialog>
+
+    <el-dialog
+        v-model="isNewVersion"
+        width="400px"
+        center
+        class="versionView"
+        :show-close="false"
+        :close-on-click-modal="false"
+    >
+        <div class="content">
+            <img class="update-img" src="/img/pic_update@2x.png" alt=""/>
+            <div class="title">已经是最新版了！</div>
+            <div style="text-align: center; margin-top: 50px">
+                <el-button
+                    style="width: 40%"
+                    type="primary"
+                    @click="cancleNewVersion"
+                >好的
+                </el-button
+                >
+            </div>
+        </div>
+    </el-dialog>
+</template>
+
+<script lang="ts">
+import {computed, defineComponent, ref, watch} from "vue";
+
+export default defineComponent({
+    name: "UpdateDialog",
+    props: {
+        updateVisible: {
+            type: Boolean,
+            default: false,
+        },
+        newVersionView: {
+            type: Boolean,
+            default: false,
+        },
+        downloadPercent: {
+            type: Number,
+        },
+        showUpdateInfo: {
+            type: Array,
+            default: () => [],
+        },
+        ifShowCancelButton: {
+            type: Boolean,
+            default: false,
+        },
+        isNewVersion: {
+            type: Boolean,
+            default: false,
+        }
+    },
+    emits: [
+        "downloadUpdate",
+        "update:updateVisible",
+        "update:newVersionView",
+        "update:isNewVersion",
+    ],
+    setup(props, {emit}) {
+        const updateVisibleDio = ref(props.updateVisible);
+        const newVersionViewDio = ref(props.newVersionView);
+        const isNewVersion = ref(props.isNewVersion);
+        const downloadPercentDio = computed(() => props.downloadPercent);
+        watch(() => props.updateVisible, () => {
+            updateVisibleDio.value = props.updateVisible;
+        });
+        watch(() => props.newVersionView, () => {
+            newVersionViewDio.value = props.newVersionView;
+        });
+        watch(() => props.isNewVersion, () => {
+            isNewVersion.value = props.isNewVersion;
+        });
+        const updateInfo: any = ref({
+            version: window.electron.getVersion(),
+            value: ''
+        })
+        //更新
+        const handleUpdate = () => {
+            saveUserChoice("update");
+            emit("update:newVersionView", false);
+            emit("update:updateVisible", true);
+            emit("downloadUpdate");
+        };
+        //取消更新
+        const cancleUpdate = () => {
+            saveUserChoice("cancel");
+            emit("update:newVersionView", false);
+        };
+        //关闭最新版提示
+        const cancleNewVersion = () => {
+            saveUserChoice("cancel");
+            emit("update:isNewVersion", false);
+        };
+        // 存储用户的更新选择
+        const saveUserChoice = (choice: string) => {
+            updateInfo.value.value = choice;
+            window.electron.saveUpdateUserChoice(updateInfo.value);
+        };
+        return {
+            updateVisibleDio,
+            newVersionViewDio,
+            downloadPercentDio,
+            isNewVersion,
+            updateInfo,
+            handleUpdate,
+            cancleUpdate,
+            saveUserChoice,
+            cancleNewVersion,
+        };
+    },
+});
+</script>
+
+<style scoped lang="scss">
+.versionView {
+    .content {
+        max-height: 600px;
+        overflow-y: auto;
+
+        .update-img {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%);
+            top: -60px;
+            width: 180px;
+            height: 130px;
+        }
+
+        .info-list {
+            height: 195px;
+            overflow: overlay;
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1c2340;
+            text-align: center;
+            letter-spacing: 2px;
+            margin: 30px 0;
+        }
+
+        .info {
+            font-size: 20px;
+            color: #99a2ad;
+            margin-bottom: 14px;
+            line-height: 24px;
+        }
+    }
+
+    .dialog-footer {
+        .el-button {
+            height: 40px;
+        }
+
+        .el-button--primary {
+            background: #4b71ee;
+            border: #4b71ee;
+        }
+    }
+}
+</style>

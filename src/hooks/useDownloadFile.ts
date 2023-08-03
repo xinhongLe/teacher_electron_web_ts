@@ -4,7 +4,7 @@ import loading from "@/components/loading";
 export default () => {
     const download = (url: string, fileName: string, fileExtention: string) => {
         return new Promise((resove, reject) => {
-            (window as any).electron.remote.dialog.showSaveDialog({
+            window.electron.remote.dialog.showSaveDialog({
                 title: "选择要保存的位置",
                 buttonLabel: "确定",
                 defaultPath: `${fileName}.${fileExtention}`
@@ -20,8 +20,8 @@ export default () => {
             }).catch((err: any) => {
                 ElMessage({ type: "error", message: "下载失败" });
                 resove(false);
-                if ((window as any).electron && (window as any).electron.log) {
-                    (window as any).electron.log.error(err);
+                if (window.electron && window.electron.log) {
+                    window.electron.log.error(err);
                 }
             });
         });

@@ -1,8 +1,5 @@
 import { pageType } from "@/config";
 import { Slide, SlideBackground } from "wincard";
-import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
-
-// import { createRandomCode } from "@/utils/common";
 
 interface IFile {
     ID: string,
@@ -66,19 +63,20 @@ export const dealOldDataWord = (pageID: string, data: any) => {
         viewportRatio: 0.5625,
         elements: []
     };
-    slide.listenWords = "listenWords" in data ? data.listenWords : getSlideWord(data);
+    slide.listenWords = "listenWords" in data ? data.listenWords : getSlideWord(data instanceof Array ? data : []);
     slide.background = getSlideBackground();
     return slide;
 };
 
-const getSlideWord = (words: IOldWord[]) => {
+const getSlideWord = (words: any) => {
+    if (!words || !(words instanceof Array)) return [];
     return words.map((item: IOldWord) => {
         return {
             id: item.WordID,
             name: item.Name,
             pageWordID: item.PageWordID,
-            extention: item.File.Extention,
-            file: item.File.FilePath + "/" + item.File.FileName + "." + item.File.Extention
+            extention: item.File?.Extention,
+            file: item.File?.FilePath + "/" + item.File?.FileName + "." + item.File?.Extention
         };
     });
 };
@@ -117,12 +115,11 @@ const getSlideVideo = (oldSlide: IOldVideo) => {
             time: item.split(".")[0]
         };
     }) : [];
-    const follow = {
+    return {
         id: oldSlide.VideoFile.ID,
         src: oldSlide.VideoFile.FilePath + "/" + oldSlide.VideoFile.FileName + "." + oldSlide.VideoFile.Extention,
         pauseList: pauses
     };
-    return follow;
 };
 
 /**

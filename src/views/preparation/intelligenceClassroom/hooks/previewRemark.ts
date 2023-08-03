@@ -1,4 +1,5 @@
-import { reactive, ref } from "vue";
+import {reactive, ref} from "vue";
+
 export default (isShowRemark = true) => {
     const showRemark = ref(isShowRemark);
     const data = reactive({

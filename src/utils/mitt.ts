@@ -1,5 +1,4 @@
 import { IResourceItem } from "@/api/resource";
-import { Bread } from "@/components/navBar/interface";
 import mitt from "mitt";
 
 type Events = {
@@ -21,6 +20,7 @@ type Events = {
     clearErrorBookList: any;
     toMyResource: any;
     closeTool: any;
+    checkUpdate: any
 };
 
 const emitter = mitt<Events>();

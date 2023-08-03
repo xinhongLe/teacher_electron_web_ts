@@ -19,7 +19,7 @@
                         clicKBuryPoint('我的备课包');
                     "
                 >
-                    <img src="@/assets/images/preparation/cart.png" alt="" />
+                    <img src="@/assets/images/preparation/cart.png" alt=""/>
                     我的备课包
                 </div>
                 <el-radio-group
@@ -31,7 +31,8 @@
                         v-for="item in sourceList"
                         :key="item.value"
                         :label="item.value"
-                        >{{ item.label }}</el-radio-button
+                    >{{ item.label }}
+                    </el-radio-button
                     >
                 </el-radio-group>
             </div>
@@ -54,7 +55,7 @@
                 >
                     &nbsp;&nbsp;&nbsp;
                     <el-icon :size="12">
-                        <plus />
+                        <plus/>
                     </el-icon>
                     &nbsp;上&nbsp;传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </el-button>
@@ -77,7 +78,8 @@
                         v-for="item in typeList"
                         :key="item.Id"
                         :label="item.Id"
-                        >{{ item.Name }}</el-radio-button
+                    >{{ item.Name }}
+                    </el-radio-button
                     >
                 </el-radio-group>
             </div>
@@ -116,7 +118,7 @@
                         <el-button type="primary" style="font-size: 13px">
                             &nbsp;&nbsp;&nbsp;
                             <el-icon :size="14">
-                                <upload />
+                                <upload/>
                             </el-icon>
                             &nbsp;上&nbsp;传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </el-button>
@@ -138,7 +140,7 @@
                     required
                     v-if="form.files.length < 2"
                 >
-                    <el-input v-model="form.name" size="large" />
+                    <el-input v-model="form.name" size="large"/>
                 </el-form-item>
                 <el-form-item label="类型：" required>
                     <el-radio-group class="custom-radio" v-model="form.type">
@@ -193,9 +195,9 @@
                         placeholder="请选择"
                         class="select-block"
                     >
-                        <el-option label="高" value="1" />
-                        <el-option label="中" value="2" />
-                        <el-option label="易" value="3" />
+                        <el-option label="高" value="1"/>
+                        <el-option label="中" value="2"/>
+                        <el-option label="易" value="3"/>
                     </el-select>
                 </el-form-item>
                 <!-- <el-form-item label="关联知识点：">
@@ -228,7 +230,7 @@
             <template #footer>
                 <span class="dialog-footer">
                     <el-button @click="uploadResourceOpen = false"
-                        >取消</el-button
+                    >取消</el-button
                     >
                     <el-button
                         type="primary"
@@ -262,22 +264,22 @@
 
                 <el-button type="primary" @click="output()">
                     <el-icon>
-                        <Upload />
+                        <Upload/>
                     </el-icon>
                     &nbsp;导出
                 </el-button>
             </div>
             <el-table class="custom-table" :data="tableData" stripe>
-                <el-table-column width="140px" prop="time" label="操作时间" />
-                <el-table-column width="120px" prop="name" label="动作" />
-                <el-table-column width="120px" prop="bagName" label="课包" />
+                <el-table-column width="140px" prop="time" label="操作时间"/>
+                <el-table-column width="120px" prop="name" label="动作"/>
+                <el-table-column width="120px" prop="bagName" label="课包"/>
                 <el-table-column
                     width="140px"
                     prop="bagCatalogue"
                     label="课包目录"
                 />
-                <el-table-column width="120px" prop="type" label="资源类型" />
-                <el-table-column prop="resource" label="资源名称" />
+                <el-table-column width="120px" prop="type" label="资源类型"/>
+                <el-table-column prop="resource" label="资源名称"/>
                 <el-table-column
                     prop="directory"
                     label="资源目录"
@@ -296,7 +298,7 @@
             </div>
         </el-dialog>
 
-        <Loading :show="loadingShow" />
+        <Loading :show="loadingShow"/>
     </div>
 </template>
 
@@ -310,9 +312,9 @@ import {
     ref,
     toRefs,
     watch,
-    nextTick,
+    nextTick
 } from "vue";
-import { Plus, Refresh, Upload, Edit } from "@element-plus/icons-vue";
+import {Plus, Refresh, Upload, Edit} from "@element-plus/icons-vue";
 import {
     editResource,
     fetchMyPackageNum,
@@ -320,23 +322,24 @@ import {
     getCartOptionList,
     ILesson,
     IResourceItem,
-    uploadResource,
+    uploadResource
 } from "@/api/resource";
 import CustomSelect from "./customSelect.vue";
-import { ElMessage } from "element-plus";
+import {ElMessage} from "element-plus";
 import useUploadFile from "@/hooks/useUploadFile";
 import emitter from "@/utils/mitt";
-import { MutationTypes, useStore } from "@/store";
-import { getOssUrl } from "@/utils/oss";
-import { useRouter } from "vue-router";
+import {MutationTypes, useStore} from "@/store";
+import {getOssUrl} from "@/utils/oss";
+import {useRouter} from "vue-router";
 import moment from "moment";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
-import { EVENT_TYPE } from "@/config/event";
-import { RESOURCE_TYPE } from "@/config/resource";
+import {EVENT_TYPE} from "@/config/event";
+import {RESOURCE_TYPE} from "@/config/resource";
 import isElectron from "is-electron";
-import { exportExcel, IExcel } from "mexcel";
+import {exportExcel, IExcel} from "mexcel";
 import Loading from "@/components/loading/Loading.vue";
 import useLessonPackage from "@/hooks/useLessonPackage";
+
 interface IDirectoryItem {
     id: string;
     name: string;
@@ -396,14 +399,14 @@ export default defineComponent({
     props: {
         course: {
             type: Object as PropType<ICourse>,
-            required: true,
-        },
+            required: true
+        }
     },
-    components: { Plus, Refresh, Upload, CustomSelect, Edit, Loading },
+    components: {Plus, Refresh, Upload, CustomSelect, Edit, Loading},
     emits: ["update:source", "update:type", "updateBagList"],
-    setup(props, { emit }) {
-        const { createBuryingPointFn } = usePageEvent("备课"); //备课埋点
-        const { getPrepareGetMyBagCountNew, packageCount } = useLessonPackage();
+    setup(props, {emit}) {
+        const {createBuryingPointFn} = usePageEvent("备课"); //备课埋点
+        const {getPrepareGetMyBagCountNew, packageCount} = useLessonPackage();
 
         const store = useStore();
         const userId = computed(() => store.state.userInfo.userCenterUserID);
@@ -411,7 +414,7 @@ export default defineComponent({
             () => store.state.preparation.subjectPublisherBookValue
         );
         const schoolId = store.state.userInfo.schoolId;
-        const { course } = toRefs(props);
+        const {course} = toRefs(props);
         let isInit = true;
         watch(course, () => {
             getMyPackageNum();
@@ -426,7 +429,7 @@ export default defineComponent({
             const res = await getPrepareGetMyBagCountNew({
                 chapterId: course.value.chapterId,
                 lessonId: course.value.lessonId,
-                schoolId: schoolId,
+                schoolId: schoolId
             });
             // packageCount.value = res.result.BagCount;
             if (packageCount.value > 0 && isInit) {
@@ -448,36 +451,36 @@ export default defineComponent({
             form.name = resource.Name;
             form.type = {
                 Id: resource.ResourceType,
-                Name: resource.ResourceTypeName,
+                Name: resource.ResourceTypeName
             };
 
             form.directorys = resource.TextBooks.map((item) => {
                 return {
                     schoolSection: {
                         id: item.AcaSectionId,
-                        name: item.AcaSectionName,
+                        name: item.AcaSectionName
                     },
                     subject: {
                         id: item.SubjectID,
-                        name: item.SubjectName,
+                        name: item.SubjectName
                     },
                     version: {
                         id: item.PublisherID,
-                        name: item.PublisherName,
+                        name: item.PublisherName
                     },
                     grade: {
                         bookId: item.BookId,
                         id: item.AlbumID,
-                        name: item.AlbumName,
+                        name: item.AlbumName
                     },
                     chapter: {
                         id: item.ChapterID,
-                        name: item.ChapterName,
+                        name: item.ChapterName
                     },
                     lesson: {
                         id: item.LessonID,
-                        name: item.LessonName,
-                    },
+                        name: item.LessonName
+                    }
                 };
             });
 
@@ -489,7 +492,7 @@ export default defineComponent({
                 );
                 fileList.value.push({
                     name: resource.File.FileName,
-                    url,
+                    url
                 });
                 form.files = [
                     {
@@ -497,8 +500,8 @@ export default defineComponent({
                         extension: resource.File.FileExtention,
                         md5: resource.File.FileMD5,
                         fileName: resource.File.FileName,
-                        size: resource.File.Size,
-                    },
+                        size: resource.File.Size
+                    }
                 ];
             }
 
@@ -531,20 +534,20 @@ export default defineComponent({
         const sourceList = ref([
             {
                 value: "",
-                label: "全部资源",
+                label: "全部资源"
             },
             {
                 value: "2",
-                label: "系统资源",
+                label: "系统资源"
             },
             {
                 value: "1",
-                label: "校本资源",
+                label: "校本资源"
             },
             {
                 value: "4",
-                label: "我的资源",
-            },
+                label: "我的资源"
+            }
         ]);
         const onSourceChange = () => {
             emit("update:source", source.value);
@@ -567,23 +570,23 @@ export default defineComponent({
             name: "",
             type: {
                 Id: "",
-                Name: "",
+                Name: ""
             },
             directorys: [
                 {
-                    schoolSection: { id: "", name: "" },
-                    subject: { id: "", name: "" },
-                    version: { id: "", name: "" },
-                    grade: { id: "", name: "" },
-                    chapter: { id: "", name: "" },
-                    lesson: { id: "", name: "" },
-                },
+                    schoolSection: {id: "", name: ""},
+                    subject: {id: "", name: ""},
+                    version: {id: "", name: ""},
+                    grade: {id: "", name: ""},
+                    chapter: {id: "", name: ""},
+                    lesson: {id: "", name: ""}
+                }
             ],
             degree: "3",
             knowledge: "",
             files: [],
             isSchool: false,
-            isShelf: true,
+            isShelf: true
         };
         const form = reactive<IForm>(JSON.parse(JSON.stringify(formEmpty)));
 
@@ -606,7 +609,7 @@ export default defineComponent({
             if (res.success) {
                 res.result.push({
                     Id: "",
-                    Name: "全部",
+                    Name: "全部"
                 });
                 typeList.value = res.result.reverse();
             }
@@ -621,12 +624,12 @@ export default defineComponent({
         // 新增目录
         const addDirectory = () => {
             form.directorys.push({
-                schoolSection: { id: "", name: "" },
-                subject: { id: "", name: "" },
-                version: { id: "", name: "" },
-                grade: { id: "", name: "" },
-                chapter: { id: "", name: "" },
-                lesson: { id: "", name: "" },
+                schoolSection: {id: "", name: ""},
+                subject: {id: "", name: ""},
+                version: {id: "", name: ""},
+                grade: {id: "", name: ""},
+                chapter: {id: "", name: ""},
+                lesson: {id: "", name: ""}
             });
         };
 
@@ -678,14 +681,14 @@ export default defineComponent({
                         : props.course.lessonId,
                     lessonName: item.lesson
                         ? item.lesson.name
-                        : props.course.lessonName,
+                        : props.course.lessonName
                 };
             });
             const resourceFiles = form.files.map((item) => {
                 return {
                     fileName: item.fileName,
                     mD5: item.md5,
-                    size: item.size,
+                    size: item.size
                 };
             });
 
@@ -702,7 +705,7 @@ export default defineComponent({
                     resourceFiles,
                     isSchool: form.isSchool ? 1 : 2,
                     isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
-                    knowledgePonitId: [],
+                    knowledgePonitId: []
                 });
             } else {
                 res = await editResource({
@@ -719,7 +722,7 @@ export default defineComponent({
                     isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
                     knowledgePonitId: [],
                     toCourseware: false,
-                    userId: userId.value,
+                    userId: userId.value
                 });
             }
 
@@ -750,7 +753,7 @@ export default defineComponent({
         const acceptList =
             ".ppt,.pptx,.doc,.docx,.xls,.xlsx,.pdf,.mp3,.mp4,.gif,.jpg,.png,.jpeg,.wav";
 
-        const beforeUpload = ({ name }: { name: string }) => {
+        const beforeUpload = ({name}: { name: string }) => {
             const fileType = name.substring(name.lastIndexOf(".") + 1);
             const whiteList = [
                 "ppt",
@@ -766,7 +769,7 @@ export default defineComponent({
                 "jpg",
                 "png",
                 "jpeg",
-                "wav",
+                "wav"
             ];
             if (whiteList.indexOf(fileType) === -1) {
                 ElMessage.error(
@@ -778,20 +781,20 @@ export default defineComponent({
 
         const fileList = ref<{ name: string; url: string }[]>([]);
 
-        const { uploadFile, loadingShow } = useUploadFile("RescourceFile");
+        const {uploadFile, loadingShow} = useUploadFile("RescourceFile");
 
         const uploadSuccess = async ({
-            file,
-        }: {
+                                         file
+                                     }: {
             file: File & Blob & { uid: number };
         }) => {
-            const res = await uploadFile({ file });
+            const res = await uploadFile({file});
             form.files.push({
                 extension: res.fileExtension,
                 md5: res.md5,
                 fileName: file.name,
                 uid: file.uid,
-                size: res.size || 0,
+                size: res.size || 0
             });
             if (form.files.length === 1) {
                 form.name = file.name;
@@ -860,7 +863,7 @@ export default defineComponent({
                 id: cacheResource.OldResourceId,
                 name: cacheResource.Name,
                 lessonId: store.state.preparation.selectLessonId,
-                originType: 1,
+                originType: 1
             };
             window.electron.store.set("windowInfo", windowInfo);
             openWinCard(cacheResource.Name);
@@ -902,13 +905,13 @@ export default defineComponent({
 
             return book
                 ? book.SubjectName +
-                      " / " +
-                      book.PublisherName +
-                      " / " +
-                      book.AlbumName +
-                      " / " +
-                      book.ChapterName +
-                      (book.LessonName ? " / " + book.LessonName : "")
+                " / " +
+                book.PublisherName +
+                " / " +
+                book.AlbumName +
+                " / " +
+                book.ChapterName +
+                (book.LessonName ? " / " + book.LessonName : "")
                 : "--";
         };
         const getCourseCartOption = () => {
@@ -922,8 +925,8 @@ export default defineComponent({
                     : "",
                 paper: {
                     pageNumber: pageNumber.value,
-                    pageSize: 10,
-                },
+                    pageSize: 10
+                }
             }).then((res) => {
                 tableData.value = res.result.list.map((item) => {
                     return {
@@ -935,7 +938,7 @@ export default defineComponent({
                         resource: item.ResourceName,
                         directory: directoryName(item.Lessons),
                         bagName: item.BagName,
-                        bagCatalogue: item.BagCatalogue,
+                        bagCatalogue: item.BagCatalogue
                     };
                 });
                 total.value = res.result.pager.Total;
@@ -963,7 +966,7 @@ export default defineComponent({
             }
             if (
                 moment(dateRange.value[1]).unix() -
-                    moment(dateRange.value[0]).unix() >
+                moment(dateRange.value[0]).unix() >
                 31 * 24 * 60 * 60
             ) {
                 return ElMessage.warning("仅支持导出31天以内的数据！");
@@ -975,28 +978,28 @@ export default defineComponent({
                     filters: [
                         {
                             name: "xlsx文件",
-                            extensions: ["xlsx"],
-                        },
-                    ],
+                            extensions: ["xlsx"]
+                        }
+                    ]
                 })
-                .then(({ filePath, canceled }) => {
+                .then(({filePath, canceled}) => {
                     if (canceled) return;
                     getCartOptionList({
                         lessonId: course.value.lessonId,
                         startTime: dateRange.value[0]
                             ? moment(dateRange.value[0]).format(
-                                  "YYYY-MM-DD 00:00:00"
-                              )
+                                "YYYY-MM-DD 00:00:00"
+                            )
                             : "",
                         endTime: dateRange.value[1]
                             ? moment(dateRange.value[1]).format(
-                                  "YYYY-MM-DD 23:59:59"
-                              )
+                                "YYYY-MM-DD 23:59:59"
+                            )
                             : "",
                         paper: {
                             pageNumber: 1,
-                            pageSize: 10000,
-                        },
+                            pageSize: 10000
+                        }
                     }).then((res) => {
                         const data = res.result.list.map((item) => {
                             return {
@@ -1006,7 +1009,7 @@ export default defineComponent({
                                 name: item.OprateName,
                                 type: item.ResourceTypeName,
                                 resource: item.ResourceName,
-                                directory: directoryName(item.Lessons),
+                                directory: directoryName(item.Lessons)
                             };
                         });
 
@@ -1020,90 +1023,90 @@ export default defineComponent({
                                             "动作",
                                             "资源类型",
                                             "资源名称",
-                                            "资源目录",
-                                        ],
+                                            "资源目录"
+                                        ]
                                     ],
                                     table: data,
                                     cols: [
                                         {
-                                            width: 30,
+                                            width: 30
                                         },
                                         {
-                                            width: 20,
+                                            width: 20
                                         },
                                         {
-                                            width: 20,
+                                            width: 20
                                         },
                                         {
-                                            width: 50,
+                                            width: 50
                                         },
                                         {
-                                            width: 75,
-                                        },
+                                            width: 75
+                                        }
                                     ],
                                     titleRow: {
-                                        hpx: 60,
+                                        hpx: 60
                                     },
                                     headerRows: [
                                         {
-                                            hpx: 40,
-                                        },
+                                            hpx: 40
+                                        }
                                     ],
                                     row: {
-                                        hpx: 30,
+                                        hpx: 30
                                     },
                                     keys: [
                                         "time",
                                         "name",
                                         "type",
                                         "resource",
-                                        "directory",
+                                        "directory"
                                     ],
                                     sheetName: "备课包操作记录表",
                                     globalStyle: {
                                         font: {
-                                            sz: 12,
+                                            sz: 12
                                         },
                                         alignment: {
                                             horizontal: "center",
                                             vertical: "center",
-                                            wrapText: true,
+                                            wrapText: true
                                         },
                                         border: {
-                                            top: { style: "thin", color: {} },
-                                            right: { style: "thin", color: {} },
+                                            top: {style: "thin", color: {}},
+                                            right: {style: "thin", color: {}},
                                             bottom: {
                                                 style: "thin",
-                                                color: {},
+                                                color: {}
                                             },
-                                            left: { style: "thin", color: {} },
-                                        },
+                                            left: {style: "thin", color: {}}
+                                        }
                                     },
                                     titleStyle: {
                                         font: {
                                             sz: 18,
                                             color: {
-                                                rgb: "f60000",
-                                            },
+                                                rgb: "f60000"
+                                            }
                                         },
                                         alignment: {
                                             horizontal: "center",
                                             vertical: "center",
-                                            wrapText: true,
+                                            wrapText: true
                                         },
                                         border: {
-                                            top: { style: "thin", color: {} },
-                                            right: { style: "thin", color: {} },
+                                            top: {style: "thin", color: {}},
+                                            right: {style: "thin", color: {}},
                                             bottom: {
                                                 style: "thin",
-                                                color: {},
+                                                color: {}
                                             },
-                                            left: { style: "thin", color: {} },
-                                        },
-                                    },
-                                },
+                                            left: {style: "thin", color: {}}
+                                        }
+                                    }
+                                }
                             ],
-                            fileName: "备课包操作记录表",
+                            fileName: "备课包操作记录表"
                         };
 
                         exportExcel(
@@ -1165,9 +1168,9 @@ export default defineComponent({
             openWinCard,
             output,
             loadingShow,
-            toMyLessonPackage,
+            toMyLessonPackage
         };
-    },
+    }
 });
 </script>
 

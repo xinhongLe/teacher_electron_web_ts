@@ -434,7 +434,7 @@ const confirmDel = () => {
 const selectedClassList = async (val: string) => {
     if (isAddClass.value) {
         const newScheduleInDto: INewScheduleInDto = {
-            schoolId: currentUserInfo.schoolId,
+            schoolId: store.state.userInfo.schoolId,
             termCode: store.state.preparation.term.code,
             packageId: currentPackageData.value.Id,
             classId: val,

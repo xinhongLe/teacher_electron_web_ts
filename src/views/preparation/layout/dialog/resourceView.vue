@@ -7,7 +7,7 @@
             :model-value="visible"
             @close="close()"
         >
-            <template #title>
+            <template #header>
                 <div class="resource-header">
                     <ResourceItem
                         :name="name"
@@ -100,7 +100,7 @@ export default defineComponent({
             }
         };
 
-        const setFullScreen = async () => { 
+        const setFullScreen = async () => {
             isFullScreen.value = !isFullScreen.value;
             if (isFullScreen.value) {
                 if (
@@ -108,7 +108,7 @@ export default defineComponent({
                     !window.electron.isFullScreen() &&
                     !window.electron.isMac()
                 ) {
-                    window.electron.setFullScreen();
+                    window.electron.setFullScreen(true);
                     await sleep(300);
                 }
                 enterFullscreen();

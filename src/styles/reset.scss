@@ -149,7 +149,7 @@ table {
 }
 
 .custom-dialog {
-    border-radius: 6px;
+    border-radius: 6px !important;
     .el-dialog__header {
         padding: 15px;
         border-bottom: 1px solid var(--app-color-border-default);

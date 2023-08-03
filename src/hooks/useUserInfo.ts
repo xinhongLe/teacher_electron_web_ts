@@ -1,10 +1,10 @@
-import { MutationTypes, store } from "@/store";
-import { ILessonManagerResult } from "@/types/login";
-import { set, STORAGE_TYPES } from "@/utils/storage";
-import { LessonManager } from "@/views/login/api";
-import { lessonManagerByTeacherId } from "@/views/classManage/api";
+import {MutationTypes, store} from "@/store";
+import {ILessonManagerResult} from "@/types/login";
+import {set, STORAGE_TYPES} from "@/utils/storage";
+import {LessonManager} from "@/api/login";
+import {lessonManagerByTeacherId} from "@/views/classManage/api";
 
-const dealUserInfo = async (useInfo:ILessonManagerResult) => {
+const dealUserInfo = async (useInfo: ILessonManagerResult) => {
     set(STORAGE_TYPES.USER_INFO, useInfo);
     store.commit(MutationTypes.UPDATE_USERINFO,
         {

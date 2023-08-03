@@ -2,9 +2,7 @@
     <div class="class-dialog">
         <el-dialog center width="710px" :model-value="classVisible" @close="close()">
             <template #title>
-                <div class="class-header">
-                    将本页发送至学生端
-                </div>
+                <div class="class-header">将本页发送至学生端</div>
             </template>
             <div class="is-class">
                 <el-form :model="form" label-width="120px" size="large">
@@ -213,11 +211,16 @@ export default defineComponent({
                 teachShareParams.value.timeStr = String(timeStr);
                 teachShareParams.value.ElementId = "element_" + timeStr;
                 teachShareParams.value.QuestionId = "question_" + timeStr;
+                console.log('teachShareParams', teachShareParams.value)
+                console.log('props.currentSlide', props.currentSlide)
+
+
                 teachShareParams.value.S3 = props.currentSlide?.teach.src;
                 teachShareParams.value.OssName = props.currentSlide?.id;
                 teachShareParams.value.Name = props.currentSlide?.teach.name;
                 teachShareParams.value.ClassID = form.value.checkedClass;
                 teachShareParams.value.Topic = "sharestudent_" + form.value.checkedClass;
+                console.log('teachShareParams', teachShareParams.value)
                 const res = await QuestionShare(teachShareParams.value)
                 if (res.success) {
                     ElMessage.success("发送成功");

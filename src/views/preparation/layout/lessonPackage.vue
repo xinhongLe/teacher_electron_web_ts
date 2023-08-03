@@ -2,24 +2,21 @@
     <div class="p-layout-package">
         <div class="lesson-package">
             <div class="lesson-package-item" :class="{ isActive: item.Id == currentSelectPackageId }"
-                 v-for="(item, index) in lessonPackageList" @click.stop.prevent="selectPackage(item)">
+                 v-for="(item, index) in lessonPackageList" @click.stop.prevent="selectPackage(item)" :key="index">
                 <div class="package-item">
                     <div class="item-name">
                         <div class="names">
-                            {{ course.lessonName || course.chapterName || '课包一' }}
+                            {{ course.lessonName || course.chapterName || "课包一" }}
                         </div>
-                        <img @click.stop.prevent="deletenPackage(item.Id)"
-                             src="@/assets/images/preparation/icon_delete_beike.png" alt="">
+                        <img @click.stop.prevent="deletenPackage(item.Id)" src="@/assets/images/preparation/icon_delete_beike.png" alt="">
                     </div>
-                    <div class="items">
-                        {{ item.Name }}
-                    </div>
+                    <div class="items">{{ item.Name }}</div>
                     <div class="item-footer">
                         <div class="item-button" :class="{ isPaike: item.IsSchedule }"
                              @mousedown.stop.prevent="isMouseDrag ? startDrag($event, course, item) : null"
                              @click.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0) : null"
                              @touchstart.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0, $event) : touchStartDrag($event, course, item)">
-                            {{ item.IsSchedule ? '已排课' : '排课' }}
+                            {{ item.IsSchedule ? "已排课" : "排课" }}
                         </div>
                     </div>
                 </div>
@@ -37,24 +34,12 @@
 <script lang="ts" setup>
 import useLessonPackage from "@/hooks/useLessonPackage";
 import useClickDrag, {} from "@/hooks/useClickDrag";
-import {IAddLessonBag, IGetLessonBagOutDto} from "@/api/prepare";
-import deletePackage from "../layout/dialog/deletePackage.vue";
-import {
-    ref,
-    defineProps,
-    defineEmits,
-    PropType,
-    onMounted,
-    defineExpose,
-    nextTick,
-    watch
-} from "vue";
+import { ref, PropType, onMounted, nextTick, watch } from "vue";
 import emitter from "@/utils/mitt";
-import {IResourceItem} from "@/api/resource";
-import {MutationTypes, useStore} from "@/store";
+import { useStore } from "@/store";
 
 const currentSelectPackageId = ref<string>("");
-const {startDrag, touchStartDrag} = useClickDrag();
+const { startDrag, touchStartDrag } = useClickDrag();
 const {
     getMyLessonBagNew,
     lessonPackageList,
@@ -79,29 +64,31 @@ const props = defineProps({
     },
     isMouseDrag: {
         type: Boolean,
-        default: true,
-    },
+        default: true
+    }
 });
+
 const emits = defineEmits(["toArrangeClass", "updateSchedules", "closeCalendar"]);
 const deleteVisible = ref(false);
 const deleteTargetId = ref("");
 const currentTouchEvent = ref<TouchEvent>();
-const store = useStore();
+
 watch(() => props.course, async (val: ICourse) => {
-    setValueAddLessonBag(props.course)
-    await getMyLessonBagNew({id: val.lessonId});
+    setValueAddLessonBag(props.course);
+    await getMyLessonBagNew({ id: val.lessonId });
+    if (!val.lessonId) return;
     if (!lessonPackageList.value.length) {
         addLessonBag.value.name = "备课包1";
         const res = await addLessonPackage(addLessonBag.value);
         if (res) {
-            await getMyLessonBagNew({id: val.lessonId})
+            await getMyLessonBagNew({ id: val.lessonId });
             // selectPackage(lessonPackageList.value[0])
         }
     } else {
         emitter.emit("updateResourceList", []);
-        // selectPackage(lessonPackageList.value[0])
+        selectPackage(lessonPackageList.value[0]);
     }
-}, {deep: true, immediate: true})
+}, { deep: true, immediate: true });
 
 // 新增备课包
 const addPackage = async () => {
@@ -109,14 +96,14 @@ const addPackage = async () => {
     addLessonBag.value.name = "备课包" + (lessonPackageList.value.length + 1);
     lessonPackageList.value.forEach(item => {
         if (item.Name === addLessonBag.value.name) {
-            addLessonBag.value.name = "备课包" + (Number(item.Name?.slice(3)) + 1)
+            addLessonBag.value.name = "备课包" + (Number(item.Name?.slice(3)) + 1);
         }
-    })
+    });
     const res = await addLessonPackage(addLessonBag.value);
     if (res?.Id) {
-        await getMyLessonBagNew({id: props.course.lessonId})
+        await getMyLessonBagNew({ id: props.course.lessonId });
         // emitter.emit("updatePackageCount", null);
-        return res.Id
+        return res.Id;
     }
     // }
 };
@@ -143,7 +130,7 @@ const toLessonBagArrange = (data: any, type?: number, ev?: TouchEvent) => {
                     const params = {
                         resourceId: data.ResourceId,
                         lessonBagId: bagId
-                    }
+                    };
                     const res = await addResourceLessonBag(params);
                     if (res) {
                         currentSelectPackageId.value = bagId;
@@ -158,38 +145,38 @@ const toLessonBagArrange = (data: any, type?: number, ev?: TouchEvent) => {
             } else {
                 const bagId = data.Id || currentSelectPackageId.value;
                 currentSelectPackageId.value = bagId;
-                const item = lessonPackageList.value.find(item => item.Id === bagId)
+                const item = lessonPackageList.value.find(item => item.Id === bagId);
                 openMouseDrag(item);
             }
         }, 200);
-    })
+    });
 };
 // 备课包虚拟元素开始触发移动
 const openMouseDrag = (data?: any) => {
     nextTick(() => {
         // if (isMobile.value) return;
-        const dom: HTMLElement = document.querySelector('.lesson-package-item.isActive > .package-item > .item-footer > .item-button') as HTMLElement;
+        const dom: HTMLElement = document.querySelector(".lesson-package-item.isActive > .package-item > .item-footer > .item-button") as HTMLElement;
         if (dom) {
             if (!isMobile.value) {
-                const event: MouseEvent = new MouseEvent('mousedown');
+                const event: MouseEvent = new MouseEvent("mousedown");
                 event.preventDefault();
                 dom.dispatchEvent(event);
             } else {
-                currentTouchEvent.value && touchStartDrag(currentTouchEvent.value, props.course, data)
+                currentTouchEvent.value && touchStartDrag(currentTouchEvent.value, props.course, data);
             }
         }
-    })
+    });
 };
 // 打开删除弹框
 const deletenPackage = (id: any) => {
     deleteTargetId.value = id;
-    deleteVisible.value = true
+    deleteVisible.value = true;
 };
 // 确认删除回调
 const onDeletePackage = async () => {
     const res = await deleteLessonPackage(deleteTargetId.value);
     if (res) {
-        await getMyLessonBagNew({id: props.course.lessonId});
+        await getMyLessonBagNew({ id: props.course.lessonId });
         selectPackage(lessonPackageList.value[0]);
         emitter.emit("updatePackageCount", null);
         emits("updateSchedules");
@@ -197,7 +184,7 @@ const onDeletePackage = async () => {
 };
 const isMobile = ref(false);
 const getMobile = () => {
-    isMobile.value = navigator.maxTouchPoints ? true : false;
+    isMobile.value = !!navigator.maxTouchPoints;
 };
 onMounted(() => {
     getMobile();
@@ -234,7 +221,6 @@ defineExpose({
             display: flex;
             flex-direction: column;
             // justify-content: space-between;
-
 
             .item-name {
                 display: flex;
@@ -298,7 +284,6 @@ defineExpose({
         }
     }
 
-
     .package-item-add {
         width: 200px;
         height: 40px;
@@ -311,7 +296,7 @@ defineExpose({
         justify-content: center;
         align-items: center;
         font-size: 14px;
-        font-family: PingFangSC-Regular, PingFang SC;
+        font-family: PingFangSC-Regular, PingFang SC,serif;
         font-weight: 400;
         color: #4B71EE;
         margin: auto;
@@ -321,11 +306,6 @@ defineExpose({
         span {
             padding-left: 8px;
         }
-
-        // img {
-        //     width: 30px;
-        //     height: 30px;
-        // }
     }
 }
 </style>

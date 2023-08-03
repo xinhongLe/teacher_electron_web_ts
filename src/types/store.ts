@@ -1,6 +1,14 @@
-import { IBookItem, ICustomBookItem, IResourceItem } from "@/api/resource";
-import { Class, ClassStudent } from "./myStudent";
-import { BookList } from "./preparation";
+import {IBookItem, ICustomBookItem, IResourceItem} from "@/api/resource";
+import {Class, ClassStudent} from "./myStudent";
+import {BookList} from "./preparation";
+
+export interface ICurrentSelectClass {
+    ClassAixueshiId?: string;
+    ClassUserCenterId?: string;
+    ClassName?: string;
+    GradeId?: string;
+    GradeName?: string;
+}
 
 export interface UserInfoState {
     name?: string;
@@ -14,6 +22,8 @@ export interface UserInfoState {
     schoolName: string;
     userCenterUserID: string;
     id: string;
+    currentSelectClass: ICurrentSelectClass;
+    classList: ICurrentSelectClass[]
 }
 
 export interface MyStudentState {
@@ -85,6 +95,7 @@ export interface IViewResourceData extends Partial<IResourceItem> {
     deleteQuestionIds?: string[];
     type?: number;
     openMore?: boolean;
+    isSystem?: number;
 }
 
 export interface IShowResourceFullScreen {
@@ -95,6 +106,15 @@ export interface IShowResourceFullScreen {
 export interface ISingleResourceFullScreen {
     question?: IShowResourceFullScreen;
     video?: IShowResourceFullScreen;
+}
+
+export interface IDownloading {
+    id: string;
+    name: string;
+    type: string;
+    data: IResourceItem;
+    timestamp: number;
+    status: number; // 0: 待下载 1: 下载中 2: 已完成 3: 已取消 4: 下载失败
 }
 
 export interface CommonState {
@@ -126,6 +146,22 @@ export interface CommonState {
      * 当前选中的备课包数据
      */
     currentPackageData: any
+    /**
+     * 课表中进入课件资源
+     */
+    currentKebiaoResource: boolean
+    /**
+     * 备课进入课件资源
+     */
+    currentBeikeResource: boolean
+    /**
+     * 从哪儿进入的课件资源
+     */
+    resourceIntoType: number,
+    /**
+     * 下载中的列表
+     */
+    downloading: IDownloading[];
 }
 export interface WrongBookState {
     questionBasket?: any[];
@@ -138,6 +174,7 @@ export interface WrongBookState {
     currentSubjectId: string;
     currentPureQuestion: any;
 }
+
 export interface RootState {
     userInfo: UserInfoState;
     preparation: PreparationState;

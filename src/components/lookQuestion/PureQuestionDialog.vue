@@ -7,7 +7,7 @@
             :before-close="close"
             :show-close="false"
         >
-            <template #title>
+            <template #header>
                 <p class="custitle-pure">
                     <span class="text">正在查看同类题</span>
                     <!-- 错题本添加试题篮 -->
@@ -20,14 +20,14 @@
                             type="primary"
                             @click.stop="addQuestionBasket(currentPureQuestion)"
                             :icon="Plus"
-                            >添加试题篮</el-button
+                        >添加试题篮</el-button
                         >
                         <el-button
                             v-else
                             type="danger"
                             @click.stop="delQuestionBasket(currentPureQuestion)"
                             :icon="Minus"
-                            >移出试题篮</el-button
+                        >移出试题篮</el-button
                         >
                     </span>
                 </p>
@@ -37,19 +37,20 @@
                 :close="close"
                 :isPureQuestion="true"
                 :dialog="true"
+                :toolClass="'dialog-question'"
             />
         </el-dialog>
     </div>
 </template>
 
 <script lang="ts">
-import { Plus, Minus } from "@element-plus/icons-vue";
-import { defineComponent, nextTick, ref, computed, watch } from "vue";
+import {Plus, Minus} from "@element-plus/icons-vue";
+import {defineComponent, nextTick, ref, computed, watch} from "vue";
 import Question from "./Question.vue";
 import useWrongBook from "@/views/wrongbook/hooks/useWrongBook";
-import { MutationTypes, store, ActionTypes } from "@/store";
+import {MutationTypes, store, ActionTypes} from "@/store";
 
-const { formatInBasket, addQuestionBasket, delQuestionBasket } = useWrongBook();
+const {formatInBasket, addQuestionBasket, delQuestionBasket} = useWrongBook();
 export default defineComponent({
     props: {
         visible: {
@@ -63,21 +64,22 @@ export default defineComponent({
         },
         currentquestion: {
             type: Object,
-            default: () => {},
+            default: () => {
+            },
         },
         isshowbasket: {
             type: Boolean,
             default: false,
         },
     },
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const currentPureQuestion = ref(null);
         watch(
             () => store.state.wrongbook.currentPureQuestion,
             (val) => {
                 currentPureQuestion.value = val;
             },
-            { deep: true }
+            {deep: true}
         );
         setTimeout(() => {
             currentPureQuestion.value =
@@ -102,32 +104,40 @@ export default defineComponent({
             Minus,
         };
     },
-    components: { Question },
+    components: {Question},
 });
 </script>
 
 <style lang="scss" scoped>
 .container {
+    :deep(.el-overlay) {
+        z-index: 1000000 !important;
+    }
+
     :deep(.el-dialog) {
         --el-dialog-width: 90%;
         margin: 0 auto;
         top: 50%;
         transform: translateY(-50%);
+
         .el-dialog__header {
             .custitle-pure {
                 overflow: hidden;
                 text-align: center;
+
                 .text {
                     font-size: 18px;
                     color: #19203d;
                     font-weight: bold;
                 }
+
                 .btns {
                     float: right;
                 }
             }
         }
     }
+
     :deep(.el-dialog__body) {
         height: 90vh;
     }

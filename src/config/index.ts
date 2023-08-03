@@ -1,9 +1,6 @@
 export const ENV = process.env.VUE_APP_ENV;
 
 export const AI_XUE_SHI_API = process.env.VUE_APP_AI_XUE_SHI_API;
-export const AI_XUE_SHI_API_WRONG_BOOK =
-    process.env.VUE_APP_AI_XUE_SHI_API_WRONG_BOOK;
-
 export const WINDOW_CRAD_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const TIMETABLE_API = process.env.VUE_APP_TIMETABLE_API;
 export const SCHEDULE_API = process.env.VUE_APP_SCHEDULE_API;
@@ -13,6 +10,10 @@ export const YUN_API_COMPOSITION = process.env.VUE_APP_YUN_API_COMPOSITION;
 
 export const YUN_API_PORTRAIT = process.env.VUE_APP_YUN_API_PORTRAIT;
 export const YUN_API_ONECARD_MQTT = process.env.VUE_APP_YUN_API_ONECARD_MQTT;
+export const VUE_APP_YUN_API_COMPOSITION_MQTT = process.env.VUE_APP_YUN_API_COMPOSITION_MQTT;
+export const YUN_API_VIDEO_PROJECT_MQTT = process.env.VUE_APP_YUN_API_VIDEO_PROJECT_MQTT;
+
+export const VUE_APP_YUN_PLATFORM = process.env.VUE_APP_YUN_PLATFORM;
 export const RESOURCE_API = process.env.VUE_APP_RESOURCE_API;
 export const RESOURCE_WEB = process.env.VUE_APP_RESOURCE_WEB;
 

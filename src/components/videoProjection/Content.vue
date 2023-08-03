@@ -1,7 +1,8 @@
 <template>
     <div style="height: 100%">
         <div class="video-container">
-            <div class="view" ref="viewRef" />
+            <div class="view" v-show="false" ref="viewRef"/>
+            <div class="view" ref="viewRefT"/>
         </div>
         <div class="btn-warp">
             <span class="circle"></span>
@@ -16,18 +17,19 @@
 <script lang="ts">
 import {
     computed,
-    defineComponent,
+    defineComponent, nextTick,
     onMounted,
     onUnmounted,
     ref,
     watch
 } from "vue";
-import TRTCCloud, { TRTCAppScene } from "trtc-electron-sdk";
-import { TRTCParams, TRTCRoleType } from "trtc-electron-sdk/liteav/trtc_define";
-import { ElMessageBox } from "element-plus";
-import { store } from "@/store";
-import { getUserSig } from "@/api";
-import { clearInterval, setInterval } from "timers";
+import TRTC from "trtc-js-sdk";
+import {ElMessageBox} from "element-plus";
+import {store} from "@/store";
+import {getUserSig} from "@/api";
+import {clearInterval, setInterval} from "timers";
+// 输出 DEBUG 以上日志等级
+TRTC.Logger.setLogLevel(TRTC.Logger.LogLevel.NONE);
 export default defineComponent({
     props: {
         roomId: {
@@ -39,64 +41,61 @@ export default defineComponent({
             required: true
         }
     },
-    setup(props, { emit }) {
-        const viewRef = ref<HTMLDivElement>();
-        const trtcCloud = new TRTCCloud();
+    setup(props, {emit}) {
+        const viewRef: any = ref<HTMLDivElement>();
+        const viewRefT: any = ref<HTMLDivElement>();
         const userId = computed(() => store.state.userInfo.id + "_window");
         const timeList = ref(["00", "00"]);
         const time = ref(0);
         let timer: any;
         const sdkAppId = 1400616494;
-
-        const onError = (err: unknown) => {
-            window.electron.log.error("onEnterRoom error:", err);
-        };
-
-        const onEnterRoom = (result: number) => {
-            window.electron.log.info("onEnterRoom result:", result);
-            if (result > 0) {
-                props.projectSuccess();
+        let client: any, localStream: any;
+        nextTick(async () => {
+            client = TRTC.createClient({
+                mode: 'rtc',
+                sdkAppId: sdkAppId,
+                userId: userId.value,
+                userSig: (await (await getUserSig({sdkAppID: sdkAppId, userID: userId.value}))?.result)?.UserSig || "",
+                useStringRoomId: true,
+            });
+            // 1.监听事件
+            client.on('stream-added', (event: any) => {
+                const remoteStream = event.stream;
+                console.log('远端流增加: ' + remoteStream.getId());
+                //订阅远端流
+                client.subscribe(remoteStream);
+            });
+            client.on('stream-subscribed', (event: any) => {
+                // 远端流订阅成功
+                const remoteStream = event.stream;
+                // 播放远端流，传入的元素 ID 必须是页面里存在的 div 元素
+                remoteStream.play(viewRefT.value as HTMLDivElement);
+            });
+            // 2.进房成功后开始推流
+            try {
+                await client.join({roomId: props.roomId});
+                localStream = TRTC.createStream({userId: userId.value, audio: true, video: true});
+                await localStream.initialize();
+                // 播放本地流
+                localStream.play(viewRef.value as HTMLDivElement);
+                await client.publish(localStream);
+                props.projectSuccess()
+            } catch (error) {
+                console.error(error);
             }
-        };
-
-        const onUserVideoAvailable = (userId: string, available: unknown) => {
-            window.electron.log.info(`onUserVideoAvailable available:${available}, roomId:${props.roomId}, userId: ${userId}`);
-            if (available === 1) {
-                trtcCloud.startRemoteView(userId, viewRef.value!);
-            }
-        };
-
-        const onWarning = (warningCode: number, warningMsg: string) => {
-            window.electron.log.info(`onWarning warningCode: ${warningCode}, warningMsg: ${warningMsg}`);
-        };
-
-        const onFirstVideoFrame = (userId: string, streamType: number, width: number, height: number) => {
-            window.electron.log.info(`onFirstVideoFrame userId: ${userId}, streamType: ${streamType}, width:${width}, height: ${height}`);
-        };
-
-        const onConnectionLost = () => {
-            window.electron.log.error("onConnectionLost");
-        };
-
-        const onExitRoom = (reason: number) => { // 离开房间原因，0：主动调用 exitRoom 退房；1：被服务器踢出当前房间；2：当前房间整个被解散。
-            window.electron.log.info(`onExitRoom reason: ${reason}`);
-        };
-
-        trtcCloud.on("onError", onError);
-        trtcCloud.on("onExitRoom", onExitRoom);
-        trtcCloud.on("onEnterRoom", onEnterRoom);
-        trtcCloud.on("onWarning", onWarning);
-        trtcCloud.on("onUserVideoAvailable", onUserVideoAvailable);
-        trtcCloud.on("onFirstVideoFrame", onFirstVideoFrame);
-        trtcCloud.on("onConnectionLost", onConnectionLost);
-
+        })
         const close = () => {
             ElMessageBox.confirm("确定要结束投屏吗？", "结束投屏", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning"
-                // center: true
-            }).then(() => {
+            }).then(async () => {
+                // 停止本地流预览
+                localStream.close();
+                await client.leave();
+                // 退房成功，如果没有调用 client.destroy()，可再次调用 client.join 重新进房开启新的通话
+                // 调用 destroy() 结束当前 client 的生命周期
+                client.destroy();
                 emit("update:isShow", false);
             });
         };
@@ -107,15 +106,8 @@ export default defineComponent({
                 time.value++;
                 setTimeList();
             }, 1000);
-            window.electron.log.info("enterRoom roomId:", props.roomId);
-            trtcCloud.exitRoom();
-            const param = new TRTCParams();
-            param.sdkAppId = sdkAppId;
-            param.strRoomId = props.roomId;
-            param.userId = userId.value;
-            param.userSig = (await (await getUserSig({ sdkAppID: sdkAppId, userID: userId.value }))?.result)?.UserSig || "";
-            param.role = TRTCRoleType.TRTCRoleAudience; // 设置角色为“观众”
-            trtcCloud.enterRoom(param, TRTCAppScene.TRTCAppSceneVideoCall);
+            // await client.join({roomId: props.roomId});
+
         };
 
         function setTimeList() {
@@ -140,19 +132,21 @@ export default defineComponent({
 
         onMounted(() => {
             enterRoom();
+
         });
 
         watch(() => props.roomId, enterRoom);
 
         onUnmounted(() => {
-            trtcCloud.exitRoom();
+            client.leave();
             clearInterval(timer);
         });
 
         return {
             timeList,
             close,
-            viewRef
+            viewRef,
+            viewRefT
         };
     }
 });
@@ -161,16 +155,19 @@ export default defineComponent({
 <style lang="scss" scoped>
 .video-container {
     height: 100%;
+
     .view {
         height: 100%;
     }
 }
+
 .btn-warp {
     position: absolute;
     display: flex;
     align-items: center;
     top: 5px;
     right: 20px;
+
     .circle {
         width: 8px;
         height: 8px;
@@ -178,6 +175,7 @@ export default defineComponent({
         background: #ff6b6b;
         margin-right: 8px;
     }
+
     .time {
         color: #19203d;
         font-size: 20px;

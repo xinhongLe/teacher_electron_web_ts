@@ -1,32 +1,67 @@
 <template>
-    <div class="detail" style="height: 100%;" v-if="dialogVisible">
+    <!-- <el-dialog class="custom-fullscreen-dialog" :top="'0vh'" :append-to-body="true" v-model="dialogVisible" title=""
+        width="100%" center :close-on-click-modal="false" :show-close="false"> -->
+        <div class="detail" style="height: 100%;" v-if="dialogVisible">
         <div class="upper align-center">
             <div class="back" @click="close">
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
             </div>
-            <!-- <el-pagination background layout="prev, pager, next" :total="1000" /> -->
+            <el-pagination class="pagers" background layout="prev, pager, next" :total="columnPager.total"
+                v-model:current-page="columnPager.current" v-model:page-size="columnPager.size"
+                @current-change="handleCurrentChange" />
             <div class="top" @click="viewNext">查看下一篇</div>
         </div>
-
         <div class="box align-center">
             <div class="left">
-                <div class="head align-center">
-                    <div :class="['img-wrapper', idx === active && 'active']" v-for="(item, idx) in photoList" :key="idx"
-                        @click="switchPic(item, idx)">
-                        <img :src="item.url" alt="" />
-                    </div>
+                <div class="tab align-center">
+                    <el-tabs v-model="state.tabName" @tab-change="tabChange">
+                        <el-tab-pane name="照片">
+                            <template #label>
+                                <div class="custom-tab-label">
+                                    照片
+                                </div>
+                            </template>
+                        </el-tab-pane>
+                        <el-tab-pane name="原文">
+                            <template #label>
+                                <div class="custom-tab-label">
+                                    原文
+                                </div>
+                            </template>
+                        </el-tab-pane>
+                    </el-tabs>
                 </div>
-                <div class="img-box">
-                    <img :src="mainPic" alt="" />
+                <template v-if="state.tabName === '照片'">
+                    <div class="head align-center">
+                        <div :class="['img-wrapper', idx === active && 'active']" v-for="(item, idx) in photoList"
+                            :key="idx" @click="switchPic(item, idx)">
+                            <img :src="item.url" alt="" />
+                        </div>
+                    </div>
+                    <div class="img-box">
+                        <img :src="mainPic" alt="" />
+                    </div>
+                </template>
+                <div class="article-box" v-else>
+                    <div class="article-box-head align-center">
+                        <div class="title-box">
+                            <div class="title">《{{ state.title }}》</div>
+                            <div class="time" v-if="state.updateTime">最近修改：{{ state.updateTime }}</div>
+                        </div>
+                        <div class="author align-center">
+                            <span class="name">{{ state.author }}</span>
+                            <span class="count">{{ state.content.length }}字</span>
+                        </div>
+                    </div>
+                    <div class="article-box-words">
+                        {{ state.content }}
+                    </div>
                 </div>
             </div>
             <div class="right">
                 <div class="head align-center">
                     <span>{{ state.author }}的评价报告</span>
                     <div class="round">
-                        <!-- const value = 43
-                        const angle = -135 + (value / 100) * 180
-                        progress.style.transform = `rotate(${angle}deg)` -->
                         <div class="block" :style="`transform: rotate(${state.deg}deg);transition:all 1.5s`"></div>
                         <p>
                             <span class="score">{{ score }}</span>
@@ -73,11 +108,13 @@
         </div>
         <div class="bottom align-center">
             <div class="view" @click="viewArticle">查看原文</div>
+            <div class="export" @click="reAssess">重新生成</div>
             <div class="export" @click="exportPDF">导出为pdf</div>
         </div>
-    </div>
-    <!-- 查看原文 -->
-    <Article ref="articleRef" @view-report="closeArticle" />
+        </div>
+        <!-- 查看原文 -->
+        <Article ref="articleRef" @view-report="closeArticle" />
+    <!-- </el-dialog> -->
 </template>
 <script setup lang="ts">
 import { getOssUrl } from '@/utils/oss';
@@ -85,7 +122,7 @@ import { ElMessage } from 'element-plus';
 import moment from 'moment';
 import { reactive, ref, toRefs } from 'vue';
 import { saveAs as FileSaver } from 'file-saver'
-import { downloadPDF, editReportDetail, lookNextContent, searchReportDetail } from '../api';
+import { downloadPDF, editReportDetail, getColumnPages, lookNextContent, searchReportDetail } from '../api';
 import Article from './article.vue';
 
 const articleRef = ref()
@@ -99,9 +136,15 @@ const state = reactive({
         label: '全部',
         value: 0
     }],
+    columnPageList: [],
+    columnPager: {
+        total: 0,
+        current: 1,
+        size: 1
+    },
     assess: 2,
     score: 0,
-    deg:0,
+    deg: 0,
     inputScore: 0,
     StudentCompositionId: '',
     assessList: [
@@ -147,19 +190,46 @@ const state = reactive({
     ],
     grade: null,
     title: '',
+    content: '',
+    updateTime: null,
+    tabName: '照片',
     author: '',
     stuList: [],
     IsHaveNext: false,
     NextStudentCompositionId: ''
 })
 
-const emit = defineEmits(['close', 'save']);
+const emit = defineEmits(['close', 'save', 'reAssess']);
 
-const { gradeList, photoList, mainPic, active, score, grade, stuList, title, lineList, assessList, assess, popoverVisible } = toRefs(state)
+const { gradeList, photoList, columnPager, mainPic, active, score, grade, stuList, title, lineList, assessList, assess, popoverVisible } = toRefs(state)
+
+const handleCurrentChange = (val: number) => {
+    getDetail(state.columnPageList[val-1], true)
+}
+// 获取分页
+const loadAllPages = () => {
+    getColumnPages({ StudentCompositionId: state.StudentCompositionId }).then((res: any) => {
+        if (res.success) {
+            let result = res.result
+            state.columnPageList = result.CompositionIds
+            state.columnPager.total = result.CompositionIds.length
+            state.columnPager.current = result.CompositionIds.findIndex((v: any) => v === result.CurrentCompositionId) + 1
+        }
+    })
+}
+
+const tabChange = (name: any) => {
+    state.tabName = name
+}
 
 const switchPic = (item: any, idx: number) => {
     state.active = idx
     state.mainPic = item.url
+}
+
+const reAssess = () => {
+    emit('reAssess', { StudentCompositionId: state.StudentCompositionId })
+    close()
 }
 
 /**
@@ -167,7 +237,7 @@ const switchPic = (item: any, idx: number) => {
  */
 const viewNext = () => {
     if (state.IsHaveNext) {
-        getDetail(state.NextStudentCompositionId,true)
+        getDetail(state.NextStudentCompositionId, true)
     } else {
         ElMessage.error('当前为最后一篇')
     }
@@ -196,7 +266,7 @@ const exportPDF = () => {
 }
 
 // 
-const closeArticle = ()=>{
+const closeArticle = () => {
     articleRef.value.close()
 }
 
@@ -245,6 +315,7 @@ const editLine = (item: any, idx: number) => {
 
 // 关闭
 const close = () => {
+    state.tabName = '照片'
     dialogVisible.value = false
     emit('close')
 }
@@ -252,11 +323,13 @@ const close = () => {
 const openDialog = async (info?: any) => {
     const { StudentCompositionId } = info
     state.StudentCompositionId = StudentCompositionId
-    getDetail(StudentCompositionId,false)
+    //
+    loadAllPages()
+    getDetail(StudentCompositionId, false)
 }
 
-const getDetail = (id: string,isRequestNext?:boolean) => {
-    if(isRequestNext){
+const getDetail = (id: string, isRequestNext?: boolean) => {
+    if (isRequestNext) {
         state.StudentCompositionId = id
     }
     searchReportDetail({ StudentCompositionId: id }).then(async (res: any) => {
@@ -268,6 +341,10 @@ const getDetail = (id: string,isRequestNext?:boolean) => {
             state.assessment = result.AppraiseLevelDisplay
             state.assess = result.AppraiseLevel//state.assessList.findIndex(v => v.name == state.assessment)
             state.author = result.StudentName || ''
+            //
+            state.title = result.Title
+            state.content = result.Content
+            state.updateTime = result.UpdateTime || null
             state.lineList.forEach((ele: any) => {
                 ele.content = result[ele.key]
             })
@@ -306,6 +383,20 @@ defineExpose({
     openDialog,
 })
 </script>
+<style lang="scss">
+.custom-fullscreen-dialog {
+    width: 100%;
+    height: 100%;
+
+    .el-dialog__body {
+        padding: 0 !important;
+    }
+
+    .el-dialog__header {
+        display: none;
+    }
+}
+</style>
 <style lang="scss" scoped>
 :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
     background-color: #fff !important;
@@ -321,6 +412,89 @@ defineExpose({
         color: #fff !important;
         border: 1px solid rgba(255, 255, 255, 0.5) !important;
         cursor: pointer !important;
+    }
+}
+
+.article-box {
+    height: calc(100% - 46px);
+    overflow-y: auto;
+    padding: 16px 5px 16px 0;
+    box-sizing: border-box;
+
+    .article-box-words {
+        width: 100%;
+        // height: calc(100% - 90px);
+        // overflow: auto;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #19203D;
+        line-height: 22px;
+        // padding: 18px;
+        white-space: pre-wrap;
+        border-radius: 4px;
+        // border: 1px solid #E0E2E7;
+    }
+
+    .article-box-head {
+        margin-bottom: 28px;
+        // border-bottom: 1px solid fade-out($color: #E0E2E7, $amount: 0.5);
+        position: relative;
+        justify-content: center;
+
+        .title-box {
+            width: fit-content;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .time {
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #A7AAB4;
+            margin-top: 8px;
+        }
+
+        .title {
+            // min-width: 168px;
+            // max-width: 300px;
+            text-align: center;
+            margin-bottom: 6px;
+            background: #FFFFFF;
+            // border-radius: 4px;
+            // border: 1px solid #E0E2E7;
+            font-size: 20px;
+            font-family: PingFangSC-Semibold, PingFang SC;
+            font-weight: 600;
+            color: #19203D;
+        }
+
+        .author {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+
+            .name {
+                font-size: 16px;
+                font-family: PingFangSC-Semibold, PingFang SC;
+                font-weight: 600;
+                color: #A7AAB4;
+                padding-right: 12px;
+                position: relative;
+                border-right: 1px solid #EFF0F3;
+            }
+
+            .count {
+                margin-left: 12px;
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #A7AAB4;
+            }
+        }
     }
 }
 
@@ -354,7 +528,9 @@ defineExpose({
     font-family: PingFangSC-Semibold, PingFang SC;
     font-weight: 600;
     color: #FFFFFF;
-    position: relative;
+    -webkit-app-region: no-drag;
+    // position: fixed;
+    // z-index: 88;
 
     .back {
         position: absolute;
@@ -389,12 +565,42 @@ defineExpose({
 }
 
 
+:deep(.el-tabs__header) {
+    margin: 0;
+}
+
+:deep(.el-tabs) {
+    width: 100%;
+    border-bottom: 1px solid fade-out($color: #E0E2E7, $amount: 0.5);
+}
+
+:deep(.el-tabs__active-bar) {
+    background-color: #4B71EE;
+    height: 3px;
+}
+
+:deep(.el-tabs__item) {
+    font-size: 16px;
+    font-family: PingFangSC-Semibold, PingFang SC;
+    font-weight: 600;
+    color: #A7AAB4;
+}
+
+:deep(.el-tabs__item.is-active, .el-tabs__item:hover) {
+    color: #19203D;
+}
+
+:deep(.el-tabs__nav-wrap::after) {
+    position: static !important;
+}
+
 .box {
     height: calc(100% - 56px);
     overflow-y: auto;
     background-color: #F5F6FA;
     padding: 16px 16px 72px 16px;
     box-sizing: border-box;
+    align-items: flex-start !important;
 
     &>div {
         background-color: #fff;
@@ -405,12 +611,21 @@ defineExpose({
 
     .left {
         margin-right: 16px;
-        padding: 24px;
+        padding: 0 24px 24px 24px;
         box-sizing: border-box;
 
+        .tab {
+            height: 56px;
+            justify-content: space-between;
+            // margin-bottom: 8px;
+            background-color: #fff;
+            // padding: 0 16px;
+            // box-sizing: border-box;
+        }
+
         .head {
-            padding-bottom: 24px;
-            border-bottom: 1px solid fade-out($color: #E0E2E7, $amount: 0.5);
+            padding-bottom: 16px;
+            // border-bottom: 1px solid fade-out($color: #E0E2E7, $amount: 0.5);
 
             .img-wrapper {
                 width: 56px;
@@ -450,10 +665,10 @@ defineExpose({
         }
 
         .img-box {
-            padding-top: 24px;
+            // padding-top: 24px;
             padding-bottom: 30px;
             box-sizing: border-box;
-            height: calc(100% - 81px);
+            height: calc(100% - 137px);
             overflow-y: auto;
 
             img {

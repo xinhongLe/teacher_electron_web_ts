@@ -1,11 +1,10 @@
+<<<<<<< HEAD
 import {createRouter, createWebHistory, RouteRecordRaw} from "vue-router";
+=======
+import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } from "vue-router";
+>>>>>>> e0c9b124a57d7ccbeb4f436247c8e7361a69e76b
 
 const routes: Array<RouteRecordRaw> = [
-    {
-        path: "/login",
-        name: "Login",
-        component: () => import("@/views/login/index.vue"),
-    },
     {
         path: "/:catchAll(.*)",
         redirect: "/",
@@ -171,7 +170,7 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes,
 });
 

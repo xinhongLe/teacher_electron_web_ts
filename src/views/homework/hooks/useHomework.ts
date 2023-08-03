@@ -1,10 +1,11 @@
 import router from "@/router";
-import { Homework } from "@/types/homework";
-import { LessonClasses, LessonSubject } from "@/types/login";
-import { get, STORAGE_TYPES } from "@/utils/storage";
+import {Homework} from "@/types/homework";
+import {LessonClasses, LessonSubject} from "@/types/login";
+import {get, STORAGE_TYPES} from "@/utils/storage";
 import moment from "moment";
-import { onActivated, reactive, ref, toRefs } from "vue";
-import { fetchClassHomeworkPaperList, fetchHomeworkDateByYear } from "../api";
+import {computed, nextTick, onActivated, reactive, ref, toRefs, watch} from "vue";
+import {fetchClassHomeworkPaperList, fetchHomeworkDateByYear, GetMySubjectByOrgId} from "../api";
+import {store} from "@/store";
 
 export default () => {
     const form = reactive({
@@ -12,7 +13,7 @@ export default () => {
         date: ""
     });
     const subjectList = ref<LessonSubject[]>([]);
-    const classList = ref<LessonClasses[]>([]);
+    // const classList = ref<{ ClassName: string, ClassId: string }[]>([]);
     const dateList = ref<string[]>([]);
     const homeworkListMap = ref<Record<string, Homework[]>>({});
     const selectClassId = ref("");
@@ -32,18 +33,16 @@ export default () => {
         };
         const res = await fetchClassHomeworkPaperList(data);
         if (res.resultCode === 200) {
-            const detailList = res.result.map((item:any) => {
+            const detailList = res.result.map((item: any) => {
                 return {
                     ...item,
                     showPublish: moment(item.AnswerShowTime) > moment(new Date())
                 };
             });
             detailList.forEach(item => {
-                const { ClassID } = item;
+                const {ClassID} = item;
                 homeworkListMap.value[ClassID] ? homeworkListMap.value[ClassID].push(item) : (homeworkListMap.value[ClassID] = [item]);
             });
-            console.log(detailList, "----");
-            console.log(homeworkListMap.value, "----");
         }
     };
 
@@ -73,17 +72,37 @@ export default () => {
         }
     };
 
-    const initData = () => {
-        const userInfo = get(STORAGE_TYPES.USER_INFO);
-        subjectList.value = (userInfo.Subjects as LessonSubject[]).filter(
-            ({ Name }) => Name !== "拼音"
-        );
-        classList.value = userInfo.Classes.reverse();
-        !form.subject && (form.subject = subjectList.value[0] ? subjectList.value[0].ID : form.subject);
-        !selectClassId.value && classList.value.length > 0 && (selectClassId.value = classList.value[0].ID);
+    const classList: any = computed(() => store.state.userInfo.classList);
 
-        getHasTaskDate();
+    const initData = async () => {
+        const userInfo = get(STORAGE_TYPES.USER_INFO);
+        const subData = await GetMySubjectByOrgId();
+        if (subData.success && subData.resultCode === 200) {
+            console.log('subData', subData)
+            // subjectList.value = (userInfo.Subjects as LessonSubject[]).filter(
+            //     ({Name}) => Name !== "拼音"
+            // );
+            subjectList.value = subData.result;
+            form.subject = subjectList.value.length ? subjectList.value[0].ID : "";
+            const currentClass: any = store.state.userInfo.currentSelectClass;
+            selectClassId.value = currentClass?.ClassAixueshiId || classList.value[0]?.ClassAixueshiId;
+            console.log('selectClassId', selectClassId.value)
+            getHasTaskDate();
+        }
     };
+    // 当前用户信息
+    const currentUserInfoSchoolId = computed(() => store.state.userInfo.schoolId);
+    watch(() => currentUserInfoSchoolId.value, (val: any) => {
+        if (val) {
+            setTimeout(() => {
+                initData()
+            }, 200)
+        }
+    }, {deep: true});
+    watch(() => store.state.userInfo.currentSelectClass, (val: any) => {
+        if (!val.ClassId) return;
+        initData()
+    }, {deep: true})
 
     onActivated(() => {
         initData();
