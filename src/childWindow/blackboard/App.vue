@@ -354,17 +354,22 @@ export default defineComponent({
         const {undoClick, recoverClick, isAction, deleteState, currentState} = useUndoOrRecover(fabCanvas, clear);
 
         function init() {
-            fabCanvas.value = new window.fabric.Canvas(canvasRef.value, {
-                backgroundColor: blackColor,
-                width: Number(boxRef.value?.offsetWidth),
-                height: Number(boxRef.value?.offsetHeight),
-                // width:100%,
-                // height:100%
-            });
-            // 禁止橡皮擦除背景色
-            fabCanvas.value.get("backgroundColor").set({erasable: false});
-            fabCanvas.value.freeDrawingBrush.width = 2;
-            selectPenMode();
+            nextTick(() => {
+                if (canvasRef.value) {
+                    fabCanvas.value = new window.fabric.Canvas(canvasRef.value, {
+                        backgroundColor: blackColor,
+                        width: Number(boxRef.value?.offsetWidth),
+                        height: Number(boxRef.value?.offsetHeight),
+                        // width:100%,
+                        // height:100%
+                    });
+                    // 禁止橡皮擦除背景色
+                    fabCanvas.value.get("backgroundColor").set({erasable: false});
+                    fabCanvas.value.freeDrawingBrush.width = 2;
+                    selectPenMode();
+                }
+
+            })
         }
 
         const moveClick = () => {
