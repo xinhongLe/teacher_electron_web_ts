@@ -53,10 +53,9 @@ const unfoldSuspensionURL =
         ? `${process.env.WEBPACK_DEV_SERVER_URL}unfoldSuspension.html`
         : `file://${__dirname}/unfoldSuspension.html`;
 
-const blackboardURL =
-    process.env.NODE_ENV === "development"
-        ? `${process.env.WEBPACK_DEV_SERVER_URL}blackboard.html`
-        : `file://${__dirname}/blackboard.html`;
+const blackboardURL = process.env.NODE_ENV === "development"
+    ? `${process.env.WEBPACK_DEV_SERVER_URL}blackboard.html`
+    : `file://${__dirname}/blackboard.html`;
 
 const projectionURL =
     process.env.NODE_ENV === "development"
@@ -262,6 +261,7 @@ function createUnfoldSuspensionWindow() {
 }
 
 function createBlackboardWindow() {
+    console.log('blackboardURL', blackboardURL)
     blackboardWin = createWindow(blackboardURL, {
         width: 1000,
         height: 600,
@@ -327,27 +327,22 @@ function createAnswerMachineWindow(allStudentList: []) {
 
 function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
     quickAnswerWin = createWindow(quickAnswerURL, {
-        // width: 620,
-        // height: 420,
-        // // fullscreen: true,
-        // center: true,
-        // show: false,
-        // useContentSize: true,
-        // transparent: true,
-        // type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // width: 800,
         // frame: false, // 要创建无边框窗口
         // alwaysOnTop: true,
+        // resizable: false, // 是否允许窗口大小缩放
+        // height: 600,
+        // useContentSize: true,
+        // maximizable: false,
 
-        // transparent: true,
-        width: 800,
-        frame: false, // 要创建无边框窗口
-        alwaysOnTop: true,
-        resizable: false, // 是否允许窗口大小缩放
-        height: 600,
+        fullscreen: true,
+        center: true,
+        show: false,
         useContentSize: true,
-        maximizable: false,
+        transparent: true,
+        frame: false, // 要创建无边框窗口
     });
-    // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
+    quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
     quickAnswerWin.on("ready-to-show", () => {
         quickAnswerWin && quickAnswerWin.show();

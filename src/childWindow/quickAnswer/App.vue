@@ -117,19 +117,19 @@ export default defineComponent({
 .quick-answer-app {
     width: 100%;
     height: 100vh;
-    //display: flex;
-    //justify-content: center;
-    //align-items: center;
-    //background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .quickAnswer {
-    width: 100%;
-    height: 100%;
-
-    #attend-class {
-        width: 100%;
-        height: 100%;
-    }
+    //width: 800px;
+    //height: 600px;
+    //display: flex;
+    //flex-direction: column;
+    //padding-bottom: 24px;
+    //-webkit-app-region: no-drag;
+    //border-radius: 8px;
+    //background: #fff;
 }
 </style>
