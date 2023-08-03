@@ -69,37 +69,24 @@
                             go('assessment-center'),
                             clicKBuryPoint('评测中心')
                         ">
-<<<<<<< HEAD
                                 <div class="item_div">
                                     <img src="../../assets/indexImages/pic_kaoshi_new.png" alt=""/>
                                     <span>测评中心</span>
                                 </div>
-=======
-                            <div class="item_div">
-                                <img src="../../assets/indexImages/pic_kaoshi_new.png" alt=""/>
-                                <span>测评中心</span>
->>>>>>> e0c9b124a57d7ccbeb4f436247c8e7361a69e76b
                             </div>
                         </div>
                         <div class="bottom-item">
                             <div class="item" @click="
                             go('wrongbook'), clicKBuryPoint('班级错题本')
                         ">
-<<<<<<< HEAD
                                 <div class="item_div">
                                     <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>
                                     <span>班级错题本</span>
                                 </div>
-=======
-                            <div class="item_div">
-                                <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>
-                                <span>班级错题本</span>
->>>>>>> e0c9b124a57d7ccbeb4f436247c8e7361a69e76b
                             </div>
                             <div class="item" @click="
                             go('class-manage'), clicKBuryPoint('班级管理')
                         ">
-<<<<<<< HEAD
                                 <div class="item_div">
                                     <img src="../../assets/indexImages/icon_xuesheng.png" alt=""/>
                                     <span>班级管理</span>
@@ -110,17 +97,6 @@
                                     <img src="../../assets/indexImages/icon_more.png" alt=""/>
                                     <span>更多</span>
                                 </div>
-=======
-                            <div class="item_div">
-                                <img src="../../assets/indexImages/icon_xuesheng.png" alt=""/>
-                                <span>班级管理</span>
-                            </div>
-                        </div>
-                        <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">
-                            <div class="item_div">
-                                <img src="../../assets/indexImages/icon_more.png" alt=""/>
-                                <span>更多</span>
->>>>>>> e0c9b124a57d7ccbeb4f436247c8e7361a69e76b
                             </div>
                         </div>
 
@@ -239,10 +215,7 @@ import {debounce} from "lodash";
 import {get, STORAGE_TYPES, storeChange} from "@/utils/storage";
 import {getPlatformByOrgId} from "@/api/home";
 import {UserInfoState} from "@/types/store";
-<<<<<<< HEAD
 import useMaximizeWindow from "@/hooks/useMaximizeWindow";
-=======
->>>>>>> e0c9b124a57d7ccbeb4f436247c8e7361a69e76b
 
 export default defineComponent({
     name: "Home",

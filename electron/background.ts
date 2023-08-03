@@ -1,14 +1,14 @@
 import os from "os";
 import path from "path";
-import {exec} from "child_process";
+import { exec } from "child_process";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
-import downloadFile, {store} from "./downloadFile";
-import {STORAGE_TYPES} from "@/utils/storage";
-import {createWinCardWindow} from "./wincard";
-import {initialize, enable} from "@electron/remote/main";
-import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
-import {app, protocol, BrowserWindow, ipcMain, Menu, screen} from "electron";
+import downloadFile, { store } from "./downloadFile";
+import { STORAGE_TYPES } from "@/utils/storage";
+import { createWinCardWindow } from "./wincard";
+import { initialize, enable } from "@electron/remote/main";
+import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+import { app, protocol, BrowserWindow, ipcMain, Menu, screen } from "electron";
 import {
     registerVirtualKeyBoard,
     closeKeyBoard,
@@ -19,9 +19,13 @@ import {
     createLocalPreviewWindow,
     registerEvent,
     unfoldSuspensionWinSendMessage,
-    courseShow
+    courseShow,
 } from "./suspension";
-import { registerPblWinCardEvent, registerPblWinCardLessonEvent, registerPreviewFileEvent } from "./pblWincard";
+import {
+    registerPblWinCardEvent,
+    registerPblWinCardLessonEvent,
+    registerPreviewFileEvent,
+} from "./pblWincard";
 
 const editWinList = new Map<number, any>();
 const isDevelopment = process.env.NODE_ENV !== "production";
@@ -29,7 +33,7 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 initialize();
 
 protocol.registerSchemesAsPrivileged([
-    {scheme: "app", privileges: {secure: true, standard: true}},
+    { scheme: "app", privileges: { secure: true, standard: true } },
     {
         scheme: "http",
         privileges: {
@@ -150,7 +154,6 @@ const onReady = () => {
     }
 
     registerEvent();
-    registerVirtualKeyBoard();
     registerPblWinCardEvent();
     registerPblWinCardLessonEvent();
     registerPreviewFileEvent();
@@ -311,24 +314,23 @@ const onReady = () => {
         closeKeyBoard();
     });
 
-    ipcMain.on('updateSelectClass', (e, v) => {
-        mainWindow!.webContents.send('updateSelectClass', v)
-    })
-    ipcMain.on('closeCourse', (e, v) => {
-        mainWindow!.webContents.send('closeCourse', v)
-    })
+    ipcMain.on("updateSelectClass", (e, v) => {
+        mainWindow!.webContents.send("updateSelectClass", v);
+    });
+    ipcMain.on("closeCourse", (e, v) => {
+        mainWindow!.webContents.send("closeCourse", v);
+    });
     ipcMain.handle("closeCourse", () => {
         mainWindow!.webContents.send("closeCourse");
     });
 
-    ipcMain.on('setCourseMaximize', (v) => {
-        mainWindow!.webContents.send('setCourseMaximize', v)
-    })
+    ipcMain.on("setCourseMaximize", (v) => {
+        mainWindow!.webContents.send("setCourseMaximize", v);
+    });
     ipcMain.handle("setCourseMaximize", (v, data) => {
         mainWindow!.webContents.send("setCourseMaximize", JSON.parse(data));
-        courseShow()
+        courseShow();
     });
-
 };
 
 app.on("window-all-closed", () => {
@@ -430,7 +432,7 @@ app.on("render-process-gone", (event, webContents, details) => {
 });
 
 app.on("child-process-gone", (event, details) => {
-    const {type, reason, exitCode, serviceName, name} = details;
+    const { type, reason, exitCode, serviceName, name } = details;
     ElectronLog.error(
         `child-process-gone, reason: ${reason}, exitCode: ${exitCode}, type:${type}, serviceName: ${serviceName}, name: ${name}`
     );
