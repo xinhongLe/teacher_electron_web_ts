@@ -117,19 +117,15 @@ export default defineComponent({
 .quick-answer-app {
     width: 100%;
     height: 100vh;
-    //display: flex;
-    //justify-content: center;
-    //align-items: center;
-    //background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .quickAnswer {
-    width: 100%;
-    height: 100%;
-
-    #attend-class {
-        width: 100%;
-        height: 100%;
-    }
+    width: 600px;
+    height: 430px;
+    background: #fff;
+    box-shadow: 0px 6px 16px -8px rgb(0 0 0 / 12%), 0px 9px 28px 0px rgb(0 0 0 / 8%), 0px 12px 48px 16px rgb(0 0 0 / 5%);
 }
 </style>

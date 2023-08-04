@@ -361,6 +361,7 @@ export default defineComponent({
                 // width:100%,
                 // height:100%
             });
+            console.log('fabCanvas.value', fabCanvas.value)
             // 禁止橡皮擦除背景色
             fabCanvas.value.get("backgroundColor").set({erasable: false});
             fabCanvas.value.freeDrawingBrush.width = 2;
@@ -454,7 +455,6 @@ export default defineComponent({
         onMounted(() => {
             init();
             fabCanvas.value.on("object:added", function (e: any) {
-                console.log('123')
                 if (isAction.value) {
                     return;
                 }

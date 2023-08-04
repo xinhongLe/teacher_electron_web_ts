@@ -71,14 +71,14 @@ module.exports = {
         },
         timer: {
             entry: "src/childWindow/timer/main.ts",
-            template: "public/index.html",
+            template: "public/timer.html",
             filename: "timer.html",
             title: "计时器",
             chunks: ["timer"]
         },
         projection: {
             entry: "src/childWindow/projection/main.ts",
-            template: "public/index.html",
+            template: "public/projection.html",
             filename: "projection.html",
             title: "投影",
             chunks: ["projection"]
@@ -99,35 +99,35 @@ module.exports = {
         },
         answerMachine: {
             entry: "src/childWindow/answerMachine/main.ts",
-            template: "public/index.html",
+            template: "public/answerMachine.html",
             filename: "answerMachine.html",
-            title: "",
+            title: "答题器",
             chunks: ["answerMachine"]
         },
         blackboard: {
             entry: "src/childWindow/blackboard/main.ts",
-            template: "public/index.html",
+            template: "public/blackboard.html",
             filename: "blackboard.html",
             title: "教学黑板",
             chunks: ["blackboard"]
         },
         winView: {
             entry: "src/childWindow/winView/main.ts",
-            template: "public/index.html",
+            template: "public/winView.html",
             filename: "winView.html",
             title: "",
             chunks: ["winView"]
         },
         teamCompetition: {
             entry: "src/childWindow/teamCompetition/main.ts",
-            template: "public/index.html",
+            template: "public/teamCompetition.html",
             filename: "teamCompetition.html",
             title: "小组比拼",
             chunks: ["teamCompetition"]
         },
         teamCompetition2: {
             entry: "src/childWindow/teamCompetition2/main.ts",
-            template: "public/index.html",
+            template: "public/teamCompetition.html",
             filename: "teamCompetition2.html",
             title: "小组比拼2",
             chunks: ["teamCompetition2"]
@@ -145,6 +145,27 @@ module.exports = {
             filename: "virtualKeyBoard.html",
             title: "键盘",
             chunks: ["virtualKeyBoard"]
+        },
+        pblEditWinCard: {
+            entry: "src/childWindow/pblEditWinCard/main.ts",
+            template: "public/template.html",
+            filename: "pblEditWinCard.html",
+            title: "pbl编辑",
+            chunks: ["pblEditWinCard"]
+        },
+        pblEditWinCardLesson: {
+            entry: "src/childWindow/pblEditWinCardLesson/main.ts",
+            template: "public/template.html",
+            filename: "pblEditWinCardLesson.html",
+            title: "pbl窗卡页预览",
+            chunks: ["pblEditWinCardLesson"]
+        },
+        pblFilePreview: {
+            entry: "src/childWindow/pblFilePreview/main.ts",
+            template: "public/template.html",
+            filename: "pblFilePreview.html",
+            title: "pbl文件预览",
+            chunks: ["pblFilePreview"]
         }
     },
     css: {

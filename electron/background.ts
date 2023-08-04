@@ -19,8 +19,13 @@ import {
     createLocalPreviewWindow,
     registerEvent,
     unfoldSuspensionWinSendMessage,
-    courseShow
+    courseShow,
 } from "./suspension";
+import {
+    registerPblWinCardEvent,
+    registerPblWinCardLessonEvent,
+    registerPreviewFileEvent,
+} from "./pblWincard";
 
 const editWinList = new Map<number, any>();
 const isDevelopment = process.env.NODE_ENV !== "production";
@@ -149,6 +154,9 @@ const onReady = () => {
     }
 
     registerEvent();
+    registerPblWinCardEvent();
+    registerPblWinCardLessonEvent();
+    registerPreviewFileEvent();
 
     ipcMain.handle("logout", () => {
         createLoginWindow();
@@ -243,6 +251,10 @@ const onReady = () => {
         mainWindow && mainWindow.webContents.send("openWindow", data);
     });
 
+    ipcMain.handle("closePblWincard", (_, data) => {
+        mainWindow && mainWindow.webContents.send("closePblWincard", data);
+    });
+
     // 上课消息通知
     ipcMain.on("attendClass", (e, to, data) => {
         if (to === "unfoldSuspension") {
@@ -302,24 +314,23 @@ const onReady = () => {
         closeKeyBoard();
     });
 
-    ipcMain.on('updateSelectClass', (e, v) => {
-        mainWindow!.webContents.send('updateSelectClass', v)
-    })
-    ipcMain.on('closeCourse', (e, v) => {
-        mainWindow!.webContents.send('closeCourse', v)
-    })
+    ipcMain.on("updateSelectClass", (e, v) => {
+        mainWindow!.webContents.send("updateSelectClass", v);
+    });
+    ipcMain.on("closeCourse", (e, v) => {
+        mainWindow!.webContents.send("closeCourse", v);
+    });
     ipcMain.handle("closeCourse", () => {
         mainWindow!.webContents.send("closeCourse");
     });
 
-    ipcMain.on('setCourseMaximize', (v) => {
-        mainWindow!.webContents.send('setCourseMaximize', v)
-    })
+    ipcMain.on("setCourseMaximize", (v) => {
+        mainWindow!.webContents.send("setCourseMaximize", v);
+    });
     ipcMain.handle("setCourseMaximize", (v, data) => {
         mainWindow!.webContents.send("setCourseMaximize", JSON.parse(data));
-        courseShow()
+        courseShow();
     });
-
 };
 
 app.on("window-all-closed", () => {
