@@ -339,7 +339,7 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
         transparent: true,
         frame: false, // 要创建无边框窗口
     });
-    quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
+    // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
     quickAnswerWin.on("ready-to-show", () => {
         quickAnswerWin && quickAnswerWin.show();

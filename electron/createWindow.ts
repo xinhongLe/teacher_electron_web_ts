@@ -12,13 +12,13 @@ export const createWindow = (url: string, option: BrowserWindowConstructorOption
             preload: path.join(__dirname, "preload.js"),
             nodeIntegrationInWorker: true,
             contextIsolation: false,
-            // devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
             ...option.webPreferences
         }
     });
 
     require("@electron/remote/main").enable(win.webContents);
     win.loadURL(url);
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
     return win;
 };
