@@ -1,6 +1,6 @@
 <template>
     <div ref="calendarRef" class="calendar" :style="calendarStyles">
-        <slot :initSchedules="initSchedules" />
+        <slot :initSchedules="initSchedules"/>
         <div class="content-header">
             <div class="item">上课时间</div>
             <div v-for="(day, index) in days" :key="day" class="item" :class="{ current: isCurrentDay(day) }">
@@ -9,7 +9,7 @@
         </div>
         <div class="content">
             <div class="no-newSchedules" v-if="newSchedules?.length === 0">
-                <img src="@/assets/indexImages/pic_none.png" alt="" />
+                <img src="@/assets/indexImages/pic_none.png" alt=""/>
                 未检测到教师课表
             </div>
             <div class="content-box" ref="contentRef">
@@ -18,23 +18,25 @@
                         <span>{{ col.fontShowTime }}</span>
                         <span>{{ col.SectionName }}</span>
                     </div>
-                    <Course v-for="item in col.colData" :key="item.index" :rowData="col" :colData="item" :isDrop="isDrop"
-                        :isShowText="isShowText" :isShowDelete="isShowDelete" :isShowDetailBtn="isShowDetailBtn"
-                        @openCourse="openCourse" @createHomePoint="createHomePoint" @openClassDialog="openClassDialog"
-                        @openLessonDialogTip="openLessonDialogTip" @openDeleteDialogTip="openDeleteDialogTip"
-                        :ref="'courseRef' + col.APMP + col.SectionName + item.index" />
+                    <Course v-for="item in col.colData" :key="item.index" :rowData="col" :colData="item"
+                            :isDrop="isDrop"
+                            :isShowText="isShowText" :isShowDelete="isShowDelete" :isShowDetailBtn="isShowDetailBtn"
+                            @openCourse="openCourse" @createHomePoint="createHomePoint"
+                            @openClassDialog="openClassDialog"
+                            @openLessonDialogTip="openLessonDialogTip" @openDeleteDialogTip="openDeleteDialogTip"
+                            :ref="'courseRef' + col.APMP + col.SectionName + item.index"/>
                 </div>
             </div>
         </div>
     </div>
-    <selectClass v-if="classVisible" v-model:classVisible="classVisible" @selectedClassList="selectedClassList" />
-    <hasLessonDialogTip v-model:hasLessonVisible="hasLessonVisible" @replaceOrAddPackage="replaceOrAddPackage" />
+    <selectClass v-if="classVisible" v-model:classVisible="classVisible" @selectedClassList="selectedClassList"/>
+    <hasLessonDialogTip v-model:hasLessonVisible="hasLessonVisible" @replaceOrAddPackage="replaceOrAddPackage"/>
     <deleteLessonDialogTip v-if="deleteLessonVisible" v-model:deleteLessonVisible="deleteLessonVisible"
-        :currentPackageList="currentPackageList" @sureDeletePackage="sureDeletePackage" />
+                           :currentPackageList="currentPackageList" @sureDeletePackage="sureDeletePackage"/>
 </template>
 
 <script lang="ts">
-import useSchedules, { NewColData } from "@/hooks/useSchedules";
+import useSchedules, {NewColData} from "@/hooks/useSchedules";
 import useTime from "@/hooks/useTime";
 import moment from "moment";
 import selectClass from "@/components/selectClass/index.vue";
@@ -53,8 +55,9 @@ import {
 } from "vue";
 import Course from "./Course.vue";
 import usePageEvent from "@/hooks/usePageEvent";
-import { EVENT_TYPE } from "@/config/event";
-import { useRoute } from "vue-router";
+import {EVENT_TYPE} from "@/config/event";
+import {useRoute} from "vue-router";
+
 export default defineComponent({
     name: "Calendar",
     props: {
@@ -79,12 +82,11 @@ export default defineComponent({
             default: false,
         },
     },
-    setup(props, { expose, emit }) {
+    setup(props, {expose, emit}) {
         const proxy = getCurrentInstance();
-
         //首页上课区域点击埋点
-        const { createBuryingPointFn } = usePageEvent("首页");
-        const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
+        const {createBuryingPointFn} = usePageEvent("首页");
+        const {weekNext, weekPre, initDays, formTime, formWeek} = useTime();
         initDays();
         const days = computed(() => props.days);
         const classVisible = ref(false);// 选择班级弹框
@@ -118,34 +120,41 @@ export default defineComponent({
         const resize = () => {
             nextTick(() => {
                 if (route.path === "/home" && calendarRef.value) {
-                    width.value = window.innerWidth * 0.6;
-                    height.value = calendarRef.value.parentElement.clientHeight;
-                    const calendarHeight = height.value;
-                    const contentHeight = calendarHeight - 128;
-                    const contentScrollHeight = contentRef.value.scrollHeight;
-                    if (contentHeight < contentScrollHeight) {
-                        // 内容放置不下
-                        scale.value = calendarHeight / (contentScrollHeight + 128);
-                        height.value = height.value / scale.value;
-                    }
+                    // width.value = window.innerWidth * 0.6;
+                    // height.value = calendarRef.value.parentElement.clientHeight;
+                    // const calendarHeight = height.value;
+                    // const contentHeight = calendarHeight - 128;
+                    // const contentScrollHeight = contentRef.value.scrollHeight;
+                    // if (contentHeight < contentScrollHeight) {
+                    //     // 内容放置不下
+                    //     scale.value = calendarHeight / (contentScrollHeight + 128);
+                    //     height.value = height.value / scale.value;
+                    // }
 
                     // if (calendarRef.value.parentElement.clientHeight !== height.value * scale.value) {
                     //     // 内容高度小，需要重新计算
                     //     calendarRef.value.parentElement.style.width = calendarRef.value.parentElement.clientHeight / height.value / scale.value * calendarRef.value.parentElement.clientWidth;
                     //     // resize();
                     // } else {
-                    calendarRef.value.parentElement.style.width = width.value * (scale.value > 1 ? 1 : scale.value) + "px";
+                    // calendarRef.value.parentElement.style.width = width.value * (scale.value > 1 ? 1 : scale.value) + "px";
                     // }
 
                     // window.electron.log.info("====== 就算元素大小 ====", width.value, scale.value, width.value * scale.value, calendarRef.value.parentElement.style.width, calendarRef.value.parentElement.clientWidth);
                 }
             });
         };
-
+        watch(() => newSchedules.value, (val) => {
+            if (val) {
+                nextTick(() => {
+                    console.log('---------reLoadLayout',)
+                    emit("reLoadLayout");
+                })
+            }
+        })
         const route = useRoute();
         nextTick(() => {
             if (route.path === "/home") {
-                calendarRef.value.parentElement.style.width = window.innerWidth * 0.6 + "px";
+                // calendarRef.value.parentElement.style.width = window.innerWidth * 0.6 + "px";
             }
         });
 
@@ -154,7 +163,7 @@ export default defineComponent({
         //     window.removeEventListener("resize", resize);
         // });
 
-        expose({ initSchedules, resize, updateClassSchedule });
+        expose({initSchedules, resize, updateClassSchedule});
 
         const scale = ref(1);
         const height = ref(0);
@@ -164,10 +173,15 @@ export default defineComponent({
         // watch(newSchedules, resize);
 
         const calendarStyles = computed(() => {
+            // return route.path === "/home" ? {
+            //     transform: `scale(${scale.value})`,
+            //     height: `${height.value}px`,
+            //     width: `${width.value}px`,
+            // } : {};
+
             return route.path === "/home" ? {
-                transform: `scale(${scale.value})`,
-                height: `${height.value}px`,
-                width: `${width.value}px`,
+                height: `100%`,
+                width: `100%`,
             } : {};
         });
         const currentCourseId = ref("");
@@ -241,7 +255,7 @@ export default defineComponent({
         };
     },
 
-    components: { Course, selectClass, hasLessonDialogTip, deleteLessonDialogTip }
+    components: {Course, selectClass, hasLessonDialogTip, deleteLessonDialogTip}
 });
 </script>
 
@@ -318,7 +332,8 @@ export default defineComponent({
     padding: 0 16px 16px;
 
     .col {
-        min-height: 82px;
+        min-height: 30px;
+        //min-height: 35px;
         display: flex;
         align-items: center;
         flex-shrink: 0;
@@ -353,6 +368,27 @@ export default defineComponent({
             flex: 1;
             border-left: none;
             flex-direction: column;
+        }
+
+        @media screen and (max-width: 1100px) {
+            .time {
+                font-size: 8px;
+            }
+        }
+        @media screen and (min-width: 1100px) and (max-width: 1500px) {
+            .time {
+                font-size: 12px;
+            }
+        }
+        @media screen and (min-width: 1500px) and (max-width: 1920px) {
+            .time {
+                font-size: 14px;
+            }
+        }
+        @media screen and (min-width: 1920px) {
+            .time {
+                font-size: 16px;
+            }
         }
 
         .course {
@@ -417,4 +453,6 @@ export default defineComponent({
         }
     }
 }
+
+
 </style>
