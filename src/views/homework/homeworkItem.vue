@@ -632,7 +632,10 @@ export default defineComponent({
             padding: 0 10px;
         }
 
-        > span:nth-of-type(2),
+        > span:nth-of-type(2) {
+            flex: 3.5;
+        }
+
         .progress-content {
             flex: 1.5;
 
