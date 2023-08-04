@@ -123,13 +123,9 @@ export default defineComponent({
 }
 
 .quickAnswer {
-    //width: 800px;
-    //height: 600px;
-    //display: flex;
-    //flex-direction: column;
-    //padding-bottom: 24px;
-    //-webkit-app-region: no-drag;
-    //border-radius: 8px;
-    //background: #fff;
+    width: 600px;
+    height: 430px;
+    background: #fff;
+    box-shadow: 0px 6px 16px -8px rgb(0 0 0 / 12%), 0px 9px 28px 0px rgb(0 0 0 / 8%), 0px 12px 48px 16px rgb(0 0 0 / 5%);
 }
 </style>

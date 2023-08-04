@@ -323,6 +323,8 @@ export default defineComponent({
         top: 10px;
         font-size: 14px;
         color: #fff;
+        display: flex;
+        align-items: center;
 
         :deep(.el-select) {
             width: 120px;

@@ -327,14 +327,11 @@ function createAnswerMachineWindow(allStudentList: []) {
 
 function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
     quickAnswerWin = createWindow(quickAnswerURL, {
-        // width: 800,
         // frame: false, // 要创建无边框窗口
         // alwaysOnTop: true,
         // resizable: false, // 是否允许窗口大小缩放
-        // height: 600,
         // useContentSize: true,
         // maximizable: false,
-
         fullscreen: true,
         center: true,
         show: false,
