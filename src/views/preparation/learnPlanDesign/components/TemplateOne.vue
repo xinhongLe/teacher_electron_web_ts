@@ -173,6 +173,7 @@ import {
 } from "vue";
 import {convertToLetters} from "@/utils/common";
 import useDesignTemplate from "@/views/preparation/learnPlanDesign/useDesignTemplate";
+import {v4 as uuidv4} from "uuid";
 
 export default defineComponent({
     name: "TemplateOne",
@@ -194,6 +195,7 @@ export default defineComponent({
         const titleRef = ref();
         // 模板信息
         const templateInfo = reactive({
+            id: "",
             Title: "苏州市****学校**导学案",//标题
             Class: "",
             Name: "",
@@ -220,6 +222,47 @@ export default defineComponent({
         // 保存模板
         const saveTemplate = () => {
             console.log('templateInfo', templateInfo);
+            const {Title, Class, Name, Time, Lesson} = templateInfo;
+            const templateInfoArray = [
+                {
+                    id: "",
+                    rowNumber: 1,
+                    columnNumber: 1,
+                    key: "标题",
+                    value: Title
+                },
+                {
+                    id: "",
+                    rowNumber: 2,
+                    columnNumber: 1,
+                    key: "班级",
+                    value: Class
+                },
+                {
+                    id: "",
+                    rowNumber: 2,
+                    columnNumber: 2,
+                    key: "姓名",
+                    value: Name
+                },
+                {
+                    id: "",
+                    rowNumber: 2,
+                    columnNumber: 3,
+                    key: "时间",
+                    value: Time
+                },
+                {
+                    id: "",
+                    rowNumber: 3,
+                    columnNumber: 1,
+                    key: "课时",
+                    value: Lesson
+                }
+
+            ]
+
+
             console.log('templatePageData', templatePageData.value)
         }
         return {
