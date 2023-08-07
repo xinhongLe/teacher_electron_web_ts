@@ -139,7 +139,7 @@
                             <span>拍照</span>
                         </div>
                         <div class="take-item" @click="switchToNextStu">
-                            <img src="../../../assets/composition/icon_next@2x.png" alt="" />
+                            <img src="../../../assets/composition/icon_finish@2x.png" alt="" />
                             <span>{{ isSupply ? '完成' : '提交并继续' }}</span>
                         </div>
                     </template>
@@ -469,7 +469,10 @@ const getWaitRecordStudents = (cb?: any) => {
 
 
 // 关闭
-const close = () => {
+const close = (e?:any) => {
+    if(e && e.isModified){
+        state.isModified = true
+    }
     console.log('是否修改：', state.isModified);
 
     // console.log('-------------订阅-------');
@@ -692,6 +695,7 @@ const uploadImgToOss = async (data: any, type = 1, cb: any) => {
         let url = await getOssUrl(res.objectKey, bucketObj.Bucket);
         let newFile = { Name: res.name, FileMD5: res.md5, FileExtention: res.fileExtension, FileBucket: 'compositionevaluation', FilePath: 'pic', url }
         if (type === 1) {
+            ElMessage.success('拍照成功')
             state.photoList.push(newFile);
         }
         state.isUploading = false
