@@ -1,14 +1,16 @@
 import os from "os";
 import path from "path";
-import {exec} from "child_process";
+import { exec } from "child_process";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
-import downloadFile, {store} from "./downloadFile";
-import {STORAGE_TYPES} from "@/utils/storage";
-import {createWinCardWindow} from "./wincard";
-import {initialize, enable} from "@electron/remote/main";
-import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
-import {app, protocol, BrowserWindow, ipcMain, Menu, screen} from "electron";
+import downloadFile, { store } from "./downloadFile";
+import { STORAGE_TYPES } from "@/utils/storage";
+import { createWinCardWindow } from "./wincard";
+import { initialize, enable } from "@electron/remote/main";
+import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+import { app, protocol, BrowserWindow, ipcMain, Menu, screen } from "electron";
+import querystring from 'querystring';
+
 import {
     registerVirtualKeyBoard,
     closeKeyBoard,
@@ -28,7 +30,7 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 initialize();
 
 protocol.registerSchemesAsPrivileged([
-    {scheme: "app", privileges: {secure: true, standard: true}},
+    { scheme: "app", privileges: { secure: true, standard: true } },
     {
         scheme: "http",
         privileges: {
@@ -346,20 +348,14 @@ function createLocalPreview(args: Array<string>) {
     return false;
 }
 
-let isOpenFile = false;
-let isOpenUrl = false;
-
 app.on("will-finish-launching", () => {
     app.on("open-file", (event, path) => {
-        isOpenFile = true;
         event.preventDefault();
         if (app.isReady()) {
             createLocalPreviewWindow(path);
-            isOpenFile = false;
         } else {
             app.on("ready", async () => {
                 createLocalPreviewWindow(path);
-                isOpenFile = false;
             });
         }
     });
@@ -386,12 +382,10 @@ const webOpenUrl = (url: string) => {
         store.clear();
         store.set(`VUE_${STORAGE_TYPES.SET_TOKEN}`, token);
         record && store.set(`VUE_${STORAGE_TYPES.RECORD_LOGIN_LIST}`, record);
-        isOpenUrl = true;
-
         loginWindow && loginWindow.close();
-    } else {
-        isOpenFile = true;
+        return true;
     }
+    return false;
 };
 
 app.on("ready", async () => {
@@ -400,31 +394,32 @@ app.on("ready", async () => {
     let result = false;
     if (process.argv.length > 1) {
         const url = process.argv[1];
-        webOpenUrl(url);
-        if (isOpenUrl) createWindow();
+        if (webOpenUrl(url)) {
+            createWindow(); 
+            return;
+        }
     }
 
-    if (app.isPackaged && isOpenFile) {
+    if (app.isPackaged) {
         result = createLocalPreview(process.argv);
-        isOpenFile = false;
+        if (result) {
+            return;
+        }
     }
 
-    if (!result && !isOpenFile && !isOpenUrl) {
-        createLoginWindow();
-    }
+    createLoginWindow();
     // createLocalPreview(["/Users/moneyinto/Desktop/第一课时.lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
     ElectronLog.error(
-        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${
-            details.reason
+        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${details.reason
         }, exitCode: ${details.exitCode}`
     );
 });
 
 app.on("child-process-gone", (event, details) => {
-    const {type, reason, exitCode, serviceName, name} = details;
+    const { type, reason, exitCode, serviceName, name } = details;
     ElectronLog.error(
         `child-process-gone, reason: ${reason}, exitCode: ${exitCode}, type:${type}, serviceName: ${serviceName}, name: ${name}`
     );

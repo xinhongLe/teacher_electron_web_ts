@@ -208,6 +208,11 @@ module.exports = {
                     priority: 10,
                     test: "src/childWindow/projection/main.ts"
                 },
+                login: {
+                    name: "login",
+                    priority: 10,
+                    test: "src/childWindow/login/main.ts"
+                },
                 rollCall: {
                     name: "rollCall",
                     priority: 10,

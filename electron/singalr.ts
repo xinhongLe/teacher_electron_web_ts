@@ -40,8 +40,8 @@ export default class SingalRHelper {
 
     disconnect() {
         this.isUserDisconnect = true;
-        if (this.connection && this.connection.state == 'Connected') {
-            this.connection.stop();
+        if (this.connection && this.connection.state == HubConnectionState.Connected) {
+            this.connection.stop().catch(err => console.error(err));
         }
     }
 
