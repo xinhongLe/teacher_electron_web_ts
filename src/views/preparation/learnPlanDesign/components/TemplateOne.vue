@@ -217,6 +217,11 @@ export default defineComponent({
         const close = () => {
             emit("update:isReview", false);
         };
+        // 保存模板
+        const saveTemplate = () => {
+            console.log('templateInfo', templateInfo);
+            console.log('templatePageData', templatePageData.value)
+        }
         return {
             ...toRefs(templateInfo),
             isTitleEdit,
@@ -231,7 +236,8 @@ export default defineComponent({
             close,
             setQuestionItem,
             convertToLetters,
-            addQuestionItem
+            addQuestionItem,
+            saveTemplate
 
         }
     }

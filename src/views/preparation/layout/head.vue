@@ -154,15 +154,15 @@
                     required
                     v-if="form.type.Name === '导学案' && (!isWincard || currentEditType === 'add')"
                 >
-                    <el-radio-group v-model="form.sourceType">
-                        <el-radio :label="1">本地上传</el-radio>
-                        <el-radio :label="2">在线设计</el-radio>
+                    <el-radio-group v-model="form.isLearningGuide">
+                        <el-radio :label="0">本地上传</el-radio>
+                        <el-radio :label="1">在线设计</el-radio>
                     </el-radio-group>
                 </el-form-item>
 
                 <el-form-item
                     label=""
-                    v-if="form.type.Name === '导学案' && form.sourceType === 1"
+                    v-if="form.type.Name === '导学案' && !form.isLearningGuide"
                 >
                     <el-upload
                         ref="upload"
@@ -406,6 +406,33 @@ interface IFile {
     size: number;
 }
 
+interface ILearningGuide {
+    /**
+     * 列
+     */
+    columnNumber?: number;
+    /**
+     * ID
+     */
+    id?: null | string;
+    /**
+     * key
+     */
+    key?: null | string;
+    /**
+     * 关联题目ID
+     */
+    questionIds?: string[] | null;
+    /**
+     * 行
+     */
+    rowNumber?: number;
+    /**
+     * 值
+     */
+    value?: null | string;
+}
+
 interface IForm {
     resourceId: string;
     name: string;
@@ -419,7 +446,8 @@ interface IForm {
     files: IFile[];
     isSchool: boolean;
     isShelf: boolean;
-    sourceType: number
+    isLearningGuide: number;
+    learningGuideDetails: ILearningGuide[]
 }
 
 interface ICourse {
@@ -631,7 +659,7 @@ export default defineComponent({
             files: [],
             isSchool: false,
             isShelf: true,
-            sourceType: 0
+            isLearningGuide: 1
         };
         const form = reactive<IForm>(JSON.parse(JSON.stringify(formEmpty)));
 
@@ -685,7 +713,7 @@ export default defineComponent({
 
         // 确认上传
         const sureUpload = async () => {
-            if (form.type.Name === '导学案' && form.sourceType == 2) {
+            if (form.type.Name === '导学案' && form.isLearningGuide == 1) {
                 emit("learnPlanDesign", true)
             } else {
                 if (form.files.length === 0 && !isWincard.value)

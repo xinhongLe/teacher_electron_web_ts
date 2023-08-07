@@ -8,13 +8,13 @@
             <div class="right-btnitems">
                 <div class="btn" @click="reviewPage">{{ isReview ? '取消预览' : '预览' }}</div>
                 <div class="btn">下载</div>
-                <div class="btn save">保存</div>
+                <div class="btn save" @click="saveTemplate">保存</div>
             </div>
         </div>
         <!--        模板组件-->
         <component v-if="currentComponents" :is="currentComponents" v-model:isReview="isReview"
                    @addQuestionItem="questionVisible = true"
-                   ref="templateRef"></component>
+                   ref="templateRef" @saveTemplateContent="saveTemplateContent"></component>
         <!--        选择题目组件-->
         <AddQuestionDialog v-model:question-visible="questionVisible"
                            @selectedQuestion="selectedQuestion"></AddQuestionDialog>
@@ -80,11 +80,18 @@ export default defineComponent({
         };
         // 保存模板
         const saveTemplate = () => {
-
+            nextTick(() => {
+                console.log('templateRef', templateRef.value)
+                templateRef.value.saveTemplate();
+            })
         };
         // 取消保存
         const cancelSave = () => {
             emit("goBack")
+        };
+        // 保存模板内容
+        const saveTemplateContent = (data: any) => {
+            console.log(data);
         }
         return {
             questionVisible,
@@ -96,7 +103,8 @@ export default defineComponent({
             goBack,
             selectedQuestion,
             saveTemplate,
-            cancelSave
+            cancelSave,
+            saveTemplateContent
         }
     }
 })
