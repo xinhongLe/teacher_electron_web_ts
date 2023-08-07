@@ -155,15 +155,15 @@
                     required
                     v-if="form.type.Name === '导学案' && (!isWincard || currentEditType === 'add')"
                 >
-                    <el-radio-group v-model="form.sourceType">
-                        <el-radio :label="1">本地上传</el-radio>
-                        <el-radio :label="2">在线设计</el-radio>
+                    <el-radio-group v-model="form.isLearningGuide">
+                        <el-radio :label="0">本地上传</el-radio>
+                        <el-radio :label="1">在线设计</el-radio>
                     </el-radio-group>
                 </el-form-item>
 
                 <el-form-item
                     label=""
-                    v-if="form.type.Name === '导学案' && form.sourceType === 1"
+                    v-if="form.type.Name === '导学案' && !form.isLearningGuide"
                 >
                     <el-upload
                         ref="upload"
@@ -725,7 +725,7 @@ export default defineComponent({
 
         // 确认上传
         const sureUpload = async () => {
-            if (form.type.Name === '导学案' && form.sourceType == 2) {
+            if (form.type.Name === '导学案' && form.isLearningGuide == 1) {
                 emit("learnPlanDesign", true)
             } else {
                 if (form.files.length === 0 && !isWincard.value)
