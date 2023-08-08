@@ -25,7 +25,7 @@
                 <div class="head align-center">
                     <div class="title-box">
                         <el-input class="title" maxlength="15" v-model="title" />
-                        <div class="time" v-if="state.updateTime">最近修改：{{state.updateTime}}</div>
+                        <div class="time" v-if="state.updateTime">最近修改：{{ state.updateTime }}</div>
                     </div>
                     <!-- <div contenteditable="true">我的母亲</div> -->
                     <div class="author align-center">
@@ -39,6 +39,11 @@
             </div>
         </div>
         <div class="bottom align-center">
+            <div class="continue align-center" @click="selectContinue">
+                <img v-if="!state.isContinue" src="../../../assets/composition/icon_unchecked@2x.png" alt="" />
+                <img v-else src="../../../assets/composition/icon_checked@2x.png" alt="" />
+                继续检查下一篇
+            </div>
             <div class="del" @click="close">退出</div>
             <el-button class="save" color="#4B71EE" @click="save">保存</el-button>
         </div>
@@ -56,6 +61,7 @@ const scanRef = ref()
 const dialogVisible = ref(false);
 
 const state = reactive({
+    isContinue: false,
     gradeList: [{
         label: '全部',
         value: 0
@@ -80,10 +86,14 @@ const state = reactive({
 
 const emit = defineEmits(['close', 'save']);
 
-const { gradeList, grade,columnPager, content, photoList, mainPic, active, stuList, title } = toRefs(state)
+const { gradeList, grade, columnPager, content, photoList, mainPic, active, stuList, title } = toRefs(state)
+
+const selectContinue = () => {
+    state.isContinue = !state.isContinue
+}
 
 const handleCurrentChange = (val: number) => {
-    getDetail(state.columnPageList[val-1], true)
+    getDetail(state.columnPageList[val - 1], true)
 }
 // 获取分页
 const loadAllPages = () => {
@@ -112,6 +122,8 @@ const switchPic = (item: any, idx: number) => {
 const viewNext = () => {
     lookNextContent({ StudentCompositionId: state.StudentCompositionId }).then(async (res: any) => {
         if (res.success) {
+            //
+            state.columnPager.current = state.columnPager.current + 1
             let result = res.result
             state.StudentCompositionId = result.StudentCompositionId
             state.content = result.Content || ''
@@ -148,7 +160,13 @@ const save = () => {
     saveContent(args).then(async (res: any) => {
         if (res.success) {
             ElMessage.success('保存成功')
-            close()
+            if (state.isContinue) {
+                // 下一个
+                viewNext()
+            } else {
+                close()
+            }
+            // close()
         }
     })
 }
@@ -458,6 +476,21 @@ defineExpose({
     justify-content: flex-end;
     padding: 0 16px;
     box-sizing: border-box;
+
+    .continue {
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #19203D;
+        margin-right: 32px;
+        cursor: pointer;
+
+        &>img {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+        }
+    }
 
     .del {
         width: 100px;
