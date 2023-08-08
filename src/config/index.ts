@@ -17,6 +17,8 @@ export const VUE_APP_YUN_PLATFORM = process.env.VUE_APP_YUN_PLATFORM;
 export const RESOURCE_API = process.env.VUE_APP_RESOURCE_API;
 export const RESOURCE_WEB = process.env.VUE_APP_RESOURCE_WEB;
 
+export const PBL_WEB = process.env.VUE_APP_PBL_WEB;
+
 export const TRACK_API = process.env.VUE_APP_TRACK;
 
 //素材中心api
