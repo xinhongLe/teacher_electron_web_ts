@@ -96,7 +96,7 @@
         >
             <el-form class="custom-form" :model="form" label-width="100px">
                 <el-form-item label="类型：" required>
-                    <el-radio-group class="custom-radio" v-model="form.type">
+                    <el-radio-group class="custom-radio" v-model="form.type" :disabled="currentEditType !== 'add'">
                         <el-radio-button
                             v-for="item in typeList.slice(1)"
                             :disabled="
@@ -725,108 +725,111 @@ export default defineComponent({
 
         // 确认上传
         const sureUpload = async () => {
-            if (form.type.Name === '导学案' && form.isLearningGuide == 1) {
-                emit("learnPlanDesign", true)
-            } else {
-                if (form.files.length === 0 && !isWincard.value)
-                    return ElMessage.warning("请上传资源文件！");
-                if (!form.name && form.files.length < 2)
-                    return ElMessage.warning("资源名称不能为空！");
-                if (!form.type.Id) return ElMessage.warning("请选择资源类型！");
-                if (form.directorys.length === 0)
-                    return ElMessage.warning("请选择资源目录！");
-                if (form.directorys.length > 0) {
-                    let empty = false;
-                    for (let i = 0; i < form.directorys.length; i++) {
-                        if (
-                            !form.directorys[i].schoolSection.id ||
-                            !form.directorys[i].subject.id ||
-                            !form.directorys[i].version.id ||
-                            !form.directorys[i].grade.id ||
-                            !form.directorys[i].chapter.id
-                        ) {
-                            empty = true;
-                        }
-                    }
-                    if (empty) return ElMessage.warning("请将资源目录补充完整！");
-                }
-                const schoolName = store.state.userInfo.schoolName;
-                const lessonTrees = form.directorys.map((item) => {
-                    return {
-                        acaSectionId: item.schoolSection.id,
-                        acaSectionName: item.schoolSection.name,
-                        subjectID: item.subject.id,
-                        subjectName: item.subject.name,
-                        publisherID: item.version.id,
-                        publisherName: item.version.name,
-                        bookId: item.grade.bookId as string,
-                        albumID: item.grade.id,
-                        albumName: item.grade.name,
-                        chapterID: item.chapter.id,
-                        chapterName: item.chapter.name,
-                        lessonID: item.lesson
-                            ? item.lesson.id
-                            : props.course.lessonId,
-                        lessonName: item.lesson
-                            ? item.lesson.name
-                            : props.course.lessonName
-                    };
-                });
-                const resourceFiles = form.files.map((item) => {
-                    return {
-                        fileName: item.fileName,
-                        mD5: item.md5,
-                        size: item.size
-                    };
-                });
 
-                let res;
-                if (currentEditType.value === "add") {
-                    res = await uploadResource({
-                        lessonTrees,
-                        rescourceTypeId: form.type.Id,
-                        rescourceTypeName: form.type.Name,
-                        name: form.name,
-                        schoolId: schoolId,
-                        schoolName: schoolName,
-                        degree: form.degree,
-                        resourceFiles,
-                        isSchool: form.isSchool ? 1 : 2,
-                        isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
-                        knowledgePonitId: []
-                    });
+            if (form.files.length === 0 && !isWincard.value && !form.isLearningGuide)
+                return ElMessage.warning("请上传资源文件！");
+            if (!form.name && form.files.length < 2)
+                return ElMessage.warning("资源名称不能为空！");
+            if (!form.type.Id) return ElMessage.warning("请选择资源类型！");
+            if (form.directorys.length === 0)
+                return ElMessage.warning("请选择资源目录！");
+            if (form.directorys.length > 0) {
+                let empty = false;
+                for (let i = 0; i < form.directorys.length; i++) {
+                    if (
+                        !form.directorys[i].schoolSection.id ||
+                        !form.directorys[i].subject.id ||
+                        !form.directorys[i].version.id ||
+                        !form.directorys[i].grade.id ||
+                        !form.directorys[i].chapter.id
+                    ) {
+                        empty = true;
+                    }
+                }
+                if (empty) return ElMessage.warning("请将资源目录补充完整！");
+            }
+            const schoolName = store.state.userInfo.schoolName;
+            const lessonTrees = form.directorys.map((item) => {
+                return {
+                    acaSectionId: item.schoolSection.id,
+                    acaSectionName: item.schoolSection.name,
+                    subjectID: item.subject.id,
+                    subjectName: item.subject.name,
+                    publisherID: item.version.id,
+                    publisherName: item.version.name,
+                    bookId: item.grade.bookId as string,
+                    albumID: item.grade.id,
+                    albumName: item.grade.name,
+                    chapterID: item.chapter.id,
+                    chapterName: item.chapter.name,
+                    lessonID: item.lesson
+                        ? item.lesson.id
+                        : props.course.lessonId,
+                    lessonName: item.lesson
+                        ? item.lesson.name
+                        : props.course.lessonName
+                };
+            });
+            const resourceFiles = form.files.map((item) => {
+                return {
+                    fileName: item.fileName,
+                    mD5: item.md5,
+                    size: item.size
+                };
+            });
+
+            let res: any;
+            if (currentEditType.value === "add") {
+                const resourceData = {
+                    lessonTrees,
+                    rescourceTypeId: form.type.Id,
+                    rescourceTypeName: form.type.Name,
+                    name: form.name,
+                    schoolId: schoolId,
+                    schoolName: schoolName,
+                    degree: form.degree,
+                    resourceFiles,
+                    isSchool: form.isSchool ? 1 : 2,
+                    isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
+                    knowledgePonitId: [],
+                    isLearningGuide: form.isLearningGuide
+                };
+                if (form.type.Name === '导学案' && form.isLearningGuide == 1) {
+                    emit("learnPlanDesign", resourceData);
                 } else {
-                    res = await editResource({
-                        resourceId: form.resourceId,
-                        lessonTrees,
-                        rescourceTypeId: form.type.Id,
-                        rescourceTypeName: form.type.Name,
-                        name: form.name,
-                        schoolId: schoolId,
-                        schoolName: schoolName,
-                        degree: form.degree,
-                        resourceFile: resourceFiles[0],
-                        isSchool: form.isSchool ? 1 : 2,
-                        isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
-                        knowledgePonitId: [],
-                        toCourseware: false,
-                        userId: userId.value
-                    });
+                    res = await uploadResource(resourceData);
                 }
+            } else {
+                res = await editResource({
+                    resourceId: form.resourceId,
+                    lessonTrees,
+                    rescourceTypeId: form.type.Id,
+                    rescourceTypeName: form.type.Name,
+                    name: form.name,
+                    schoolId: schoolId,
+                    schoolName: schoolName,
+                    degree: form.degree,
+                    resourceFile: resourceFiles[0],
+                    isSchool: form.isSchool ? 1 : 2,
+                    isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
+                    knowledgePonitId: [],
+                    toCourseware: false,
+                    userId: userId.value
+                });
+            }
 
-                if (res.success) {
-                    uploadResourceOpen.value = false;
-                    if (currentEditType.value === "add") {
-                        type.value = "";
-                        source.value = "4";
-                        emit("update:type", type.value);
-                        emit("update:source", source.value);
-                    } else {
-                        emitter.emit(
-                            "updateResourceList",
-                            currentEditType.value === "add" ? "" : form.resourceId
-                        );
-                    }
+            if (res?.success) {
+                uploadResourceOpen.value = false;
+                if (currentEditType.value === "add") {
+                    type.value = "";
+                    source.value = "4";
+                    emit("update:type", type.value);
+                    emit("update:source", source.value);
+                } else {
+                    emitter.emit(
+                        "updateResourceList",
+                        currentEditType.value === "add" ? "" : form.resourceId
+                    );
                 }
             }
 

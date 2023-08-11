@@ -86,6 +86,10 @@ export default defineComponent({
         learnSelectVisible: {
             type: Boolean,
             default: false
+        },
+        resourceData: {
+            type: Object,
+            default: {}
         }
     },
     emits: ["update:learnSelectVisible", "openEditTemplate"],
