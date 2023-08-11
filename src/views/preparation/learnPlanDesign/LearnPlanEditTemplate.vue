@@ -7,7 +7,7 @@
             </div>
             <div class="right-btnitems">
                 <div class="btn" @click="reviewPage">{{ isReview ? '取消预览' : '预览' }}</div>
-                <div class="btn">下载</div>
+                <div class="btn" @click="downLoad">下载</div>
                 <div class="btn save" @click="saveTemplate">保存</div>
             </div>
         </div>
@@ -96,6 +96,13 @@ export default defineComponent({
                 templateRef.value.saveTemplate();
             })
         };
+        // 下载模板
+        const downLoad = () => {
+            nextTick(() => {
+                console.log('templateRef', templateRef.value)
+                templateRef.value.downLoad();
+            })
+        };
         // 取消保存
         const cancelSave = () => {
             emit("goBack")
@@ -151,7 +158,8 @@ export default defineComponent({
             saveTemplate,
             cancelSave,
             saveTemplateContent,
-            renderTemplate
+            renderTemplate,
+            downLoad
         }
     }
 })

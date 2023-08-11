@@ -179,6 +179,9 @@ import {
 } from "vue";
 import {convertToLetters} from "@/utils/common";
 import useDesignTemplate from "@/views/preparation/learnPlanDesign/useDesignTemplate";
+import {ElMessage} from "element-plus";
+import fs from "fs";
+import pdf from "html-pdf";
 
 export default defineComponent({
     name: "TemplateOne",
@@ -303,7 +306,29 @@ export default defineComponent({
             }
 
         }, {deep: true, immediate: true});
-
+        const downLoad = () => {
+            window.electron.showOpenDialog({
+                title: "选择保存路径",
+                buttonLabel: "确定",
+                properties: ["openDirectory"]
+            }).then(async (file: any) => {
+                if (!file.canceled) {
+                    const path = file.filePaths[0];
+                    console.log('path', path);
+                    // 获取需要下载的DOM元素
+                    const domContent: any = document.querySelector('.template-edit')?.innerHTML;
+                    // 设置html-pdf的选项
+                    const options: any = {format: 'Letter'};
+                    // 将DOM内容转换为PDF
+                    pdf.create(domContent, options).toFile(path, (error: any, res: any) => {
+                        if (error) throw error
+                        console.log(res)
+                    })
+                }
+            }).catch(() => {
+                ElMessage({type: "error", message: "下载失败"});
+            });
+        }
         return {
             ...toRefs(templateInfo),
             isTitleEdit,
@@ -321,6 +346,7 @@ export default defineComponent({
             addQuestionItem,
             saveTemplate,
             formateLearningGuidDetail,
+            downLoad
 
         }
     }
