@@ -342,7 +342,7 @@ module.exports = {
                     createDesktopShortcut: true, // 创建桌面图标
                     createStartMenuShortcut: true, // 创建开始菜单图标
                     shortcutName: process.env.VUE_APP_PRODUCT_NAME, // 图标名称
-                    include: "installer.nsh"
+                    // include: "installer.nsh"
                 },
                 win: {
                     // win相关配置

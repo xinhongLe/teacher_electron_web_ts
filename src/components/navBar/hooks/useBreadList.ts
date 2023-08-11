@@ -24,9 +24,6 @@ export default () => {
     }
 
     watch(() => ({ name: router.currentRoute.value.name, path: router.currentRoute.value.path }), ({ name, path }) => {
-        if (path === "/login") {
-            return;
-        }
         const index = breadList.value.findIndex((r) => {
             return r.name === name;
         });

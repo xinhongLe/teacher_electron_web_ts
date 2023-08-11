@@ -9,7 +9,14 @@ import { createWinCardWindow } from "./wincard";
 import { initialize, enable } from "@electron/remote/main";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { app, protocol, BrowserWindow, ipcMain, Menu, screen } from "electron";
-import querystring from 'querystring';
+
+if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+        app.setAsDefaultProtocolClient("lyxteacher", process.execPath, [path.resolve(process.argv[1])])
+    }
+} else {
+    app.setAsDefaultProtocolClient("lyxteacher")
+}
 
 import {
     registerVirtualKeyBoard,
