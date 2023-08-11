@@ -63,7 +63,7 @@ export default defineComponent({
             const token = get(STORAGE_TYPES.SET_TOKEN);
             // webview地址
             nextTick(() => {
-                url.value = `http://192.168.20.106:8089/?platformID=${platformID}&orgId=${yunInfo.OrgId}&orgTypeID=${yunInfo.OrgTypeId}&userID=${yunInfo.UserId}&userName=${yunInfo.UserName}&systemID=${yunInfo.SystemId}&token=${token}&#/addItem`;
+                url.value = `${VUE_APP_GVC_WEB}/?platformID=${platformID}&orgId=${yunInfo.OrgId}&orgTypeID=${yunInfo.OrgTypeId}&userID=${yunInfo.UserId}&userName=${yunInfo.UserName}&systemID=${yunInfo.SystemId}&token=${token}&#/addItem`;
                 window.addEventListener("message", selectedQuestion, false);
             })
         })

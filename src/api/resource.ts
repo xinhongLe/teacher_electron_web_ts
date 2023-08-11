@@ -1,8 +1,8 @@
-import { RESOURCE_API, systemId } from "@/config";
-import { IYunInfo } from "@/types/login";
-import { RequestFun } from "@/types/response";
+import {RESOURCE_API, systemId} from "@/config";
+import {IYunInfo} from "@/types/login";
+import {RequestFun} from "@/types/response";
 import request from "@/utils/request";
-import { get, STORAGE_TYPES } from "@/utils/storage";
+import {get, STORAGE_TYPES} from "@/utils/storage";
 
 export interface IBookItem {
     Id: string;
@@ -61,7 +61,7 @@ export interface IResourceBag {
      * 资源类型
      */
     typeId?: null | string;
-    resourceType?:string
+    resourceType?: string
 }
 
 export interface ILesson {
@@ -84,7 +84,7 @@ export interface ILesson {
 /**
  * LessonBagResourceDto，资源已加入课时包
  */
- export interface ILessonBagResourceDto {
+export interface ILessonBagResourceDto {
     /**
      * 备课包ID
      */
@@ -92,7 +92,7 @@ export interface ILesson {
     /**
      * 备课包名称
      */
-     BagName?: null | string;
+    BagName?: null | string;
     /**
      * ID
      */
@@ -140,7 +140,9 @@ export interface IResourceItem {
         FileMD5: string;
     };
     UserId: string;
-    JoinBags:ILessonBagResourceDto[]
+    JoinBags: ILessonBagResourceDto[];
+    LearningGuidSource: number;
+    Template: number
 }
 
 export interface IResourceResponse {
@@ -194,6 +196,25 @@ interface resourceFile {
     size: number;
 }
 
+interface ILearningGuide {
+    id: string;
+    rowNumber: number;
+    columnNumber: number;
+    key: string;
+    value: string;
+    questionIds: string[];
+    height: number;
+}
+
+interface IResponseLearningGuide {
+    id: string;
+    rowNumber: number;
+    columnNumber: number;
+    key: string;
+    value: string;
+    questionIds: string[];
+}
+
 interface IUploadResourceRequest {
     lessonTrees: {
         acaSectionId: string;
@@ -221,6 +242,15 @@ interface IUploadResourceRequest {
     isSchool: number;
     isShelf: number;
     knowledgePonitId: string[];
+    isLearningGuide?: number;
+    learningGuideDetails?: ILearningGuide[];
+    template?: number
+}
+
+interface IUpdateLearningGuide {
+    template?: number;
+    resourceMainId: string;
+    learningGuideDetails?: ILearningGuide[];
 }
 
 interface IEditResourceRequest extends IUploadResourceRequest {
@@ -257,8 +287,8 @@ export interface ICourseCartOption {
     ResourceTypeName: string;
     ResourceName: string;
     Lessons: ILesson[];
-    BagCatalogue:string;
-    BagName:string
+    BagCatalogue: string;
+    BagName: string
 }
 
 interface ICourseCartOptionsResponse {
@@ -344,10 +374,8 @@ export const fetchDeleteCustomBookList: RequestFun<{ id: string }, string> = (
 };
 
 // 根据书册获取课时
-export const fetchCourseDataByBookId: RequestFun<
-    { bookId: string },
-    ICourseItem[]
-> = (data) => {
+export const fetchCourseDataByBookId: RequestFun<{ bookId: string },
+    ICourseItem[]> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -385,10 +413,8 @@ export const fetchResourceType: RequestFun<{}, { Id: string; Name: string }[]> =
     };
 
 // 获取资源列表
-export const fetchResourceList: RequestFun<
-    IResourceRequest | IResourceBag,
-    IResourceResponse
-> = (data) => {
+export const fetchResourceList: RequestFun<IResourceRequest | IResourceBag,
+    IResourceResponse> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -413,15 +439,13 @@ export const fetchResourceList: RequestFun<
         //         ? { typeId: data.resourceTypeId }
         //         : {}),
         // },
-        data 
+        data
     });
 };
 
 // 获取课表备课包信息
-export const fetchClassArrangement: RequestFun<
-    IRequestClassArrangement,
-    IResponseClassArrangement[]
-> = (data) => {
+export const fetchClassArrangement: RequestFun<IRequestClassArrangement,
+    IResponseClassArrangement[]> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -440,10 +464,8 @@ export const fetchClassArrangement: RequestFun<
 };
 
 // 获取课时备课包数量
-export const fetchMyPackageNum: RequestFun<
-    { chapterId: string; lessonId: string },
-    { BagCount: number }
-> = (data) => {
+export const fetchMyPackageNum: RequestFun<{ chapterId: string; lessonId: string },
+    { BagCount: number }> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -461,10 +483,8 @@ export const fetchMyPackageNum: RequestFun<
 };
 
 // 加入备课包
-export const addPreparationPackage: RequestFun<
-    IRequestAddPreparationPackage,
-    string
-> = (data) => {
+export const addPreparationPackage: RequestFun<IRequestAddPreparationPackage,
+    string> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -502,17 +522,15 @@ export const removePreparationPackage: RequestFun<{ id: string }, boolean> = (
 };
 
 // 新增排课计划，和备课包数量有关
-export const addSchedulePackage: RequestFun<
-    {
-        scheduleId: string;
-        schoolId: string;
-        acaSectionCode: string;
-        lessonId: string;
-        lessonName: string;
-        lessonTime: string;
-    },
-    boolean
-> = (data) => {
+export const addSchedulePackage: RequestFun<{
+    scheduleId: string;
+    schoolId: string;
+    acaSectionCode: string;
+    lessonId: string;
+    lessonName: string;
+    lessonTime: string;
+},
+    boolean> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -609,10 +627,8 @@ export const deleteResource: RequestFun<{ id: string; type: number }, boolean> =
     };
 
 // 保存为我的资源
-export const saveToMyResource: RequestFun<
-    { resourceId: string; schoolId: string; schoolName: string },
-    IResourceItem
-> = (data) => {
+export const saveToMyResource: RequestFun<{ resourceId: string; schoolId: string; schoolName: string },
+    IResourceItem> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -688,10 +704,8 @@ export const logView: RequestFun<{ id: string }, boolean> = (data) => {
 };
 
 // 获取资源历史版本记录
-export const getResourceHistory: RequestFun<
-    { id: string },
-    IHistoryListResponse[]
-> = (data) => {
+export const getResourceHistory: RequestFun<{ id: string },
+    IHistoryListResponse[]> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -710,16 +724,14 @@ export const getResourceHistory: RequestFun<
 };
 
 // 同步窗数据
-export const sysWincardResource: RequestFun<
-    {
-        id: string;
-        userId: string;
-        lessonID: string;
-        schoolId: string;
-        schoolName: string;
-    },
-    { Id: string }
-> = (data) => {
+export const sysWincardResource: RequestFun<{
+    id: string;
+    userId: string;
+    lessonID: string;
+    schoolId: string;
+    schoolName: string;
+},
+    { Id: string }> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -738,14 +750,52 @@ export const sysWincardResource: RequestFun<
 };
 
 // 获取备课包操作记录
-export const getCartOptionList: RequestFun<
-    { lessonId: string; startTime: string; endTime: string; paper: IPager },
-    ICourseCartOptionsResponse
-> = (data) => {
+export const getCartOptionList: RequestFun<{ lessonId: string; startTime: string; endTime: string; paper: IPager },
+    ICourseCartOptionsResponse> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
         url: "/Api/Prepare/Prepare/PrepareGetLessonBagRec",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey,
+        },
+        method: "post",
+        data,
+    });
+};
+
+// 获取导学案详情
+export const getLearningGuidDetail: RequestFun<{ id: string },
+    ILearningGuide[]> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: RESOURCE_API,
+        url: "Api/Resouce/TeacherResource/GetLearningGuidDetail",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey,
+        },
+        method: "post",
+        data,
+    });
+};
+
+// 获取导学案详情
+export const updateLearningGuid: RequestFun<IUpdateLearningGuide,
+    boolean> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: RESOURCE_API,
+        url: "Api/Resouce/TeacherResource/UpdateLearningGuid",
         headers: {
             "Content-Type": "application/json-patch+json",
             noLoading: "true",

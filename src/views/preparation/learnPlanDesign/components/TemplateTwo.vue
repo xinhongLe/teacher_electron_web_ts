@@ -1,5 +1,5 @@
 <template>
-    <div class="template-edit">
+    <div class="template-edit" v-if="!isResourceReview">
         <div class="edit-content" v-for="(item,index) in templatePageData">
             <div class="content-title" v-if="item.Level === 1">
                     <span v-if="!isTitleEdit" @click="titleClick">
@@ -13,7 +13,7 @@
             <div class="content-con" :class="{notitle : item.Level !== 1}">
                 <div class="topic" v-if="item.Level === 1">
                     <div class="text">课题</div>
-                    <el-input disabled v-model="Class"></el-input>
+                    <el-input v-model="Lesson" placeholder="点击输入"></el-input>
                 </div>
                 <div class="basic-info" v-if="item.Level === 1">
                     <div class="info-input black-spot">
@@ -65,7 +65,7 @@
                         </div>
                     </div>
                     <div class="template-items" v-for="(question) in item.Data"
-                         :style="{minHeight:question.ConHeight + 'px'}">
+                         :style="{minHeight:question.ConHeight + 'px',maxHeight:item.Level === 1 ? '650px' : '1014px'}">
                         <div class="left-name">
                             <span @click="question.isEdit = true" v-if="!question.isEdit">
                                 {{ question.Name }}
@@ -129,7 +129,7 @@
             <!--导学案涉预览-->
             <div class="template-edit">
                 <div class="edit-content" v-for="(item,index) in templatePageData">
-                    <div class="content-title">
+                    <div class="content-title" v-if="item.Level === 1">
                     <span>
                         {{ Title }}
                     </span>
@@ -137,7 +137,8 @@
                     <div class="content-con" :class="{notitle : item.Level !== 1}">
                         <div class="topic" v-if="item.Level === 1">
                             <div class="text">课题</div>
-                            <el-input disabled v-model="Class"></el-input>
+                            <!--                            <el-input disabled v-model="Lesson"></el-input>-->
+                            <div>{{ Lesson }}</div>
                         </div>
                         <div class="basic-info" v-if="item.Level === 1">
                             <div class="info-input black-spot">
@@ -166,7 +167,6 @@
                                 </div>
                                 <div class="right-con">
                                     <div style="padding: 0 10px">{{ Learn }}</div>
-
                                 </div>
                             </div>
                             <div class="template-items point" v-if="item.Level === 1">
@@ -205,6 +205,11 @@
                     </div>
                 </div>
             </div>
+            <div class="download">
+                <img src="@/assets/images/preparation/learndesign/icon_download_white.png" alt="" @click="downLoad"
+                     style="padding-right: 6px;">
+                下载
+            </div>
         </div>
     </div>
 
@@ -213,7 +218,7 @@
 <script lang="ts">
 import {
     defineComponent, nextTick, reactive,
-    ref, toRefs
+    ref, toRefs, watch
 } from "vue";
 import {convertToLetters} from "@/utils/common";
 import {v4 as uuidv4} from "uuid";
@@ -225,29 +230,26 @@ export default defineComponent({
         isReview: {
             type: Boolean,
             default: false
+        },
+        isResourceReview: {
+            type: Boolean,
+            default: false
+        },
+        currentLearningGuidDetail: {
+            type: Array,
+            default: () => []
         }
     },
-    emits: ["update:isReview", "addQuestionItem"],
+    emits: ["update:isReview", "addQuestionItem", "saveTemplateContent"],
     setup(props, {emit}) {
         const {
             templatePageData, lastPageNum, getEditer,
-            addItem, setQuestionItem, currentAddItems, delItem
+            addItem, setQuestionItem, currentAddItems, delItem, templateInfo, formateLearningGuidDetail
         } = useDesignTemplate(2);
         // 标题是否处在可编辑状态
         const isTitleEdit = ref(false);
         // 标题
         const titleRef = ref();
-        // 模板信息
-        const templateInfo = reactive({
-            Title: "苏州市****学校**导学案",//标题
-            Class: "",
-            Name: "",
-            Time: "",
-            Learn: "",
-            Zpoint: "",
-            Npoint: ""
-        });
-
         // 点击标题进入编辑
         const titleClick = () => {
             isTitleEdit.value = true;
@@ -266,7 +268,105 @@ export default defineComponent({
         const close = () => {
             emit("update:isReview", false);
         };
+        // 保存模板
+        const saveTemplate = () => {
+            console.log('templateInfo', templateInfo);
+            const {Title, Class, Name, Time, Lesson, Learn, Zpoint, Npoint} = templateInfo;
+            const templateInfoArray = [
+                {
+                    id: "",
+                    rowNumber: 1,
+                    columnNumber: 1,
+                    key: "标题",
+                    value: Title,
+                    questionIds: []
+                },
+                {
+                    id: "",
+                    rowNumber: 2,
+                    columnNumber: 1,
+                    key: "课题",
+                    value: Lesson,
+                    questionIds: []
+                },
+                {
+                    id: "",
+                    rowNumber: 3,
+                    columnNumber: 1,
+                    key: "班级",
+                    value: Class,
+                    questionIds: []
+                },
+                {
+                    id: "",
+                    rowNumber: 3,
+                    columnNumber: 2,
+                    key: "姓名",
+                    value: Name,
+                    questionIds: []
+                },
+                {
+                    id: "",
+                    rowNumber: 3,
+                    columnNumber: 3,
+                    key: "时间",
+                    value: Time,
+                    questionIds: []
+                },
+                {
+                    id: "",
+                    rowNumber: 4,
+                    columnNumber: 1,
+                    key: "学习目标",
+                    value: Learn,
+                    questionIds: []
+                },
+                {
+                    id: "",
+                    rowNumber: 5,
+                    columnNumber: 1,
+                    key: "重点",
+                    value: Zpoint,
+                    questionIds: []
+                },
+                {
+                    id: "",
+                    rowNumber: 6,
+                    columnNumber: 1,
+                    key: "难点",
+                    value: Npoint,
+                    questionIds: []
+                }
+            ];
+            const templatePageDataArray: any = [];
 
+            templatePageData.value.forEach((item: any) => {
+                item.Data?.forEach((page: any) => {
+                    const templatePageDataItem = {
+                        id: page.Id,
+                        rowNumber: 1,
+                        columnNumber: 1,
+                        key: page.Name,
+                        value: page.Content,
+                        questionIds: page.questionIds,
+                        height: page.ConHeight
+                    }
+                    templatePageDataArray.push(templatePageDataItem);
+                })
+            })
+            templatePageDataArray.forEach((item: any, index: number) => {
+                item.rowNumber = index + 7
+            });
+            const allPageData = templateInfoArray.concat(templatePageDataArray)
+            // console.log('allPageData---', allPageData);
+            emit("saveTemplateContent", allPageData)
+        };
+        watch(() => props.currentLearningGuidDetail, (val: any) => {
+            if (val.length) {
+                formateLearningGuidDetail(val, 2)
+            }
+
+        }, {deep: true, immediate: true})
 
         return {
             ...toRefs(templateInfo),
@@ -283,7 +383,9 @@ export default defineComponent({
             addQuestionItem,
             close,
             setQuestionItem,
-            convertToLetters
+            convertToLetters,
+            saveTemplate,
+            formateLearningGuidDetail
 
         }
     }
@@ -324,9 +426,9 @@ export default defineComponent({
             padding: 16px;
 
             .topic {
-                background: #f5f7fa;
+                //background: #f5f7fa;
                 display: flex;
-                justify-content: space-between;
+                //justify-content: space-between;
                 margin: 0 16px 18px 16px;
                 height: 44px;
                 align-items: center;
@@ -345,8 +447,8 @@ export default defineComponent({
                         box-shadow: none;
 
                         .el-input__inner {
-                            color: #000000;
-                            -webkit-text-fill-color: #000000;
+                            //color: #000000;
+                            //-webkit-text-fill-color: #000000;
                         }
                     }
                 }
@@ -680,6 +782,24 @@ export default defineComponent({
             position: absolute;
             top: 16px;
             right: -40px;
+        }
+
+        .download {
+            position: fixed;
+            cursor: pointer;
+            width: 96px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.16);
+            border-radius: 16px;
+            /* opacity: 0.5; */
+            border: 1px solid #FFFFFF;
+            font-size: 14px;
+            color: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            right: -17%;
+            bottom: 7%;
         }
 
         :deep(.template-edit) {

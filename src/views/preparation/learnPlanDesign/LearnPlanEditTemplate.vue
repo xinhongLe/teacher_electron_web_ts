@@ -14,7 +14,8 @@
         <!--        模板组件-->
         <component v-if="currentComponents" :is="currentComponents" v-model:isReview="isReview"
                    @addQuestionItem="questionVisible = true"
-                   ref="templateRef" @saveTemplateContent="saveTemplateContent"></component>
+                   ref="templateRef" @saveTemplateContent="saveTemplateContent"
+                   :currentLearningGuidDetail="currentLearningGuidDetail"></component>
         <!--        选择题目组件-->
         <AddQuestionDialog v-model:question-visible="questionVisible"
                            @selectedQuestion="selectedQuestion"></AddQuestionDialog>
@@ -39,13 +40,23 @@ import AddQuestionDialog from "@/views/preparation/learnPlanDesign/AddQuestionDi
 import TemplateOne from "@/views/preparation/learnPlanDesign/components/TemplateOne.vue";
 import TemplateTwo from "@/views/preparation/learnPlanDesign/components/TemplateTwo.vue";
 import DeleteDialog from "@/views/composition/components/deleteDialog.vue";
+import {
+    editResource,
+    uploadResource,
+    updateLearningGuid
+} from "@/api/resource";
+import {ElMessage} from "element-plus";
 
 export default defineComponent({
     name: "LearnPlanEditTemplate",
     props: {
         templateType: {
-            type: Number,
+            type: Number || String,
             default: 1
+        },
+        resourceData: {
+            type: Object,
+            default: {}
         }
     },
     emits: ["goBack"],
@@ -53,7 +64,7 @@ export default defineComponent({
     setup(props, {emit}) {
         // 当前模板组件
         const currentComponents: any = computed(() => {
-            return props.templateType === 1 ? markRaw(TemplateOne) : markRaw(TemplateTwo)
+            return props.templateType == 1 ? markRaw(TemplateOne) : markRaw(TemplateTwo)
         })
         console.log('currentComponents', currentComponents)
         // 删除组件
@@ -89,9 +100,42 @@ export default defineComponent({
         const cancelSave = () => {
             emit("goBack")
         };
+        const currentResourceMainId = ref("");
+        const currentLearningGuidDetail: any = ref([]);
         // 保存模板内容
-        const saveTemplateContent = (data: any) => {
-            console.log(data);
+        const saveTemplateContent = async (data: any) => {
+            if (currentResourceMainId.value) {
+                // 更新
+                const params: any = {
+                    template: props.templateType,
+                    resourceMainId: currentResourceMainId.value,
+                    learningGuideDetails: data
+                };
+                const res = await updateLearningGuid(params);
+                if (res.success && res.resultCode === 200) {
+                    ElMessage.success("保存成功");
+                    emit("goBack")
+                }
+            } else {
+                // 新增
+                const params: any = Object.assign({}, props.resourceData);
+                params.learningGuideDetails = data;
+                params.template = props.templateType;
+                console.log('params----', params);
+                const res = await uploadResource(params);
+                if (res.success && res.resultCode === 200) {
+                    ElMessage.success("保存成功");
+                    emit("goBack")
+                }
+            }
+        };
+
+        // 编辑时候回显模板
+        const renderTemplate = (id: string, data: any) => {
+            // console.log('id----', id)
+            // console.log('data----', data)
+            currentResourceMainId.value = id;
+            currentLearningGuidDetail.value = data;
         }
         return {
             questionVisible,
@@ -99,12 +143,15 @@ export default defineComponent({
             isReview,
             deleteDialogRef,
             currentComponents,
+            currentResourceMainId,
+            currentLearningGuidDetail,
             reviewPage,
             goBack,
             selectedQuestion,
             saveTemplate,
             cancelSave,
-            saveTemplateContent
+            saveTemplateContent,
+            renderTemplate
         }
     }
 })

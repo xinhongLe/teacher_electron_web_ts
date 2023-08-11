@@ -1,5 +1,5 @@
 <template>
-    <div class="template-edit">
+    <div class="template-edit" v-if=!isResourceReview>
         <div class="edit-content" v-for="(item,index) in templatePageData">
             <div class="content-title" v-if="item.Level === 1">
                     <span v-if="!isTitleEdit" @click="titleClick">
@@ -43,7 +43,7 @@
                         </div>
                     </div>
                     <div class="template-items" v-for="(question) in item.Data"
-                         :style="{minHeight:question.ConHeight + 'px'}">
+                         :style="{minHeight:question.ConHeight + 'px',maxHeight:item.Level === 1 ? '816px' : '1014px'}">
                         <div class="left-name">
                             <span @click="question.isEdit = true" v-if="!question.isEdit">
                                 {{ question.Name }}
@@ -161,7 +161,13 @@
                     </div>
                 </div>
             </div>
+            <div class="download">
+                <img src="@/assets/images/preparation/learndesign/icon_download_white.png" alt="" @click="downLoad"
+                     style="padding-right: 6px;">
+                下载
+            </div>
         </div>
+
     </div>
 
 </template>
@@ -169,11 +175,10 @@
 <script lang="ts">
 import {
     defineComponent, nextTick, reactive,
-    ref, toRefs
+    ref, toRefs, computed, watch, onMounted
 } from "vue";
 import {convertToLetters} from "@/utils/common";
 import useDesignTemplate from "@/views/preparation/learnPlanDesign/useDesignTemplate";
-import {v4 as uuidv4} from "uuid";
 
 export default defineComponent({
     name: "TemplateOne",
@@ -181,27 +186,28 @@ export default defineComponent({
         isReview: {
             type: Boolean,
             default: false
+        },
+        isResourceReview: {
+            type: Boolean,
+            default: false
+        },
+        currentLearningGuidDetail: {
+            type: Array,
+            default: () => []
         }
     },
-    emits: ["update:isReview", "addQuestionItem"],
+    emits: ["update:isReview", "addQuestionItem", "saveTemplateContent"],
     setup(props, {emit}) {
         const {
-            templatePageData, lastPageNum, getEditer,
-            addItem, setQuestionItem, currentAddItems, delItem
+            templatePageData, lastPageNum, getEditer, templateInfo,
+            addItem, setQuestionItem, currentAddItems, delItem, formateLearningGuidDetail
         } = useDesignTemplate(1);
+
         // 标题是否处在可编辑状态
         const isTitleEdit = ref(false);
         // 标题
         const titleRef = ref();
-        // 模板信息
-        const templateInfo = reactive({
-            id: "",
-            Title: "苏州市****学校**导学案",//标题
-            Class: "",
-            Name: "",
-            Time: "",
-            Lesson: "",
-        });
+
         // 点击标题进入编辑
         const titleClick = () => {
             isTitleEdit.value = true;
@@ -229,42 +235,75 @@ export default defineComponent({
                     rowNumber: 1,
                     columnNumber: 1,
                     key: "标题",
-                    value: Title
+                    value: Title,
+                    questionIds: []
                 },
                 {
                     id: "",
                     rowNumber: 2,
                     columnNumber: 1,
                     key: "班级",
-                    value: Class
+                    value: Class,
+                    questionIds: []
                 },
                 {
                     id: "",
                     rowNumber: 2,
                     columnNumber: 2,
                     key: "姓名",
-                    value: Name
+                    value: Name,
+                    questionIds: []
                 },
                 {
                     id: "",
                     rowNumber: 2,
                     columnNumber: 3,
                     key: "时间",
-                    value: Time
+                    value: Time,
+                    questionIds: []
                 },
                 {
                     id: "",
                     rowNumber: 3,
                     columnNumber: 1,
                     key: "课时",
-                    value: Lesson
+                    value: Lesson,
+                    questionIds: []
                 }
-
             ]
 
+            // console.log('templateInfoArray', templateInfoArray);
+            // console.log('templatePageData', templatePageData.value);
+            const templatePageDataArray: any = [];
 
-            console.log('templatePageData', templatePageData.value)
-        }
+            templatePageData.value.forEach((item: any) => {
+                item.Data?.forEach((page: any) => {
+                    const templatePageDataItem = {
+                        id: page.Id,
+                        rowNumber: 1,
+                        columnNumber: 1,
+                        key: page.Name,
+                        value: page.Content,
+                        questionIds: page.questionIds,
+                        height: page.ConHeight
+                    }
+                    templatePageDataArray.push(templatePageDataItem);
+                })
+            })
+            templatePageDataArray.forEach((item: any, index: number) => {
+                item.rowNumber = index + 4
+            });
+            const allPageData = templateInfoArray.concat(templatePageDataArray)
+            // console.log('allPageData---', allPageData);
+            emit("saveTemplateContent", allPageData)
+        };
+        watch(() => props.currentLearningGuidDetail, (val: any) => {
+            if (val.length) {
+                formateLearningGuidDetail(val, 1)
+            }
+
+        }, {deep: true, immediate: true});
+
         return {
             ...toRefs(templateInfo),
             isTitleEdit,
@@ -280,7 +319,8 @@ export default defineComponent({
             setQuestionItem,
             convertToLetters,
             addQuestionItem,
-            saveTemplate
+            saveTemplate,
+            formateLearningGuidDetail,
 
         }
     }
@@ -638,8 +678,26 @@ export default defineComponent({
         .close-icon {
             cursor: pointer;
             position: absolute;
-            top: 16px;
-            right: -40px;
+            top: 30px;
+            right: -55px;
+        }
+
+        .download {
+            position: fixed;
+            cursor: pointer;
+            width: 96px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.16);
+            border-radius: 16px;
+            /* opacity: 0.5; */
+            border: 1px solid #FFFFFF;
+            font-size: 14px;
+            color: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            right: -17%;
+            bottom: 7%;
         }
 
         :deep(.template-edit) {
@@ -650,6 +708,8 @@ export default defineComponent({
             }
         }
     }
+
+
 }
 
 </style>

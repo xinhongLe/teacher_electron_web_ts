@@ -1,11 +1,27 @@
-import {reactive, ref, getCurrentInstance, nextTick} from "vue";
+import {reactive, ref, getCurrentInstance, nextTick, computed} from "vue";
 import {v4 as uuidv4} from "uuid";
 import {convertToLetters} from "@/utils/common";
+import {store} from "@/store";
 
 export default (type: number) => {
     // 最后一页是第几页
     const lastPageNum = ref(1);
     const proxy = getCurrentInstance() as any;
+    const classData = computed(() => store.state.userInfo.currentSelectClass);
+    const userName = computed(() => store.state.userInfo.name);
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString();
+    // 模板1信息
+    const templateInfo = reactive({
+        Title: "苏州市****学校**导学案",//标题
+        Class: classData.value.ClassName,
+        Name: userName.value,
+        Time: formattedDate,
+        Lesson: "",
+        Learn: "",
+        Zpoint: "",
+        Npoint: ""
+    });
     const templatePageData: any = ref([
         {
             Level: 1,
@@ -15,31 +31,32 @@ export default (type: number) => {
                     Level: 1,
                     Name: "基础训练",
                     Content: "",
-                    ConHeight: type === 1 ? 202 : 162
+                    ConHeight: type === 1 ? 202 : 162,
+                    questionIds: []
                 },
                 {
                     Id: uuidv4(),
                     Level: 1,
                     Name: "尝试题",
                     Content: "",
-                    ConHeight: type === 1 ? 202 : 162
-
+                    ConHeight: type === 1 ? 202 : 162,
+                    questionIds: []
                 },
                 {
                     Id: uuidv4(),
                     Level: 1,
                     Name: "当堂检测",
                     Content: "",
-                    ConHeight: type === 1 ? 202 : 162
-
+                    ConHeight: type === 1 ? 202 : 162,
+                    questionIds: []
                 },
                 {
                     Id: uuidv4(),
                     Level: 1,
                     Name: "课后反思",
                     Content: "",
-                    ConHeight: type === 1 ? 202 : 162
-
+                    ConHeight: type === 1 ? 202 : 162,
+                    questionIds: []
                 }
             ]
         }
@@ -53,33 +70,45 @@ export default (type: number) => {
     const currentAddItems: any = ref();
     // 统一设置 edit 回显内容
     const setEditerCon = (data: any) => {
-        nextTick(() => {
-            data.forEach((item: any) => {
-                item.Data.forEach((data: any) => {
-                    nextTick(() => {
+        data.forEach((item: any) => {
+            item.Data.forEach((data: any) => {
+                nextTick(() => {
+                    if (proxy.refs['editerRef' + data.Id]) {
                         proxy.refs['editerRef' + data.Id][0].innerHTML = data.Content;
-                    })
+                    }
                 })
             })
         })
     };
-    const setFirseEditerCon = (page: any) => {
-        nextTick(() => {
-            page.Data.forEach((data: any) => {
-                data.Level = 1;
-                nextTick(() => {
+    const setFirseEditerCon = (page: any, level: number) => {
+        page.Data.forEach((data: any) => {
+            data.Level = level;
+            nextTick(() => {
+                if (proxy.refs['editerRef' + data.Id]) {
                     proxy.refs['editerRef' + data.Id][0].innerHTML = data.Content;
-                })
+                }
             })
         })
     };
     // 获取edit内容
     const getEditer = (data: any, item: any, page: any) => {
-        data.srcElement.style = "width:100%";
+        console.log('data,page', data, page)
         const contHeight = data.target.parentElement.offsetHeight + 50 + 24;
         item.ConHeight = contHeight + 2;
+        // if (type == 1) {
+        //     if (page.Level == 1) {
+        //         item.ConHeight = item.ConHeight > 816 ? 816 : item.ConHeight
+        //     } else {
+        //         item.ConHeight = item.ConHeight > 1014 ? 1014 : item.ConHeight
+        //     }
+        // } else if (type == 2) {
+        //     if (page.Level == 1) {
+        //         item.ConHeight = item.ConHeight > 650 ? 650 : item.ConHeight
+        //     } else {
+        //         item.ConHeight = item.ConHeight > 1014 ? 1014 : item.ConHeight
+        //     }
+        // }
         item.Content = data.target.innerHTML;
-        console.log('data', data, item, page)
         watchLayoutChange();
 
     };
@@ -111,11 +140,27 @@ export default (type: number) => {
     const watchLayoutChange = () => {
         templatePageData.value.forEach((pageData: any, index: number) => {
             let allContentHeight = 0;
+            const topHeight = pageData.Level === 1 ? currentPageLayout.basicTopHeight : 0;
+            const basicPageHeight = pageData.Level === 1 ? currentPageLayout.basicPageHeight : 1024;
             pageData.Data.forEach((item: any) => {
+                // if (item.ConHeight + topHeight > basicPageHeight){
+                //     allContentHeight
+                // }
+                if (type == 1) {
+                    if (pageData.Level == 1) {
+                        item.ConHeight = item.ConHeight > 816 ? 816 : item.ConHeight
+                    } else {
+                        item.ConHeight = item.ConHeight > 1014 ? 1014 : item.ConHeight
+                    }
+                } else if (type == 2) {
+                    if (pageData.Level == 1) {
+                        item.ConHeight = item.ConHeight > 650 ? 650 : item.ConHeight
+                    } else {
+                        item.ConHeight = item.ConHeight > 1014 ? 1014 : item.ConHeight
+                    }
+                }
                 allContentHeight += item.ConHeight;
             })
-            const topHeight = pageData.Level === 1 ? currentPageLayout.basicTopHeight : 0;
-            const basicPageHeight = pageData.Level === 1 ? currentPageLayout.basicPageHeight : 1024
             if (allContentHeight + topHeight > basicPageHeight) {
                 const data = pageData.Data.pop();
                 if (!templatePageData.value[index + 1]) {
@@ -126,15 +171,17 @@ export default (type: number) => {
                         }
                     )
                     templatePageData.value[index + 1].Data?.push(data);
-
                 } else {
                     templatePageData.value[index + 1].Data?.unshift(data);
+
                 }
+                console.log('templatePageData', templatePageData.value)
                 templatePageData.value.forEach((item: any) => {
                     if (item.Level !== pageData.Level) {
-                        setFirseEditerCon(item)
+                        setFirseEditerCon(item, pageData.Level)
                     }
                 })
+                watchLayoutChange()
             } else {
                 const firstData = templatePageData.value[index + 1] ? templatePageData.value[index + 1].Data[0] : null;
                 if (!firstData) return;
@@ -147,14 +194,20 @@ export default (type: number) => {
                     nextTick(() => {
                         proxy.refs['editerRef' + firstData.Id][0].innerHTML = firstData.Content;
                     })
+                    templatePageData.value.forEach((item: any) => {
+                        if (item.Level !== pageData.Level) {
+                            setFirseEditerCon(item, pageData.Level)
+                        }
+                    })
                 }
             }
         });
-        lastPageNum.value = templatePageData.value.length
+        lastPageNum.value = templatePageData.value.length;
     };
     // 设置题目
     const setQuestionItem = (questions: any) => {
         let questionString: string = "";
+        const questionIds: string[] = [];
         questions.forEach((item: any, index: number) => {
             // let title = `${index + 1}、${item.Title}`;
             let title = `${item.Title}`;
@@ -173,18 +226,79 @@ export default (type: number) => {
                      </div>
                     `;
             questionString += questionItemString + '<div><br/></div>' + '\n';
+            questionIds.push(item.Id)
         })
         nextTick(() => {
             proxy.refs['editerRef' + currentAddItems.value.Id][0].innerHTML = currentAddItems.value.Content + questionString;
+            const imgData = proxy.refs['editerRef' + currentAddItems.value.Id][0].querySelectorAll('img');
+            imgData?.forEach((item: any) => {
+                item.style.maxWidth = "100%";
+                item.style.height = "auto";
+            })
             templatePageData.value.forEach((item: any) => {
                 const index = item.Data.indexOf(currentAddItems.value);
                 if (index > -1) {
                     item.Data[index].Content = currentAddItems.value.Content + questionString;
                     item.Data[index].ConHeight = proxy.refs['editerRef' + currentAddItems.value.Id][0].offsetHeight + 74;
+                    item.Data[index].questionIds = questionIds;
                 }
             });
-            // 执行execCommand命令设置背景颜色为红色
+            console.log('templatePageData.value', templatePageData.value)
             watchLayoutChange();
+        })
+    };
+    // 处理返回来的详情格式
+    const formateLearningGuidDetail = (data: any, type: number) => {
+        const learningGuidDetail = data;
+        let baseInfo: any = [];
+        learningGuidDetail.forEach((item: any) => {
+            if (item.RowNumber === 1 && item.ColumnNumber === 1) {
+                templateInfo.Title = item.Value
+            }
+            if (type == 1) {
+                if (item.RowNumber === 3) {
+                    templateInfo.Lesson = item.Value
+                }
+                if (item.RowNumber > 3) {
+                    baseInfo.push(item);
+                }
+            } else if (type == 2) {
+                switch (item.RowNumber) {
+                    case 2:
+                        templateInfo.Lesson = item.Value
+                        break;
+                    case 4:
+                        templateInfo.Learn = item.Value
+                        break;
+                    case 5:
+                        templateInfo.Zpoint = item.Value
+                        break;
+                    case 6:
+                        templateInfo.Npoint = item.Value
+                        break;
+                }
+                if (item.RowNumber > 6) {
+                    baseInfo.push(item);
+                }
+            }
+
+        })
+        baseInfo = baseInfo.sort((a: any, b: any) => {
+            return a.RowNumber - b.RowNumber
+        }).map((item: any) => {
+            return {
+                Id: item.Id,
+                Level: 1,
+                Name: item.Key,
+                Content: item.Value,
+                ConHeight: item.Height,
+                questionIds: item.QuestionIds
+            }
+        })
+        templatePageData.value[0].Data = baseInfo;
+        watchLayoutChange();
+        nextTick(() => {
+            setEditerCon(templatePageData.value);
         })
     }
 
@@ -192,13 +306,15 @@ export default (type: number) => {
         templatePageData,
         lastPageNum,
         currentAddItems,
+        templateInfo,
         watchLayoutChange,
         setEditerCon,
         setFirseEditerCon,
         getEditer,
         addItem,
         delItem,
-        setQuestionItem
+        setQuestionItem,
+        formateLearningGuidDetail
 
     };
 };
