@@ -99,65 +99,68 @@
             </div>
         </div>
     </div>
-    <div class="template-review" v-if="isReview">
+    <div class="template-review" v-show="isReview">
         <div class="template-review-content">
             <div class="close-icon">
                 <img src="@/assets/images/preparation/learndesign/icon_close_white.png" alt="" @click="close">
             </div>
             <!--导学案涉预览-->
-            <div class="template-edit">
-                <div class="edit-content" v-for="(item,index) in templatePageData">
-                    <div class="content-title" v-if="item.Level === 1">
-                    <span>
-                        {{ Title }}
-                    </span>
-                    </div>
-                    <div class="content-con" :class="{notitle : item.Level !== 1}">
-                        <div class="basic-info" v-if="item.Level === 1">
-                            <div class="info-input black-spot">
-                                <div class="input-item">
-                                    <div class="text">班级</div>
-                                    <el-input disabled v-model="Class"></el-input>
-                                </div>
 
-                            </div>
-                            <div class="info-input black-spot">
-                                <div class="input-item">
-                                    <div class="text">姓名</div>
-                                    <el-input disabled v-model="Name"></el-input>
-                                </div>
-                            </div>
-                            <div class="info-input">
-                                <div class="input-item">
-                                    <div class="text">时间</div>
-                                    <el-input disabled v-model="Time"></el-input>
-                                </div>
-                            </div>
+            <div class="template-edit">
+                <div id="review" style="background: #fff">
+                    <div class="edit-content content-review" v-for="(item,index) in templatePageData">
+                        <div class="content-title" v-if="item.Level === 1">
+                            <span>
+                                {{ Title }}
+                            </span>
                         </div>
-                        <div class="content-template">
-                            <div class="template-items lesson" v-if="item.Level === 1">
-                                <div class="left-name">
-                                    课时
+                        <div class="content-con" :class="{notitle : item.Level !== 1}">
+                            <div class="basic-info" v-if="item.Level === 1">
+                                <div class="info-input black-spot">
+                                    <div class="input-item">
+                                        <div class="text">班级</div>
+                                        <el-input disabled v-model="Class"></el-input>
+                                    </div>
+
                                 </div>
-                                <div class="right-con">
-                                    <div style="padding: 0 10px">{{ Lesson }}</div>
+                                <div class="info-input black-spot">
+                                    <div class="input-item">
+                                        <div class="text">姓名</div>
+                                        <el-input disabled v-model="Name"></el-input>
+                                    </div>
+                                </div>
+                                <div class="info-input">
+                                    <div class="input-item">
+                                        <div class="text">时间</div>
+                                        <el-input disabled v-model="Time"></el-input>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="template-items" v-for="question in item.Data"
-                                 :style="{minHeight:question.ConHeight + 'px'}">
-                                <div class="left-name">
-                                    {{ question.Name }}
+                            <div class="content-template">
+                                <div class="template-items lesson" v-if="item.Level === 1">
+                                    <div class="left-name">
+                                        课时
+                                    </div>
+                                    <div class="right-con">
+                                        <div style="padding: 0 10px">{{ Lesson }}</div>
+                                    </div>
                                 </div>
-                                <div class="right-con">
-                                    <div class="top-con">
-                                        <div v-html="question.Content"></div>
+                                <div class="template-items" v-for="question in item.Data"
+                                     :style="{minHeight:question.ConHeight + 'px'}">
+                                    <div class="left-name">
+                                        {{ question.Name }}
+                                    </div>
+                                    <div class="right-con">
+                                        <div class="top-con">
+                                            <div v-html="question.Content"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="page-data">
-                        第 {{ item.Level }} 页
+                        <!--                        <div class="page-data">-->
+                        <!--                            第 {{ item.Level }} 页-->
+                        <!--                        </div>-->
                     </div>
                 </div>
             </div>
@@ -167,7 +170,6 @@
                 下载
             </div>
         </div>
-
     </div>
 
 </template>
@@ -180,8 +182,7 @@ import {
 import {convertToLetters} from "@/utils/common";
 import useDesignTemplate from "@/views/preparation/learnPlanDesign/useDesignTemplate";
 import {ElMessage} from "element-plus";
-import fs from "fs";
-import pdf from "html-pdf";
+import {downloadPDF} from "@/utils/html2pdf.ts";
 
 export default defineComponent({
     name: "TemplateOne",
@@ -307,27 +308,15 @@ export default defineComponent({
 
         }, {deep: true, immediate: true});
         const downLoad = () => {
-            window.electron.showOpenDialog({
-                title: "选择保存路径",
-                buttonLabel: "确定",
-                properties: ["openDirectory"]
-            }).then(async (file: any) => {
-                if (!file.canceled) {
-                    const path = file.filePaths[0];
-                    console.log('path', path);
-                    // 获取需要下载的DOM元素
-                    const domContent: any = document.querySelector('.template-edit')?.innerHTML;
-                    // 设置html-pdf的选项
-                    const options: any = {format: 'Letter'};
-                    // 将DOM内容转换为PDF
-                    pdf.create(domContent, options).toFile(path, (error: any, res: any) => {
-                        if (error) throw error
-                        console.log(res)
-                    })
-                }
-            }).catch(() => {
-                ElMessage({type: "error", message: "下载失败"});
-            });
+            // 获取需要下载的DOM元素
+            emit("update:isReview", true);
+            nextTick(() => {
+                const domContent: any = document.querySelector('#review');
+                downloadPDF(domContent, templateInfo.Title, () => {
+                    console.log('保存为Pdf')
+                    // ElMessage.success("保存成功")
+                })
+            })
         }
         return {
             ...toRefs(templateInfo),
@@ -662,6 +651,14 @@ export default defineComponent({
             line-height: 16px;
             margin-top: 48px;
 
+        }
+    }
+
+    .content-review {
+        margin: 0;
+
+        .page-data {
+            margin-top: 0;
         }
     }
 
