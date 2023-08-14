@@ -277,7 +277,7 @@ export default defineComponent({
         let localCache: any = null;
 
         const downloadFile = async (data: IResourceItem) => {
-            logDownload({id: data.ResourceId});
+            await logDownload({id: data.ResourceId});
             data.DownloadNum++;
             if (data.ResourceShowType === 1) {
                 store.commit(MutationTypes.SET_DOWNLOAD_LIST, {
@@ -324,6 +324,9 @@ export default defineComponent({
                 //     ElMessage({type: "error", message: "下载失败"});
                 // });
                 return;
+            }
+            if (data.ResourceShowType === 0 && data.LearningGuidSource === 2) {
+                emitter.emit("openLearningGuidSource", {openType: 'download', ...data});
             }
             if (data.File) {
                 store.commit(MutationTypes.SET_DOWNLOAD_LIST, {

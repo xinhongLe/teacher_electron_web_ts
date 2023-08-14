@@ -56,6 +56,7 @@
 
     <!--    模板预览页面-->
     <component v-if="isReview && currentComponents" :is="currentComponents" v-model:isReview="isReview"
+               ref="templateRef"
                :isResourceReview="true" :currentLearningGuidDetail="currentLearningGuidDetail"></component>
 </template>
 
@@ -114,6 +115,7 @@ export default defineComponent({
         const ClassArrangementRef = ref();
         const templateNumber = ref(1);
         const isReview = ref(false);
+        const templateRef = ref();
         // 当前模板组件
         const currentComponents: any = computed(() => {
             return templateNumber.value == 1 ? markRaw(TemplateOne) : markRaw(TemplateTwo)
@@ -228,11 +230,17 @@ export default defineComponent({
                 if (data.openType == 'view') {
                     templateNumber.value = data.Template;
                     isReview.value = true;
-                } else {
+                } else if (data.openType == 'edit') {
                     isPreparation.value = false;
                     templateType.value = data.Template;
                     nextTick(() => {
                         learnPlanEditTemplateRef.value.renderTemplate(data.ResourceId, currentLearningGuidDetail.value)
+                    })
+                } else if (data.openType == 'download') {
+                    templateNumber.value = data.Template;
+                    isReview.value = true;
+                    nextTick(() => {
+                        templateRef.value.downLoad()
                     })
                 }
 
@@ -265,6 +273,7 @@ export default defineComponent({
             isReview,
             currentLearningGuidDetail,
             learnPlanEditTemplateRef,
+            templateRef,
             clickOutSide,
             addLessonPackage,
             toMyLessonPackage,

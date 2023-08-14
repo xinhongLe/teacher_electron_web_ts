@@ -119,20 +119,19 @@
                                 <div class="info-input black-spot">
                                     <div class="input-item">
                                         <div class="text">班级</div>
-                                        <el-input disabled v-model="Class"></el-input>
+                                        <div>{{ Class }}</div>
                                     </div>
-
                                 </div>
                                 <div class="info-input black-spot">
                                     <div class="input-item">
                                         <div class="text">姓名</div>
-                                        <el-input disabled v-model="Name"></el-input>
+                                        <div>{{ Name }}</div>
                                     </div>
                                 </div>
                                 <div class="info-input">
                                     <div class="input-item">
                                         <div class="text">时间</div>
-                                        <el-input disabled v-model="Time"></el-input>
+                                        <div>{{ Time }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -164,8 +163,8 @@
                     </div>
                 </div>
             </div>
-            <div class="download">
-                <img src="@/assets/images/preparation/learndesign/icon_download_white.png" alt="" @click="downLoad"
+            <div class="download" @click="downLoad">
+                <img src="@/assets/images/preparation/learndesign/icon_download_white.png" alt=""
                      style="padding-right: 6px;">
                 下载
             </div>
@@ -350,7 +349,7 @@ export default defineComponent({
 
     .edit-content {
         margin: 30px auto;
-        width: 764px;
+        width: 781px;
         height: 1104px;
         background: #FFFFFF;
         box-shadow: 0px 8px 19px 0px rgba(0, 0, 0, 0.05);
@@ -656,9 +655,23 @@ export default defineComponent({
 
     .content-review {
         margin: 0;
+        box-shadow: none;
 
         .page-data {
             margin-top: 0;
+        }
+
+        .basic-info {
+            .info-input {
+                .input-item {
+                    width: 100%;
+                    height: 100%;
+
+                    .text {
+                        margin-right: 12px;
+                    }
+                }
+            }
         }
     }
 
