@@ -1,12 +1,12 @@
-
 <template>
     <view class="scan-page" v-if="dialogVisible">
         <div class="head align-center">
             <div class="left align-center">
-                <img src="../../../assets/composition/icon_sxt@2x.png" alt="" />
+                <img src="../../../assets/composition/icon_sxt@2x.png" alt=""/>
                 <span>高拍仪：</span>
                 <el-select v-model="device" placeholder="请选择" @change="deviceChange">
-                    <el-option v-for="item in deviceList" :key="item.deviceId" :label="item.label" :value="item.deviceId">
+                    <el-option v-for="item in deviceList" :key="item.deviceId" :label="item.label"
+                               :value="item.deviceId">
                     </el-option>
                 </el-select>
             </div>
@@ -16,7 +16,7 @@
                     <span class="num">{{ state.hasRecordCount }}/{{ state.allStuList.length }}人</span>
                 </div>
                 <div class="close align-center" @click="judgeClose">
-                    <img src="../../../assets/composition/icon_js@2x.png" alt="" />
+                    <img src="../../../assets/composition/icon_js@2x.png" alt=""/>
                     结束
                 </div>
             </div>
@@ -24,8 +24,9 @@
         <div class="box">
             <!-- 选择学生 -->
             <div class="nav" v-if="isScanByHand">
-                <chooseStu :current="state.currentStudent" :stu-list="state.waitRecordList" ref="chooseRef" @back="backScan"
-                    @after-choose="afterChoose" />
+                <chooseStu :current="state.currentStudent" :stu-list="state.waitRecordList" ref="chooseRef"
+                           @back="backScan"
+                           @after-choose="afterChoose"/>
             </div>
             <div class="nav" v-else>
                 <div class="opts align-center">
@@ -51,9 +52,9 @@
                     <div class="photo-box">
                         <div class="photo-item" v-for="(item, idx) in photoList" :key="idx">
                             <img @click="removePreview(idx)" class="del"
-                                src="../../../assets/composition/icon_delete_red@2x.png" alt="" />
+                                 src="../../../assets/composition/icon_delete_red@2x.png" alt=""/>
                             <div class="tag">{{ idx + 1 }}</div>
-                            <img @click="previewImg(idx)" class="main" :src="item.url" alt="" />
+                            <img @click="previewImg(idx)" class="main" :src="item.url" alt=""/>
                         </div>
                     </div>
                 </div>
@@ -62,15 +63,15 @@
             <div class="content">
                 <div class="start-scan" v-if="!isOpenScan">
                     <template v-if="deviceList.length > 0">
-                        <img src="../../../assets/composition/pic@2x.png" alt="" />
+                        <img src="../../../assets/composition/pic@2x.png" alt=""/>
                         <el-button style="width: 146px;" color="#4B71EE" @click="startScan">
                             开始扫描
                         </el-button>
                     </template>
                     <div class="none-device" v-else>
-                        <img src="../../../assets/composition/pic_nolive_2@2x.png" alt="" />
+                        <img src="../../../assets/composition/pic_nolive_2@2x.png" alt=""/>
                         <div class="none-tip align-center">
-                            <img src="../../../assets/composition/icon_zhuyi@2x.png" alt="" />
+                            <img src="../../../assets/composition/icon_zhuyi@2x.png" alt=""/>
                             当前未检测到高拍仪设备
                         </div>
                         <div class="opt align-center">
@@ -82,27 +83,28 @@
                             </el-button>
                         </div>
                     </div>
-                <!-- <div class="opt align-center" v-else>
-                        <el-button color="#4B71EE" @click="scanCode">
-                            扫描二维码
-                        </el-button>
-                        <el-button color="#4B71EE" @click="scanName">
-                            扫描姓名
-                        </el-button>
-                                                        </div> -->
+                    <!-- <div class="opt align-center" v-else>
+                            <el-button color="#4B71EE" @click="scanCode">
+                                扫描二维码
+                            </el-button>
+                            <el-button color="#4B71EE" @click="scanName">
+                                扫描姓名
+                            </el-button>
+                                                            </div> -->
                 </div>
                 <div class="scan" id="scan" v-else>
                     <div v-if="!currentStudent">
                         <QrStream class="qrcode" v-show="state.qrcode" :camera="state.camera" :torch="state.torchActive"
-                            @decode="onDecode" @init="onInit"></QrStream>
-                        <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt="" />
+                                  @decode="onDecode" @init="onInit"></QrStream>
+                        <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt=""/>
                         <span class="down-tip toast" v-if="!isCodeMode">请对着学生名字，点击识别</span>
                         <span class="down-tip toast align-center" v-else>
                             请先扫描学生二维码
-                            <img @mouseenter.native="mouseenterEvent" src="../../../assets/composition/icon_wenhao@2x.png"
-                                alt="">
+                            <img @mouseenter.native="mouseenterEvent"
+                                 src="../../../assets/composition/icon_wenhao@2x.png"
+                                 alt="">
                             <div class="code-jump" @mouseenter.native="mouseenterEvent"
-                                @mouseleave.native="state.showCodeJump = false" v-if="showCodeJump">
+                                 @mouseleave.native="state.showCodeJump = false" v-if="showCodeJump">
                                 <div class="bac">二维码打印地址：智慧云平台—工作台—班级管理</div>
                                 <img src="../../../assets/composition/arrow_down_black@2x.png" alt="">
                             </div>
@@ -112,34 +114,34 @@
                             <div class="switch-item align-center">
                                 <span>识别二维码</span>
                                 <el-switch @change="codeSwitchChange" v-model="isCodeMode"
-                                    style="--el-switch-on-color: #4B71EE;" />
+                                           style="--el-switch-on-color: #4B71EE;"/>
                             </div>
                             <div class="switch-item align-center">
                                 <span>识别名字</span>
                                 <el-switch @change="nameSwitchChange" v-model="isNameMode"
-                                    style="--el-switch-on-color: #4B71EE;" />
+                                           style="--el-switch-on-color: #4B71EE;"/>
                             </div>
                         </div>
                     </div>
 
                     <div id="takeAPic" v-else>
                         <video id="video" ref="videoRef" class="video"></video>
-                        <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt="" />
+                        <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt=""/>
                         <span class="down-tip toast">请对准作文开始拍摄</span>
                     </div>
                 </div>
                 <div class="takes" v-if="isOpenScan">
                     <div class="take-item" v-if="!isCodeMode && !currentStudent" @click="capturePicToWords">
-                        <img src="../../../assets/composition/icon_paizhao@2x.png" alt="" />
+                        <img src="../../../assets/composition/icon_paizhao@2x.png" alt=""/>
                         <span>识别</span>
                     </div>
                     <template v-if="currentStudent">
                         <div class="take-item" @click="capture">
-                            <img src="../../../assets/composition/icon_paizhao@2x.png" alt="" />
+                            <img src="../../../assets/composition/icon_paizhao@2x.png" alt=""/>
                             <span>拍照</span>
                         </div>
                         <div class="take-item" @click="switchToNextStu">
-                            <img src="../../../assets/composition/icon_finish@2x.png" alt="" />
+                            <img src="../../../assets/composition/icon_finish@2x.png" alt=""/>
                             <span>{{ isSupply ? '完成' : '提交并继续' }}</span>
                         </div>
                     </template>
@@ -149,27 +151,35 @@
         </div>
     </view>
     <!-- 预览 -->
-    <Preview ref="previewRef" :img-list="photoList" />
+    <Preview ref="previewRef" :img-list="photoList"/>
     <!-- 文件导入 -->
-    <ImportVue ref="importRef" @open-list="close" :teacher-composition-id="state.TeacherCompositionId" />
+    <ImportVue ref="importRef" @open-list="close" :teacher-composition-id="state.TeacherCompositionId"/>
     <!-- 重名选择 -->
-    <Repeat ref="repeatRef" :repeat-list="state.repeatList" @select="selectRepeat" />
+    <Repeat ref="repeatRef" :repeat-list="state.repeatList" @select="selectRepeat"/>
 </template>
 <script setup lang="ts">
-import { ElMessage } from 'element-plus';
-import { reactive, ref, toRefs, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
+import {ElMessage} from 'element-plus';
+import {reactive, ref, toRefs, watch, nextTick, onMounted, onBeforeUnmount} from 'vue';
 import chooseStu from './chooseStu.vue';
 import Preview from './preview.vue';
 import Repeat from './repeat.vue';
 import ImportVue from './import.vue';
-import { cooOssv2, getOssUrl } from '@/utils/oss';
-import { get, STORAGE_TYPES } from '@/utils/storage';
+import {cooOssv2, getOssUrl} from '@/utils/oss';
+import {get, STORAGE_TYPES} from '@/utils/storage';
 import moment from 'moment';
-import { QrStream, QrCapture } from 'vue3-qr-reader';
-import { getClassStuCountByTeacher, getFinishResult, getStudentByClass, getStudentByHasEntry, getStudentByUserInfo, oneStudentEntry, picToWordByName } from '../api';
-import { VUE_APP_YUN_API_COMPOSITION_MQTT, VUE_APP_YUN_PLATFORM } from "@/config";
-import { store } from '@/store';
-import { linkSync } from 'fs';
+import {QrStream, QrCapture} from 'vue3-qr-reader';
+import {
+    getClassStuCountByTeacher,
+    getFinishResult,
+    getStudentByClass,
+    getStudentByHasEntry,
+    getStudentByUserInfo,
+    oneStudentEntry,
+    picToWordByName
+} from '../api';
+import {VUE_APP_YUN_API_MQTT} from "@/config";
+import {store} from '@/store';
+import {linkSync} from 'fs';
 import mqtt from "mqtt";
 
 //
@@ -244,7 +254,19 @@ const state = reactive({
     calcCount: 0,
     deviceList: [] as any
 });
-const { device, isSupply, showCodeJump, currentStudent, isCodeMode, isNameMode, photoList, deviceList, isOpenScan, boxMessage, isScanByHand } = toRefs(state);
+const {
+    device,
+    isSupply,
+    showCodeJump,
+    currentStudent,
+    isCodeMode,
+    isNameMode,
+    photoList,
+    deviceList,
+    isOpenScan,
+    boxMessage,
+    isScanByHand
+} = toRefs(state);
 
 const emit = defineEmits(['cancel', 'save', 'openList']);
 
@@ -306,7 +328,11 @@ const picRecognize = (file: any) => {
  */
 const searchRepeat = (info: any) => {
     let cid = localStorage.getItem('compositionClassId')
-    getStudentByUserInfo({ UserInfo: info, ClassId: cid, TeacherCompositionId: state.TeacherCompositionId }).then(async (res: any) => {
+    getStudentByUserInfo({
+        UserInfo: info,
+        ClassId: cid,
+        TeacherCompositionId: state.TeacherCompositionId
+    }).then(async (res: any) => {
         if (res.success) {
             let list = res.result || []
             if (list.length > 0) {
@@ -339,7 +365,7 @@ const selectRepeat = (e: any) => {
 }
 
 const onInit = async (promise: any) => {
-    const { capabilities } = await promise;
+    const {capabilities} = await promise;
 
     const TORCH_IS_SUPPORTED = !!capabilities.torch;
     try {
@@ -369,7 +395,7 @@ const getDevices = (e?: string) => {
         if (!e) {
             state.device = state.deviceList[0]?.deviceId || null
             if (state.device) {
-                navigator.mediaDevices.getUserMedia({ video: { deviceId: state.device } }).then(function (stream) {
+                navigator.mediaDevices.getUserMedia({video: {deviceId: state.device}}).then(function (stream) {
                     success(stream)
                 })
                     .catch(function (err) {
@@ -377,7 +403,7 @@ const getDevices = (e?: string) => {
                     });
             }
         } else {
-            navigator.mediaDevices.getUserMedia({ video: { deviceId: e } }).then(function (stream) {
+            navigator.mediaDevices.getUserMedia({video: {deviceId: e}}).then(function (stream) {
                 success(stream)
             })
                 .catch(function (err) {
@@ -433,7 +459,11 @@ const switchToNextStu = () => {
                 if (state.isSupply) {
                     // 跳走到列表
                     judgeClose()
-                    emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title, isTurnToWait: true })
+                    emit('openList', {
+                        TeacherCompositionId: state.TeacherCompositionId,
+                        Title: state.Title,
+                        isTurnToWait: true
+                    })
                     return
                 }
                 // 到学生列表页选择学生
@@ -469,8 +499,8 @@ const getWaitRecordStudents = (cb?: any) => {
 
 
 // 关闭
-const close = (e?:any) => {
-    if(e && e.isModified){
+const close = (e?: any) => {
+    if (e && e.isModified) {
         state.isModified = true
     }
     console.log('是否修改：', state.isModified);
@@ -494,7 +524,7 @@ const close = (e?:any) => {
     dialogVisible.value = false
     // 点击结束后如果有新增的录入，自动跳转至列表的[待批改]分页，若无新增则回到作文功能首页。
     if (state.isModified) {
-        emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title, isTurnToWait: true })
+        emit('openList', {TeacherCompositionId: state.TeacherCompositionId, Title: state.Title, isTurnToWait: true})
     }
 }
 
@@ -510,7 +540,7 @@ const judgeClose = () => {
 
 // 结束检查录入识别--队列中是否还有进行中
 const checkFinishStatus = (cb?: any) => {
-    getFinishResult({ Id: state.TeacherCompositionId }).then((res: any) => {
+    getFinishResult({Id: state.TeacherCompositionId}).then((res: any) => {
         if (res.success) {
             if (cb) {
                 cb()
@@ -587,7 +617,7 @@ const startScan = () => {
 
 const getUserMedia = (cb?: any) => {
     /* 可同时开启video(摄像头)和audio(麦克风) 这里只请求摄像头，所以只设置video为true */
-    navigator.mediaDevices.getUserMedia({ video: true })
+    navigator.mediaDevices.getUserMedia({video: true})
         .then(function (stream) {
             /* 使用这个 stream 传递到成功回调中 */
             if (cb) {
@@ -627,7 +657,7 @@ const videoCapture = (element: any) => {
     if (el) {
         canvas.width = (el?.clientWidth) * dpr; // 884
         canvas.height = (el?.clientHeight) * dpr; // 648
-        const context = canvas.getContext("2d", { willReadFrequently: true })!;
+        const context = canvas.getContext("2d", {willReadFrequently: true})!;
         context.scale(dpr, dpr);
         // let video = document.getElementById('video');
         const img = new Image()
@@ -672,7 +702,7 @@ const dataURLtoBlob = (dataurl: any) => {
     while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
     }
-    return new Blob([u8arr], { type: mime });
+    return new Blob([u8arr], {type: mime});
 }
 
 //将blob转换为file
@@ -693,7 +723,14 @@ const uploadImgToOss = async (data: any, type = 1, cb: any) => {
     const res = await cooOssv2(data, bucketObj)
     if (res?.code === 200) {
         let url = await getOssUrl(res.objectKey, bucketObj.Bucket);
-        let newFile = { Name: res.name, FileMD5: res.md5, FileExtention: res.fileExtension, FileBucket: 'compositionevaluation', FilePath: 'pic', url }
+        let newFile = {
+            Name: res.name,
+            FileMD5: res.md5,
+            FileExtention: res.fileExtension,
+            FileBucket: 'compositionevaluation',
+            FilePath: 'pic',
+            url
+        }
         if (type === 1) {
             ElMessage.success('拍照成功')
             state.photoList.push(newFile);
@@ -719,10 +756,8 @@ const getAllStudents = (cb?: any) => {
     })
 }
 
-const client = mqtt.connect(VUE_APP_YUN_API_COMPOSITION_MQTT || "", {
-    port: 1883,
-    username: "u001",
-    password: "p001",
+const client = mqtt.connect(VUE_APP_YUN_API_MQTT || "", {
+    port: process.env.NODE_ENV === "development" ? 8083 : 0,
     keepalive: 30
 });
 
@@ -752,7 +787,7 @@ const openDialog = async (info?: any) => {
     state.isModified = false
     // console.log('scan-open-info:', info);
     connectClient()
-    const { TeacherCompositionId, Title } = info
+    const {TeacherCompositionId, Title} = info
     state.TeacherCompositionId = TeacherCompositionId
     state.Title = Title
     //
@@ -812,7 +847,7 @@ defineExpose({
     font-weight: 600;
     color: fade-out($color: #FFFFFF, $amount: 0.6);
 
-    &>img {
+    & > img {
         width: 14px;
         height: 14px;
         margin-left: 4px;
@@ -843,13 +878,13 @@ defineExpose({
         justify-content: space-between;
 
         .left {
-            &>img {
+            & > img {
                 width: 18px;
                 height: 18px;
                 margin-right: 4px;
             }
 
-            &>span {
+            & > span {
                 font-size: 14px;
                 font-family: PingFangSC-Semibold, PingFang SC;
                 font-weight: 600;
@@ -886,7 +921,7 @@ defineExpose({
                 justify-content: center;
                 cursor: pointer;
 
-                &>img {
+                & > img {
                     width: 16px;
                     height: 16px;
                     margin-right: 6px;
@@ -1014,7 +1049,6 @@ defineExpose({
                 }
 
 
-
                 .stu-set {
                     height: 124px;
                     padding: 16px 0;
@@ -1061,8 +1095,8 @@ defineExpose({
             width: 100%;
             display: flex;
 
-            // #4B71EE  2px 
-            // #D6DDF4 12px 
+            // #4B71EE  2px
+            // #D6DDF4 12px
             // radius 12px
             .scan {
                 min-width: 775px; //908px
@@ -1074,7 +1108,7 @@ defineExpose({
                 padding: 8px;
                 box-sizing: border-box;
 
-                &>div {
+                & > div {
                     width: 100%;
                     height: 100%;
                     position: relative;
@@ -1159,7 +1193,7 @@ defineExpose({
                             text-decoration: none;
                         }
 
-                        &>img {
+                        & > img {
                             width: 11px;
                             height: 6px;
                             display: block;
@@ -1186,14 +1220,14 @@ defineExpose({
                     align-items: center;
                     cursor: pointer;
 
-                    &>img {
+                    & > img {
                         width: 80px;
                         height: 80px;
                         display: block;
                         margin-bottom: 20px;
                     }
 
-                    &>span {
+                    & > span {
                         font-size: 20px;
                         font-family: PingFangSC-Semibold, PingFang SC;
                         font-weight: 600;
@@ -1219,7 +1253,7 @@ defineExpose({
                 justify-content: center;
                 align-items: center;
 
-                &>img {
+                & > img {
                     width: 240px;
                     height: 157px;
                     display: block;
@@ -1235,7 +1269,7 @@ defineExpose({
                     justify-content: center;
                     align-items: center;
 
-                    &>img {
+                    & > img {
                         width: 206px;
                         height: 158px;
                         display: block;
@@ -1249,7 +1283,7 @@ defineExpose({
                         color: #19203D;
                         margin-bottom: 29px;
 
-                        &>img {
+                        & > img {
                             width: 16px;
                             height: 16px;
                             margin-right: 4px;

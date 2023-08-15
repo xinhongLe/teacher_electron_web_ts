@@ -96,7 +96,7 @@ import {defineComponent, onUnmounted, PropType, reactive, toRefs, watch,} from "
 import {addRewardrecode, praiseStudent, sendRushToAnswer} from "./api";
 import {ICurrentSelectClass, UserInfoState} from "@/types/store";
 import mqtt from "mqtt";
-import {YUN_API_ONECARD_MQTT} from "@/config";
+import {VUE_APP_YUN_API_MQTT} from "@/config";
 import {getOssUrl} from "@/utils/oss";
 import {finishAnswerMachineQuestion} from "@/childWindow/answerMachine/api";
 import {get, STORAGE_TYPES} from "@/utils/storage";
@@ -151,11 +151,9 @@ export default defineComponent({
         );
 
 
-        const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
-            port: 1883,
-            username: "u001",
-            password: "p001",
-            keepalive: 30,
+        const client = mqtt.connect(VUE_APP_YUN_API_MQTT || "", {
+            port: process.env.NODE_ENV === "development" ? 8083 : 0,
+            keepalive: 30
         });
 
         const getPublish = (id: string) => {
