@@ -8,7 +8,9 @@
                         <div class="names">
                             {{ course.lessonName || course.chapterName || "课包一" }}
                         </div>
-                        <img @click.stop.prevent="deletenPackage(item.Id)" src="@/assets/images/preparation/icon_delete_beike.png" alt="">
+                        <div @click.stop="deletenPackage(item.Id)">
+                            <img src="@/assets/images/preparation/icon_delete_beike.png" alt="">
+                        </div>
                     </div>
                     <div class="items">{{ item.Name }}</div>
                     <div class="item-footer">
@@ -34,12 +36,13 @@
 <script lang="ts" setup>
 import useLessonPackage from "@/hooks/useLessonPackage";
 import useClickDrag, {} from "@/hooks/useClickDrag";
-import { ref, PropType, onMounted, nextTick, watch } from "vue";
+import {ref, PropType, onMounted, nextTick, watch} from "vue";
 import emitter from "@/utils/mitt";
-import { useStore } from "@/store";
+import {useStore} from "@/store";
+import deletePackage from "../layout/dialog/deletePackage.vue";
 
 const currentSelectPackageId = ref<string>("");
-const { startDrag, touchStartDrag } = useClickDrag();
+const {startDrag, touchStartDrag} = useClickDrag();
 const {
     getMyLessonBagNew,
     lessonPackageList,
@@ -75,20 +78,20 @@ const currentTouchEvent = ref<TouchEvent>();
 
 watch(() => props.course, async (val: ICourse) => {
     setValueAddLessonBag(props.course);
-    await getMyLessonBagNew({ id: val.lessonId });
+    await getMyLessonBagNew({id: val.lessonId});
     if (!val.lessonId) return;
     if (!lessonPackageList.value.length) {
         addLessonBag.value.name = "备课包1";
         const res = await addLessonPackage(addLessonBag.value);
         if (res) {
-            await getMyLessonBagNew({ id: val.lessonId });
+            await getMyLessonBagNew({id: val.lessonId});
             // selectPackage(lessonPackageList.value[0])
         }
     } else {
         emitter.emit("updateResourceList", []);
         selectPackage(lessonPackageList.value[0]);
     }
-}, { deep: true, immediate: true });
+}, {deep: true, immediate: true});
 
 // 新增备课包
 const addPackage = async () => {
@@ -101,7 +104,7 @@ const addPackage = async () => {
     });
     const res = await addLessonPackage(addLessonBag.value);
     if (res?.Id) {
-        await getMyLessonBagNew({ id: props.course.lessonId });
+        await getMyLessonBagNew({id: props.course.lessonId});
         // emitter.emit("updatePackageCount", null);
         return res.Id;
     }
@@ -109,7 +112,7 @@ const addPackage = async () => {
 };
 // 选择备课包
 const selectPackage = (data?: any) => {
-    currentSelectPackageId.value = data ? data.Id : currentSelectPackageId.value ? currentSelectPackageId.value : lessonPackageList.value[0]?.Id;
+    currentSelectPackageId.value = data ? data.Id : "";
     emitter.emit("updateResourceList", [currentSelectPackageId.value]);
     emits("closeCalendar");
 };
@@ -176,7 +179,7 @@ const deletenPackage = (id: any) => {
 const onDeletePackage = async () => {
     const res = await deleteLessonPackage(deleteTargetId.value);
     if (res) {
-        await getMyLessonBagNew({ id: props.course.lessonId });
+        await getMyLessonBagNew({id: props.course.lessonId});
         selectPackage(lessonPackageList.value[0]);
         emitter.emit("updatePackageCount", null);
         emits("updateSchedules");
@@ -296,7 +299,7 @@ defineExpose({
         justify-content: center;
         align-items: center;
         font-size: 14px;
-        font-family: PingFangSC-Regular, PingFang SC,serif;
+        font-family: PingFangSC-Regular, PingFang SC, serif;
         font-weight: 400;
         color: #4B71EE;
         margin: auto;
