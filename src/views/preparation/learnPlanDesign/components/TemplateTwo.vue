@@ -128,80 +128,82 @@
             </div>
             <!--导学案涉预览-->
             <div class="template-edit">
-                <div class="edit-content" v-for="(item,index) in templatePageData">
-                    <div class="content-title" v-if="item.Level === 1">
+                <div id="review" style="background: #fff">
+                    <div class="edit-content content-review" v-for="(item,index) in templatePageData">
+                        <div class="content-title" v-if="item.Level === 1">
                     <span>
                         {{ Title }}
                     </span>
-                    </div>
-                    <div class="content-con" :class="{notitle : item.Level !== 1}">
-                        <div class="topic" v-if="item.Level === 1">
-                            <div class="text">课题</div>
-                            <!--                            <el-input disabled v-model="Lesson"></el-input>-->
-                            <div>{{ Lesson }}</div>
                         </div>
-                        <div class="basic-info" v-if="item.Level === 1">
-                            <div class="info-input black-spot">
-                                <div class="input-item">
-                                    <div class="text">班级</div>
-                                    <el-input disabled v-model="Class"></el-input>
+                        <div class="content-con" :class="{notitle : item.Level !== 1}">
+                            <div class="topic" v-if="item.Level === 1">
+                                <div class="text">课题</div>
+                                <!--                            <el-input disabled v-model="Lesson"></el-input>-->
+                                <div>{{ Lesson }}</div>
+                            </div>
+                            <div class="basic-info" v-if="item.Level === 1">
+                                <div class="info-input black-spot">
+                                    <div class="input-item">
+                                        <div class="text">班级</div>
+                                        <div>{{ Class }}</div>
+                                    </div>
+                                </div>
+                                <div class="info-input black-spot">
+                                    <div class="input-item">
+                                        <div class="text">姓名</div>
+                                        <div>{{ Name }}</div>
+                                    </div>
+                                </div>
+                                <div class="info-input">
+                                    <div class="input-item">
+                                        <div class="text">时间</div>
+                                        <div>{{ Time }}</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="info-input black-spot">
-                                <div class="input-item">
-                                    <div class="text">姓名</div>
-                                    <el-input disabled v-model="Name"></el-input>
+                            <div class="content-template">
+                                <div class="template-items learn" v-if="item.Level === 1">
+                                    <div class="left-name">
+                                        学习目标
+                                    </div>
+                                    <div class="right-con">
+                                        <div style="padding: 0 10px">{{ Learn }}</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="info-input">
-                                <div class="input-item">
-                                    <div class="text">时间</div>
-                                    <el-input disabled v-model="Time"></el-input>
+                                <div class="template-items point" v-if="item.Level === 1">
+                                    <div class="left-name">
+                                        重点
+                                    </div>
+                                    <div class="right-con">
+                                        <div v-show="isReview" style="padding: 0 10px">{{ Zpoint }}</div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="content-template">
-                            <div class="template-items learn" v-if="item.Level === 1">
-                                <div class="left-name">
-                                    学习目标
+                                <div class="template-items point" v-if="item.Level === 1">
+                                    <div class="left-name">
+                                        难点
+                                    </div>
+                                    <div class="right-con">
+                                        <div v-show="isReview" style="padding: 0 10px">{{ Npoint }}</div>
+                                    </div>
                                 </div>
-                                <div class="right-con">
-                                    <div style="padding: 0 10px">{{ Learn }}</div>
-                                </div>
-                            </div>
-                            <div class="template-items point" v-if="item.Level === 1">
-                                <div class="left-name">
-                                    重点
-                                </div>
-                                <div class="right-con">
-                                    <div v-show="isReview" style="padding: 0 10px">{{ Zpoint }}</div>
-                                </div>
-                            </div>
-                            <div class="template-items point" v-if="item.Level === 1">
-                                <div class="left-name">
-                                    难点
-                                </div>
-                                <div class="right-con">
-                                    <div v-show="isReview" style="padding: 0 10px">{{ Npoint }}</div>
-                                </div>
-                            </div>
-                            <div class="template-items" v-for="(question) in item.Data"
-                                 :style="{minHeight:question.ConHeight + 'px'}">
-                                <div class="left-name">
+                                <div class="template-items" v-for="(question) in item.Data"
+                                     :style="{minHeight:question.ConHeight + 'px'}">
+                                    <div class="left-name">
                                     <span>
                                         {{ question.Name }}
                                     </span>
-                                </div>
-                                <div class="right-con">
-                                    <div class="top-con">
-                                        <div v-show="isReview" v-html="question.Content"></div>
+                                    </div>
+                                    <div class="right-con">
+                                        <div class="top-con">
+                                            <div v-show="isReview" v-html="question.Content"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="page-data">
-                        第 {{ item.Level }} 页
+                        <!--                    <div class="page-data">-->
+                        <!--                        第 {{ item.Level }} 页-->
+                        <!--                    </div>-->
                     </div>
                 </div>
             </div>
@@ -223,6 +225,7 @@ import {
 import {convertToLetters} from "@/utils/common";
 import {v4 as uuidv4} from "uuid";
 import useDesignTemplate from "@/views/preparation/learnPlanDesign/useDesignTemplate";
+import {downloadPDF} from "@/utils/html2pdf.ts";
 
 export default defineComponent({
     name: "TemplateTwo",
@@ -367,7 +370,17 @@ export default defineComponent({
             }
 
         }, {deep: true, immediate: true})
-
+        const downLoad = () => {
+            // 获取需要下载的DOM元素
+            emit("update:isReview", true);
+            nextTick(() => {
+                const domContent: any = document.querySelector('#review');
+                downloadPDF(domContent, templateInfo.Title, () => {
+                    console.log('保存为Pdf')
+                    // ElMessage.success("保存成功")
+                })
+            })
+        }
         return {
             ...toRefs(templateInfo),
             isTitleEdit,
@@ -385,7 +398,8 @@ export default defineComponent({
             setQuestionItem,
             convertToLetters,
             saveTemplate,
-            formateLearningGuidDetail
+            formateLearningGuidDetail,
+            downLoad
 
         }
     }
@@ -400,7 +414,7 @@ export default defineComponent({
 
     .edit-content {
         margin: 30px auto;
-        width: 764px;
+        width: 781px;
         height: 1104px;
         background: #FFFFFF;
         box-shadow: 0px 8px 19px 0px rgba(0, 0, 0, 0.05);
@@ -738,6 +752,28 @@ export default defineComponent({
             line-height: 16px;
             margin-top: 48px;
 
+        }
+    }
+
+    .content-review {
+        margin: 0;
+        box-shadow: none;
+
+        .page-data {
+            margin-top: 0;
+        }
+
+        .basic-info {
+            .info-input {
+                .input-item {
+                    width: 100%;
+                    height: 100%;
+
+                    .text {
+                        margin-right: 12px;
+                    }
+                }
+            }
         }
     }
 
