@@ -59,7 +59,6 @@
 </template>
 <script lang="ts">
 import {defineComponent} from 'vue';
-import {YUN_API_ONECARD_MQTT} from '@/config';
 
 export default defineComponent({
     name: 'Composition'

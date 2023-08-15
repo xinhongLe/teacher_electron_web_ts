@@ -41,7 +41,7 @@ import {PADModeQuestionType} from "./enum";
 import mqtt from "mqtt";
 import {finishAnswerMachineQuestion} from "@/childWindow/answerMachine/api";
 import {UserInfoState} from "@/types/store";
-import {YUN_API_ONECARD_MQTT} from "@/config";
+import {VUE_APP_YUN_API_MQTT} from "@/config";
 
 export default defineComponent({
     props: {
@@ -72,10 +72,8 @@ export default defineComponent({
         const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
         const {showTime, startCountDown, endCountDown} = useCountDown();
 
-        const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
-            port: 1883,
-            username: "u001",
-            password: "p001",
+        const client = mqtt.connect(VUE_APP_YUN_API_MQTT || "", {
+            port: process.env.NODE_ENV === "development" ? 8083 : 0,
             keepalive: 30
         });
 
@@ -90,6 +88,7 @@ export default defineComponent({
         client && client.on("error", (err) => {
             window.electron.log.info("client error answer", err);
         });
+
 
         client && client.on("message", function (topic: any, message: any) {
             // message is Buffer
