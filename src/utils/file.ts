@@ -8,7 +8,7 @@ const noZipCache: string[] = [];
 const getFilePath = (key: string, resolve: (path: string) => void) => {
     const fileName = key.replace(/(.*\/)*([^.]+)/ig, "$2");
     if (fileName === "ElementFile/" || fileName === "null") return resolve("");
-    return window.electron.isExistFile(fileName).then((isExist) => {
+    return window.electron.isExistCacheFile(fileName).then((isExist) => {
         if (isExist) {
             resolve(encodeURI(window.electron.getFilePath(fileName)));
         } else {

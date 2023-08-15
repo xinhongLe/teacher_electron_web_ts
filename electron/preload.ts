@@ -25,7 +25,7 @@ import {
     readFile,
     rm,
     stat,
-    writeFile
+    writeFile,
 } from "fs/promises";
 import {
     darwinGetScreenPermissionGranted,
@@ -40,6 +40,7 @@ import {
 } from "electron";
 import * as https from "https";
 import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import Axios, { CancelTokenSource } from "axios";
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 const PATH_WhiteBoard = join(
@@ -69,6 +70,42 @@ window.electron = {
     },
     ipcRenderer,
     shell,
+    path,
+    getFileName: (path: string, fileName: string, i: number) => {
+        const name = (i === 0 ? fileName : fileName.replace(/([^.]+).([^.]+)/gi, `$1(${i}).$2`));
+        if (window.electron.isExistFile(path + "/" + name)) return window.electron.getFileName(path, fileName, i + 1);
+        return name;
+    },
+    downloadFile: (
+        url: string,
+        path: string,
+        callback: (progress: number) => void,
+        cancelCallBack: (cancelToken: CancelTokenSource) => void
+    ): Promise<Boolean> => {
+        return new Promise((resolve) => {
+            const CancelToken = Axios.CancelToken;
+            const source = CancelToken.source();
+            cancelCallBack(source);
+            Axios({
+                url,
+                method: "GET",
+                responseType: "arraybuffer",
+                onDownloadProgress: (evt) => {
+                    callback((evt.loaded / evt.total) * 100);
+                },
+                cancelToken: source.token
+            }).then((response) => {
+                if (response.status === 200) {
+                    const buffer = Buffer.from(response.data);
+                    fs.writeFile(path, buffer, (err) => {
+                        resolve(!err);
+                    });
+                } else {
+                    resolve(false);
+                }
+            }).catch(() => {});
+        });
+    },
     exit: () => {
         app.quit();
     },
@@ -93,8 +130,8 @@ window.electron = {
             desktopCapturer.getSources({
                 types: ["screen"]
             }).then(sources => {
-                console.log('sources', sources)
-                const index = sources.findIndex(source => source.name === "爱学仕校园教师端");
+                // console.log('sources', sources)
+                // const index = sources.findIndex(source => source.name === "爱学仕校园教师端");
                 const selectSource = sources[0];
                 const buffer = selectSource.thumbnail.toPNG({
                     scaleFactor: 0.1
@@ -268,9 +305,12 @@ window.electron = {
             }
         });
     },
-    isExistFile: async (fileName: string) => {
+    isExistCacheFile: async (fileName: string) => {
         const filePath = resolve(downloadsPath, fileName);
         return isExistFile(filePath);
+    },
+    isExistFile: (filePath: string) => {
+        return fs.existsSync(filePath);
     },
     setPositionWin: (x, y, ani?: boolean) => {
         const currentWindow = getCurrentWindow();

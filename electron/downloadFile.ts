@@ -4,8 +4,8 @@ import Store from "electron-store";
 import { app, ipcMain } from "electron";
 import { access, mkdir } from "fs/promises";
 import { createWriteStream, createReadStream } from "fs";
+import crypto from "crypto";
 
-const crypto = require("crypto");
 type func = (value: unknown) => void;
 
 export const store = new Store({ watch: true });
@@ -16,7 +16,9 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
     return new Promise((resolve) => {
         access(filePath)
             .then(() => {
-                const fileName = filePath.replaceAll("\\", "/").replace(/(.*\/)*([^.]+).*/gi, "$2");
+                const fileName = filePath
+                    .replaceAll("\\", "/")
+                    .replace(/(.*\/)*([^.]+).*/gi, "$2");
                 const hash = crypto.createHash("md5");
                 createReadStream(filePath)
                     .on("data", (chunk: any) => {
@@ -24,10 +26,7 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
                     })
                     .on("end", () => {
                         const md5 = hash.digest("hex");
-                        return resolve(
-                            md5.toLocaleLowerCase() ===
-                            fileName.toLocaleLowerCase()
-                        );
+                        return resolve(md5.toLocaleLowerCase() === fileName.toLocaleLowerCase());
                     })
                     .on("error", () => {
                         return resolve(false);
@@ -73,7 +72,7 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
         const response = await Axios({
             url,
             method: "GET",
-            responseType: "stream"
+            responseType: "stream",
         });
 
         const writer = createWriteStream(filePath);
@@ -104,9 +103,17 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
     }
 };
 
-export const downloadFileToPath = async (url: string, fileName: string, path: string): Promise<boolean> => {
+export const downloadFileToPath = async (
+    url: string,
+    fileName: string,
+    path: string
+): Promise<boolean> => {
     const writer = createWriteStream(path);
-    const response = await Axios({ url, method: "GET", responseType: "stream" });
+    const response = await Axios({
+        url,
+        method: "GET",
+        responseType: "stream"
+    });
     if (response.status === 200) {
         response.data.pipe(writer);
     } else {
@@ -142,10 +149,14 @@ export default () => {
     };
 
     ipcMain.handle("downloadFile", (_, url, fileName) => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             if (downloadSuccessCallbackMap.has(fileName)) {
-                const callbackList = downloadSuccessCallbackMap.get(fileName) || [];
-                downloadSuccessCallbackMap.set(fileName, [...callbackList, resolve]);
+                const callbackList =
+                    downloadSuccessCallbackMap.get(fileName) || [];
+                downloadSuccessCallbackMap.set(fileName, [
+                    ...callbackList,
+                    resolve,
+                ]);
             } else {
                 downloadSuccessCallbackMap.set(fileName, [resolve]);
                 downloadFile(url, fileName);
@@ -155,7 +166,12 @@ export default () => {
 
     ipcMain.handle(
         "downloadFileToPath",
-        (_, url: string, fileName: string, path: string) => {
+        (
+            _,
+            url: string,
+            fileName: string,
+            path: string
+        ) => {
             return downloadFileToPath(url, fileName, path);
         }
     );

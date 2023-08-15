@@ -531,8 +531,34 @@ defineExpose({selectedClassList, replaceOrAddPackage, sureDeletePackage})
                 font-weight: 600;
                 line-height: 16px;
                 color: #19203d;
-                margin-bottom: 6px;
+                //margin-bottom: 6px;
             }
+
+            @media screen and (max-width: 1100px) {
+                .course-name {
+                    padding-top: 4px;
+                    font-size: 8px;
+                }
+            }
+            @media screen and (min-width: 1100px) and (max-width: 1500px) {
+                .course-name {
+                    padding-top: 4px;
+                    font-size: 10px;
+                }
+            }
+            @media screen and (min-width: 1500px) and (max-width: 1900px) {
+                .course-name {
+                    padding-top: 6px;
+                    font-size: 12px;
+                }
+            }
+            @media screen and (min-width: 1920px) {
+                .course-name {
+                    padding-top: 8px;
+                    font-size: 14px;
+                }
+            }
+
 
             .middle {
                 padding: 0 12px;
@@ -561,7 +587,26 @@ defineExpose({selectedClassList, replaceOrAddPackage, sureDeletePackage})
                     color: #4B71EE;
                     text-align: center;
                     padding: 4px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
 
+                }
+
+                @media screen and (max-width: 1100px) {
+                    .lesson-package {
+                        font-size: 8px;
+                    }
+                }
+                @media screen and (min-width: 1100px) and (max-width: 1500px) {
+                    .lesson-package {
+                        font-size: 10px;
+                    }
+                }
+                @media screen and (min-width: 1500px) {
+                    .lesson-package {
+                        font-size: 12px;
+                    }
                 }
 
                 span {
@@ -587,6 +632,23 @@ defineExpose({selectedClassList, replaceOrAddPackage, sureDeletePackage})
                 min-width: 0;
                 @include text-ellipsis();
             }
+
+            @media screen and (max-width: 1100px) {
+                .class-name {
+                    font-size: 8px;
+                }
+            }
+            @media screen and (min-width: 1100px) and (max-width: 1500px) {
+                .class-name {
+                    font-size: 10px;
+                }
+            }
+            @media screen and (min-width: 1500px) {
+                .class-name {
+                    font-size: 12px;
+                }
+            }
+
 
             .content-class {
                 height: 20px;

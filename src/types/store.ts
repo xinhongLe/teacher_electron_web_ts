@@ -108,6 +108,15 @@ export interface ISingleResourceFullScreen {
     video?: IShowResourceFullScreen;
 }
 
+export interface IDownloading {
+    id: string;
+    name: string;
+    type: string;
+    data: IResourceItem;
+    timestamp: number;
+    status: number; // 0: 待下载 1: 下载中 2: 已完成 3: 已取消 4: 下载失败
+}
+
 export interface CommonState {
     /**
      * 是否在拖拽
@@ -148,7 +157,11 @@ export interface CommonState {
     /**
      * 从哪儿进入的课件资源
      */
-    resourceIntoType: number
+    resourceIntoType: number,
+    /**
+     * 下载中的列表
+     */
+    downloading: IDownloading[];
 }
 export interface WrongBookState {
     questionBasket?: any[];

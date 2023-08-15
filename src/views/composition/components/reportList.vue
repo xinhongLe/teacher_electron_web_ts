@@ -63,6 +63,7 @@ const emit = defineEmits(['cancel', 'save','success']);
 
 const close = () => {
     state.flag = ''
+    state.page.PageNumber = 1
     state.TeacherCompositionId = null
     dialogVisible.value = false
     emit('cancel')

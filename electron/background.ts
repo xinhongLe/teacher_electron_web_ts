@@ -9,6 +9,15 @@ import { createWinCardWindow } from "./wincard";
 import { initialize, enable } from "@electron/remote/main";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { app, protocol, BrowserWindow, ipcMain, Menu, screen } from "electron";
+
+if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+        app.setAsDefaultProtocolClient("lyxteacher", process.execPath, [path.resolve(process.argv[1])])
+    }
+} else {
+    app.setAsDefaultProtocolClient("lyxteacher")
+}
+
 import {
     registerVirtualKeyBoard,
     closeKeyBoard,
@@ -107,8 +116,7 @@ async function createWindow() {
         height: size.height,
         show: false,
         frame: false,
-        minWidth: 750,
-        minHeight: 520,
+        minWidth: 1280,
         useContentSize: true,
         webPreferences: {
             webviewTag: true,
@@ -302,7 +310,7 @@ const onReady = () => {
     ipcMain.handle("closeKeyBoard", () => {
         closeKeyBoard();
     });
-    
+
     ipcMain.on('updateSelectClass', (e, v) => {
         mainWindow!.webContents.send('updateSelectClass', v)
     })
@@ -317,7 +325,6 @@ const onReady = () => {
         mainWindow!.webContents.send('setCourseMaximize', v)
     })
     ipcMain.handle("setCourseMaximize", (v, data) => {
-        console.log('setCourseMaximize', data)
         mainWindow!.webContents.send("setCourseMaximize", JSON.parse(data));
         courseShow()
     });
@@ -348,20 +355,14 @@ function createLocalPreview(args: Array<string>) {
     return false;
 }
 
-let isOpenFile = false;
-let isOpenUrl = false;
-
 app.on("will-finish-launching", () => {
     app.on("open-file", (event, path) => {
-        isOpenFile = true;
         event.preventDefault();
         if (app.isReady()) {
             createLocalPreviewWindow(path);
-            isOpenFile = false;
         } else {
             app.on("ready", async () => {
                 createLocalPreviewWindow(path);
-                isOpenFile = false;
             });
         }
     });
@@ -388,37 +389,38 @@ const webOpenUrl = (url: string) => {
         store.clear();
         store.set(`VUE_${STORAGE_TYPES.SET_TOKEN}`, token);
         record && store.set(`VUE_${STORAGE_TYPES.RECORD_LOGIN_LIST}`, record);
-        isOpenUrl = true;
-
         loginWindow && loginWindow.close();
+        return true;
     }
+    return false;
 };
 
 app.on("ready", async () => {
     createProtocol("app");
     onReady();
     let result = false;
-    console.log(process.argv);
     if (process.argv.length > 1) {
         const url = process.argv[1];
-        webOpenUrl(url);
-        if (isOpenUrl) createWindow();
+        if (webOpenUrl(url)) {
+            createWindow(); 
+            return;
+        }
     }
 
-    if (app.isPackaged && isOpenFile) {
+    if (app.isPackaged) {
         result = createLocalPreview(process.argv);
+        if (result) {
+            return;
+        }
     }
 
-    if (!result && !isOpenFile && !isOpenUrl) {
-        createLoginWindow();
-    }
+    createLoginWindow();
     // createLocalPreview(["/Users/moneyinto/Desktop/第一课时.lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
     ElectronLog.error(
-        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${
-            details.reason
+        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${details.reason
         }, exitCode: ${details.exitCode}`
     );
 });

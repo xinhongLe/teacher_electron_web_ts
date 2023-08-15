@@ -124,8 +124,12 @@ export enum STORAGE_TYPES {
     /**
      * 记录用户选择是否更新
      */
-    USER_UPDATE_CHOICE = "USER_UPDATE_CHOICE"
+    USER_UPDATE_CHOICE = "USER_UPDATE_CHOICE",
 
+    /**
+     * 下载历史
+     */
+    DOWNLOAD_HISTORY = "DOWNLOAD_HISTORY",
 }
 
 export const set = (
@@ -180,9 +184,11 @@ export const clear = () => {
         const paths = get(STORAGE_TYPES.OSS_PATHS);
         const selectBookData = get(STORAGE_TYPES.SELECT_BOOK_ID);
         const userUpdateChoice = get(STORAGE_TYPES.USER_UPDATE_CHOICE);// 用户的更新选择
+        const history = get(STORAGE_TYPES.DOWNLOAD_HISTORY);
         window.electron.store.clear();
         record && set(STORAGE_TYPES.RECORD_LOGIN_LIST, record);
         paths && set(STORAGE_TYPES.OSS_PATHS, paths);
+        history && set(STORAGE_TYPES.DOWNLOAD_HISTORY, history);
         selectBookData && set(STORAGE_TYPES.SELECT_BOOK_ID, selectBookData);
         userUpdateChoice && set(STORAGE_TYPES.USER_UPDATE_CHOICE, userUpdateChoice);
 

@@ -6,24 +6,26 @@
                     点击选择上课班级
                 </div>
             </template>
-            <div class="is-class" v-if="classList.length">
+            <div class="is-class" v-if="classList?.length">
                 <!-- <el-checkbox-group v-model="checkedClassList">
                     <el-checkbox :label="item.Id" v-for="item in classList">{{ item.Name }}</el-checkbox>
                 </el-checkbox-group> -->
                 <el-radio-group v-model="checkedClass">
-                    <el-radio style="margin-bottom: 10px;" :label="item.Id" v-for="item in classList" size="large" border>{{ item.Name }}</el-radio>
+                    <el-radio style="margin-bottom: 10px;" :label="item.Id" v-for="item in classList" size="large"
+                              border>{{ item.Name }}
+                    </el-radio>
                 </el-radio-group>
             </div>
             <div class="no-class" v-else>
                 <img src="@/assets/images/preparation/pic_noclass.png" alt="">
                 <span>您还没有班级</span>
                 <div class="no-class-button">
-                    <el-button type="primary" @click="sure()"> 确定 </el-button>
+                    <el-button type="primary" @click="sure()"> 确定</el-button>
                 </div>
             </div>
-            <template #footer v-if="classList.length">
+            <template #footer v-if="classList?.length">
                 <div class="dialog-footer">
-                    <el-button type="primary" @click="sure()"> 确定 </el-button>
+                    <el-button type="primary" @click="sure()"> 确定</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -31,9 +33,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
-import { GetCurrentCodeTeacherClass, ITeacherClassCodeOutDto } from "@/api/prepare";
-import { get, STORAGE_TYPES } from "@/utils/storage";
+import {defineComponent, ref, onMounted} from "vue";
+import {GetCurrentCodeTeacherClass, ITeacherClassCodeOutDto} from "@/api/prepare";
+import {get, STORAGE_TYPES} from "@/utils/storage";
+
 export default defineComponent({
     props: {
         classVisible: {
@@ -42,7 +45,7 @@ export default defineComponent({
         }
     },
     emits: ["selectedClassList", "update:classVisible"],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const checkedClass = ref("");
         const classList = ref<ITeacherClassCodeOutDto[]>([]);
         const close = () => {
@@ -57,7 +60,11 @@ export default defineComponent({
         };
         const _getTeacherClassList = async () => {
             const res = await GetCurrentCodeTeacherClass();
-            classList.value = res.result;
+            if (res.success) {
+                classList.value = res.result || [];
+            } else {
+                classList.value = []
+            }
         };
         onMounted(() => {
             _getTeacherClassList();
@@ -89,7 +96,7 @@ export default defineComponent({
             align-items: center;
             justify-content: center;
 
-            >span {
+            > span {
                 padding: 28px 0;
                 font-size: 20px;
                 font-weight: 400;

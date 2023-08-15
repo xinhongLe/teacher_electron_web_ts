@@ -8,6 +8,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: "/",
         component: () => import("@/components/Main.vue"),
+        redirect: "/home",
         children: [
             {
                 path: "home",
@@ -143,7 +144,24 @@ const routes: Array<RouteRecordRaw> = [
                 path: "composition",
                 name: "AI作文批改",
                 component: () => import("@/views/composition/index.vue"),
+            },
+            {
+                path: "pblstudy",
+                name: "PBL项目式学习",
+                component: () => import("@/views/pblStudy/index.vue"),
+                meta: {
+                    keepAlive: true
+                }
+            },
+            {
+                path: "wincard",
+                name: "PBL项目式学习窗卡页",
+                component: () => import("@/views/pblStudy/wincard.vue"),
+                // meta: {
+                //     keepAlive: true
+                // }
             }
+
         ],
     },
 ];

@@ -146,12 +146,33 @@ module.exports = {
             title: "键盘",
             chunks: ["virtualKeyBoard"]
         },
-        gameSet: {
-            entry: "src/childWindow/gameSet/main.ts",
-            template: "public/gameSet.html",
-            filename: "gameSet.html",
-            title: "互动游戏",
-            chunks: ["gameSet"]
+        // gameSet: {
+        //     entry: "src/childWindow/gameSet/main.ts",
+        //     template: "public/gameSet.html",
+        //     filename: "gameSet.html",
+        //     title: "互动游戏",
+        //     chunks: ["gameSet"]
+        // },
+        pblEditWinCard: {
+            entry: "src/childWindow/pblEditWinCard/main.ts",
+            template: "public/template.html",
+            filename: "pblEditWinCard.html",
+            title: "pbl编辑",
+            chunks: ["pblEditWinCard"]
+        },
+        pblEditWinCardLesson: {
+            entry: "src/childWindow/pblEditWinCardLesson/main.ts",
+            template: "public/template.html",
+            filename: "pblEditWinCardLesson.html",
+            title: "pbl窗卡页预览",
+            chunks: ["pblEditWinCardLesson"]
+        },
+        pblFilePreview: {
+            entry: "src/childWindow/pblFilePreview/main.ts",
+            template: "public/template.html",
+            filename: "pblFilePreview.html",
+            title: "pbl文件预览",
+            chunks: ["pblFilePreview"]
         }
     },
     css: {
@@ -214,6 +235,11 @@ module.exports = {
                     name: "projection",
                     priority: 10,
                     test: "src/childWindow/projection/main.ts"
+                },
+                login: {
+                    name: "login",
+                    priority: 10,
+                    test: "src/childWindow/login/main.ts"
                 },
                 rollCall: {
                     name: "rollCall",
@@ -323,7 +349,7 @@ module.exports = {
                     createDesktopShortcut: true, // 创建桌面图标
                     createStartMenuShortcut: true, // 创建开始菜单图标
                     shortcutName: process.env.VUE_APP_PRODUCT_NAME, // 图标名称
-                    include: "installer.nsh"
+                    // include: "installer.nsh"
                 },
                 win: {
                     // win相关配置

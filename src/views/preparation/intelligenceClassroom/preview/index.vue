@@ -70,25 +70,25 @@
                 :teachProcess="page?.AcademicPresupposition"
             />
         </div>
-    </div>
 
-    <open-card-view-dialog v-if="openCardShow" :list="openCardList" @close="openCardShow = false"/>
+        <open-card-view-dialog v-if="openCardShow" :list="openCardList" @close="openCardShow = false"/>
+    </div>
 </template>
 
 <script lang=ts>
-import {cloneDeep} from "lodash";
-import {pageType} from "@/config";
-import {ElMessage} from "element-plus";
-import {IViewResourceData} from "@/types/store";
+import { store } from "@/store";
+import { cloneDeep } from "lodash";
+import { pageType } from "@/config";
+import { ElMessage } from "element-plus";
+import { IViewResourceData } from "@/types/store";
 import Remark from "../components/preview/remark.vue";
-import {computed, defineComponent, onMounted, PropType, ref, watch} from "vue";
 import OpenCardViewDialog from "../components/edit/openCardViewDialog.vue";
-import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
-import {store, useStore} from "@/store";
+import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
     name: "WinPreview",
-    components: {OpenCardViewDialog, Remark},
+    components: { OpenCardViewDialog, Remark },
     props: {
         cards: {
             type: Array as PropType<CardProps[]>,
@@ -120,7 +120,7 @@ export default defineComponent({
         }
     },
     emits: ["update:index", "update:l-visit", "update:r-visit", "update:is-can-undo", "update:is-can-redo", "update:currentDrawColor", "update:currentLineWidth", "update:eraserLineWidth"],
-    setup(props, {emit}) {
+    setup(props, { emit }) {
         const windowCards = ref<CardProps[]>([]);
         const currentDrawColor = ref("#f60000");
         const currentLineWidth = ref(2);
@@ -152,8 +152,9 @@ export default defineComponent({
 
                 list[i].PageList = pages.filter(item => item.State);
             }
+            console.log(list);
             windowCards.value = list;
-        }, {immediate: true, deep: true});
+        }, { immediate: true, deep: true });
 
         const canvasDataMap = new Map();
         const canvasData = computed(() => {
@@ -168,12 +169,12 @@ export default defineComponent({
             const json = page ? page.Json : {};
             json.design = page.DesignIntent;
             json.remark = page.Remark;
-            return json;
+            return cloneDeep(json);
         });
         watch(() => currentSlide.value, (val, oldVal) => {
             const elements = screenRef.value.whiteboard.getElements();
             oldVal && canvasDataMap.set(oldVal.id, elements);
-        }, {deep: true});
+        }, { deep: true });
 
         const page = computed(() => {
             return props.pages?.filter(item => item.State)[props.index];
@@ -192,13 +193,13 @@ export default defineComponent({
         //     console.log('store.state.common.currentResourceInto', store.state.common.currentResourceInto)
         // }, {deep: true})
         onMounted(() => {
-            console.log('store.state.common.resourceIntoType', store.state.common.resourceIntoType)
+            console.log("store.state.common.resourceIntoType", store.state.common.resourceIntoType);
             if (store.state.common.resourceIntoType == 1) {
                 emit("update:r-visit", store.state.common.currentBeikeResource);
             } else {
                 emit("update:r-visit", store.state.common.currentKebiaoResource);
             }
-        })
+        });
         const centerW = computed(() => {
             let w = 0;
             if (props.lVisit) {

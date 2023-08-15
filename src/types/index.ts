@@ -6,6 +6,9 @@ import {
 } from "electron";
 import Store from "electron-store";
 import {IFileData} from "../../electron/exportWord";
+import fs from "fs";
+import { CancelTokenSource } from "axios";
+import { PlatformPath } from "path";
 
 interface logProps {
     info(...param: any[]): void;
@@ -30,6 +33,9 @@ type Electron = {
     isFullScreen: () => boolean;
     setFullScreen: (flag: boolean) => void;
     getVersion: () => string;
+    path: PlatformPath;
+    getFileName: (path: string, fileName: string, i: number) => string;
+    downloadFile: (url: string, path: string, callback: (progress: number) => void, cancelCallBack: (cancelToken: CancelTokenSource) => void) => Promise<Boolean>;
     isMac: () => boolean;
     registerEscKeyUp: (callback: () => void) => void;
     unRegisterEscKeyUp: () => void;
@@ -37,7 +43,8 @@ type Electron = {
     setContentSize: (width: number, height: number) => void;
     getCacheFile: (fileName: string) => Promise<string>;
     getFilePath: (fileName: string) => string;
-    isExistFile: (fileName: string) => Promise<boolean>;
+    isExistCacheFile: (fileName: string) => Promise<boolean>;
+    isExistFile: (filePath: string) => boolean;
     isExistM3U8: (fileName: string) => Promise<boolean>;
     destroyWindow: () => void;
     showWindow: (isMaximize?: boolean) => void;

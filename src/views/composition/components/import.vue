@@ -166,7 +166,7 @@ const uploadRequest = ({ file }: any) => {
                 loading.value = false
                 ElMessage.success('批量导入成功！');
                 close();
-                emit('openList');
+                emit('openList',{isModified:true});
             } else {
                 uploadRef.value.clearFiles();
             }
