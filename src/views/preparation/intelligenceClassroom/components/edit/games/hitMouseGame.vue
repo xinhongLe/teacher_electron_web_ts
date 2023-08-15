@@ -2,7 +2,7 @@
     <div class="content">
         <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" label-position="left">
             <el-form-item label="题目主题：" prop="Title">
-                <el-input type="textarea" maxlength="30" show-word-limit v-model.number="form.Title"/>
+                <el-input type="textarea" maxlength="30" show-word-limit v-model="form.Title"/>
             </el-form-item>
 
             <div>
