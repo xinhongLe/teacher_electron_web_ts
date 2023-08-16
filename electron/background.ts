@@ -396,7 +396,6 @@ const webOpenUrl = (url: string) => {
         loginWindow && loginWindow.close();
         return true;
     }
-    return false;
 };
 
 app.on("ready", async () => {
@@ -405,26 +404,24 @@ app.on("ready", async () => {
     let result = false;
     if (process.argv.length > 1) {
         const url = process.argv[1];
-        if (webOpenUrl(url)) {
-            createWindow();
-            return;
-        }
+        webOpenUrl(url);
+        if (isOpenUrl) createWindow();
     }
 
-    if (app.isPackaged) {
+    if (app.isPackaged && isOpenFile) {
         result = createLocalPreview(process.argv);
-        if (result) {
-            return;
-        }
     }
 
-    createLoginWindow();
+    if (!result && !isOpenFile && !isOpenUrl) {
+        createLoginWindow();
+    }
     // createLocalPreview(["/Users/moneyinto/Desktop/第一课时.lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
     ElectronLog.error(
-        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${details.reason
+        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${
+            details.reason
         }, exitCode: ${details.exitCode}`
     );
 });
