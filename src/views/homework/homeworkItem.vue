@@ -43,7 +43,7 @@
                     >{{ getCourseBagType(info.ClassifyType) }}</span
                 >
             </div>
-            <span style="color: #000; flex: 1.5">
+            <div style="color: #000; width: 90px;min-width: 90px;">
                 <template v-if="info.HomeworkPaperType == 0"
                     >{{ info.AllQuestionCount }}题</template
                 >
@@ -52,8 +52,8 @@
                         formatDuration(info.VideoDurationTick)
                     }}</template
                 >
-            </span>
-            <span>
+            </div>
+            <div style="flex: 1;margin: 0 10px;">
                 <template
                     v-if="
                         info.HomeworkPaperType == 1 ||
@@ -62,7 +62,7 @@
                     >{{ info.AlbumName }} {{ info.ChapterName }}
                     {{ info.LessonName }}</template
                 >
-            </span>
+            </div>
 
             <div class="progress-content">
                 <!-- <template v-if="info.HomeworkPaperType === 1">
@@ -592,7 +592,6 @@ export default defineComponent({
     color: #5f626f;
     margin-bottom: 10px;
     .homework-warp {
-        width: 20%;
         :deep(.el-date-editor) {
             width: 0;
             height: 25px;
@@ -615,7 +614,7 @@ export default defineComponent({
         }
         > span:nth-of-type(2),
         .progress-content {
-            flex: 1.5;
+            width: 160px;
             span {
                 white-space: nowrap;
             }
@@ -626,17 +625,17 @@ export default defineComponent({
             white-space: nowrap;
         }
         .people {
-            flex: 1;
+            width: 150px;
             white-space: nowrap;
         }
         .progress-content1 {
-            width: 5%;
+            width: 100px;
             margin: 0 20px;
         }
         .btn-list {
-            float: right;
             margin-left: 10px;
             text-align: right;
+            white-space: nowrap;
         }
         .answer,
         .detail {
@@ -659,7 +658,7 @@ export default defineComponent({
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        flex: 2;
+        width: 450px;
         margin-right: 3rem;
         img {
             width: 20px;
@@ -675,7 +674,8 @@ export default defineComponent({
             margin: 0 30px;
         }
         .course-bag-type {
-            flex: 1;
+            display: block;
+            width: 90px;
             min-width: 0;
             font-size: 14px;
             color: #4b71ee;

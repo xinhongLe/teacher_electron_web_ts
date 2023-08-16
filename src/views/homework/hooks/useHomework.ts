@@ -31,18 +31,20 @@ export default () => {
             subjectID: form.subject,
             date: form.date
         };
-        const res = await fetchClassHomeworkPaperList(data);
-        if (res.resultCode === 200) {
-            const detailList = res.result.map((item: any) => {
-                return {
-                    ...item,
-                    showPublish: moment(item.AnswerShowTime) > moment(new Date())
-                };
-            });
-            detailList.forEach(item => {
-                const {ClassID} = item;
-                homeworkListMap.value[ClassID] ? homeworkListMap.value[ClassID].push(item) : (homeworkListMap.value[ClassID] = [item]);
-            });
+        if (form.subject && form.date) {
+            const res = await fetchClassHomeworkPaperList(data);
+            if (res.resultCode === 200) {
+                const detailList = res.result.map((item: any) => {
+                    return {
+                        ...item,
+                        showPublish: moment(item.AnswerShowTime) > moment(new Date())
+                    };
+                });
+                detailList.forEach(item => {
+                    const {ClassID} = item;
+                    homeworkListMap.value[ClassID] ? homeworkListMap.value[ClassID].push(item) : (homeworkListMap.value[ClassID] = [item]);
+                });
+            }
         }
     };
 
@@ -78,7 +80,6 @@ export default () => {
         const userInfo = get(STORAGE_TYPES.USER_INFO);
         const subData = await GetMySubjectByOrgId();
         if (subData.success && subData.resultCode === 200) {
-            console.log('subData', subData)
             // subjectList.value = (userInfo.Subjects as LessonSubject[]).filter(
             //     ({Name}) => Name !== "拼音"
             // );
@@ -86,7 +87,6 @@ export default () => {
             form.subject = subjectList.value.length ? subjectList.value[0].ID : "";
             const currentClass: any = store.state.userInfo.currentSelectClass;
             selectClassId.value = currentClass?.ClassAixueshiId || classList.value[0]?.ClassAixueshiId;
-            console.log('selectClassId', selectClassId.value)
             getHasTaskDate();
         }
     };
