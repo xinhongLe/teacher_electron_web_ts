@@ -13,15 +13,15 @@ import {ElMessage, ElMessageBox, MessageHandler} from "element-plus";
 import {store} from "@/store";
 import Content from "./Content.vue";
 import {clearInterval, setInterval} from "timers";
-import {YUN_API_VIDEO_PROJECT_MQTT} from "@/config";
+import {VUE_APP_YUN_API_MQTT} from "@/config";
 
 const imgError = require("@/assets/projection/img_error@2x.png");
 let messageHandle: MessageHandler;
 export default defineComponent({
     setup() {
         const isShow = ref(false);
-        const client = mqtt.connect(YUN_API_VIDEO_PROJECT_MQTT || "", {
-            port: 8083,
+        const client = mqtt.connect(VUE_APP_YUN_API_MQTT || "", {
+            port: process.env.NODE_ENV === "development" ? 8083 : 0,
             keepalive: 30
         });
         const noSignalCount = ref(0); // 没收到心跳的次数

@@ -57,27 +57,8 @@ http.interceptors.response.use(
                 });
             }
             clear();
-            router.push("/login");
-            // 登录超时，外部系统返回登录页
-            if (
-                window.top &&
-                window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1 &&
-                !isElectron()
-            ) {
-                if (
-                    window.parent &&
-                    window.parent.window &&
-                    window.parent.window[0] &&
-                    window.parent.window[0].location &&
-                    window.parent.window[0].location.ancestorOrigins
-                ) {
-                    window.top.location.href = `${window.parent.window[0].location.ancestorOrigins[0]}?isReset=true`;
-                } else if (window.top && window.top.parent) {
-                    window.top.location.href = `${window.top.parent}?isReset=true`;
-                } else if (window.location && window.location.origin) {
-                    window.top.location.href = `${window.location.origin}?isReset=true`;
-                }
-            }
+            window.electron.ipcRenderer.invoke("closeSuspension");
+            window.electron.ipcRenderer.invoke("logout");
             initAllState();
         } else if (res.resultCode !== 200) {
             res.resultDesc &&

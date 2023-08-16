@@ -38,7 +38,8 @@ import useLessonPackage from "@/hooks/useLessonPackage";
 import useClickDrag, {} from "@/hooks/useClickDrag";
 import {ref, PropType, onMounted, nextTick, watch} from "vue";
 import emitter from "@/utils/mitt";
-import deletePackage from "@/views/preparation/layout/dialog/deletePackage.vue";
+import {useStore} from "@/store";
+import deletePackage from "../layout/dialog/deletePackage.vue";
 
 const currentSelectPackageId = ref<string>("");
 const {startDrag, touchStartDrag} = useClickDrag();
@@ -111,7 +112,7 @@ const addPackage = async () => {
 };
 // 选择备课包
 const selectPackage = (data?: any) => {
-    currentSelectPackageId.value = data ? data.Id : currentSelectPackageId.value ? currentSelectPackageId.value : lessonPackageList.value[0]?.Id;
+    currentSelectPackageId.value = data ? data.Id : "";
     emitter.emit("updateResourceList", [currentSelectPackageId.value]);
     emits("closeCalendar");
 };

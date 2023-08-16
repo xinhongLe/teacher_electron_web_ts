@@ -91,7 +91,7 @@
     <!-- 检查原文 -->
     <Origin ref="originRef" />
     <!-- 手动批改 -->
-    <Assessment ref="assessmentRef" @success="refresh" />
+    <Assessment ref="assessmentRef" @success="refresh" @close="assessClose" />
     <!-- 查看原文 -->
     <Article ref="articleRef" @view-report="showReport" />
     <!-- 报告详情 -->
@@ -180,6 +180,14 @@ const refresh = () => {
     getTabList()
     getComList()
 }
+const assessClose = (e?: any) => {
+    console.log('assessClose:', e);
+    if (e.isSaved && e.isFromDetail) {
+        // 刷新
+        detailRef.value.close()
+        refresh()
+    }
+}
 
 // 删除项目
 const delProject = () => {
@@ -212,7 +220,8 @@ const confirmDelItem = (e: any) => {
 
 // 手动批改
 const handOperate = (item: any) => {
-    assessmentRef.value.openDialog({ StudentCompositionId: item.StudentCompositionId })
+    // console.log('手动批改:', item);
+    assessmentRef.value.openDialog({ StudentCompositionId: item.StudentCompositionId, isFromDetail: item.isFromDetail || false })
 }
 
 // 检查原文
@@ -243,6 +252,7 @@ const reCorrection = (item: any) => {
 // 关闭
 const close = (needRefresh?: any) => {
     dialogVisible.value = false
+    state.page.PageNumber = 1
     state.tabName = '0'
     emit('close')
     if (needRefresh) {
@@ -261,8 +271,8 @@ const correction = () => {
 }
 
 const openDialog = async (info?: any) => {
-    console.log('-----info:',info);
-    
+    console.log('-----info:', info);
+
     const { TeacherCompositionId, ClassId, Title, isTurnToWait } = info
 
     state.TeacherCompositionId = TeacherCompositionId
@@ -272,7 +282,7 @@ const openDialog = async (info?: any) => {
     getTabList(() => {
         if (isTurnToWait) {
             console.log('待批改');
-            
+
             state.tabName = '2' // 待批改
         }
         getComList()

@@ -261,7 +261,6 @@ function createUnfoldSuspensionWindow() {
 }
 
 function createBlackboardWindow() {
-    console.log('blackboardURL', blackboardURL)
     blackboardWin = createWindow(blackboardURL, {
         width: 1000,
         height: 600,
@@ -274,7 +273,7 @@ function createBlackboardWindow() {
         show: false,
         useContentSize: true,
     });
-    blackboardWin.webContents.openDevTools(); // 打开黑板调试
+    // blackboardWin.webContents.openDevTools(); // 打开黑板调试
 
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();

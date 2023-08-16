@@ -1,5 +1,5 @@
 <template>
-    <div class="detail" style="height: 100%;" v-if="dialogVisible">
+    <div class="assess-detail" style="height: 100%;" v-if="dialogVisible">
         <div class="upper align-center">
             <div class="back" @click="close">
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
@@ -117,6 +117,8 @@ const dialogVisible = ref(false);
 
 const state = reactive({
     isContinue: false,
+    isSaved: false, // 是否保存过
+    nextResult: null,// 下一个报告信息(暂存)
     StudentCompositionId: '',
     photoList: [] as any,
     mainPic: '',
@@ -131,6 +133,7 @@ const state = reactive({
     isChange: false,
     NextStudentCompositionId: '',
     columnPageList: [],
+    isFromDetail: false, // 来自详情
     columnPager: {
         total: 0,
         current: 1,
@@ -138,11 +141,11 @@ const state = reactive({
     }
 })
 
-const emit = defineEmits(['close', 'save','success']);
+const emit = defineEmits(['close', 'save', 'success']);
 
 const { photoList, mainPic, columnPager, active, compositionInfo, assessList } = toRefs(state)
 const handleCurrentChange = (val: number) => {
-    getDetail(state.columnPageList[val-1], true)
+    getDetail(state.columnPageList[val - 1], true)
 }
 // 获取分页
 const loadAllPages = () => {
@@ -187,26 +190,85 @@ const switchPic = (item: any, idx: number) => {
     state.mainPic = item.url
 }
 
-//生成新报告
+/**
+  *生成新报告
+ * 23-07-10 
+ * 原 先保存再查询下一个 需更改接口调用顺序及暂存下一个
+ */
 const createNewReport = () => {
     let params = {
         StudentCompositionId: state.StudentCompositionId,
         TeacherId: store.state.userInfo?.userCenterUserID,
         GaugesDetails: buildArr()
     }
-    saveAssessment(params).then(async (res: any) => {
-        if (res.success) {
-            ElMessage.success('提交成功')
-            if (state.isContinue) {
-                // 下一个
-                viewNext()
-            } else {
-                close()
-                emit('success')
+    //
+    viewNext(() => {
+        saveAssessment(params).then(async (res: any) => {
+            if (res.success) {
+                //
+                state.isSaved = true
+                ElMessage.success('提交成功')
+                if (state.isContinue) {
+                    // 下一个
+                    state.isChange = true
+                    if (state.nextResult) {
+                        state.StudentCompositionId = state.nextResult?.Composition?.StudentCompositionId
+                        afterFuc(state.nextResult)
+                        //
+                        state.columnPager.current = state.columnPager.current + 1
+                    } else {
+                        ElMessage.error('当前已是最后一篇！')
+                    }
+                } else {
+                    close()
+                    emit('success')
+                }
             }
-        }
+        })
     })
 }
+// const createNewReport = () => {
+//     let params = {
+//         StudentCompositionId: state.StudentCompositionId,
+//         TeacherId: store.state.userInfo?.userCenterUserID,
+//         GaugesDetails: buildArr()
+//     }
+//     saveAssessment(params).then(async (res: any) => {
+//         if (res.success) {
+//             ElMessage.success('提交成功')
+//             if (state.isContinue) {
+//                 // 下一个
+//                 viewNext()
+//             } else {
+//                 close()
+//                 emit('success')
+//             }
+//         }
+//     })
+// }
+
+// 查询下一个
+const viewNext = (cb?: any) => {
+    assessNextGauges({ StudentCompositionId: state.StudentCompositionId, TeacherId: store.state.userInfo?.userCenterUserID }).then(async (res: any) => {
+        if (res.success) {
+            state.nextResult = res.result.IsExistsNextPage ? res.result : null
+            if (cb) {
+                cb()
+            }
+        }
+
+    })
+}
+// const viewNext = (cb?:any) => {
+//     state.isChange = true
+//     assessNextGauges({ StudentCompositionId: state.StudentCompositionId, TeacherId: store.state.userInfo?.userCenterUserID }).then(async (res: any) => {
+//         if (res.success) {
+//             let result = res.result
+//             state.StudentCompositionId = result.Composition.StudentCompositionId
+//             afterFuc(result)
+//         }
+//     })
+// }
 
 // 构造参数数组
 const buildArr = () => {
@@ -228,16 +290,21 @@ const buildArr = () => {
 // 关闭
 const close = () => {
     state.tabName = '照片'
+    state.nextResult = null
     dialogVisible.value = false
-    emit('close')
-    if(state.isChange){
+    emit('close', { isFromDetail: state.isFromDetail, isSaved: state.isSaved, StudentCompositionId: state.StudentCompositionId })
+    if (state.isChange) {
         emit('success')
     }
+    // 置空
+    state.isFromDetail = false
+    state.isSaved = false
 }
 
 const openDialog = async (info?: any) => {
-    const { StudentCompositionId } = info
+    const { StudentCompositionId, isFromDetail } = info
     state.StudentCompositionId = StudentCompositionId
+    state.isFromDetail = isFromDetail
     loadAllPages()
     getDetail(StudentCompositionId, false)
 }
@@ -256,19 +323,7 @@ const getDetail = (id: string, isRequestNext?: boolean) => {
     })
 }
 
-// 查询下一个
-const viewNext = () => {
-    state.isChange = true
-    assessNextGauges({ StudentCompositionId: state.StudentCompositionId, TeacherId: store.state.userInfo?.userCenterUserID }).then(async (res: any) => {
-        if (res.success) {
-            let result = res.result
-            state.StudentCompositionId = result.Composition.StudentCompositionId
-            afterFuc(result)
-        }
-    })
-}
-
-const afterFuc = async (result:any) => {
+const afterFuc = async (result: any) => {
     state.compositionInfo = result.Composition || {}
     state.assessList = result.GaugesInfos
     state.photoList = result.Composition.StudentCompositionFile
@@ -389,13 +444,13 @@ defineExpose({
     }
 }
 
-.detail {
+.assess-detail {
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    z-index: 888;
+    z-index: 889;
     display: flex;
     flex-direction: column;
     min-height: 0px;
@@ -421,6 +476,7 @@ defineExpose({
     color: #FFFFFF;
     position: relative;
     -webkit-app-region: no-drag;
+
     .back {
         position: absolute;
         left: 0;

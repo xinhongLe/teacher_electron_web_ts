@@ -9,9 +9,7 @@ export const YUN_API_ONECARD = process.env.VUE_APP_YUN_API_ONECARD;
 export const YUN_API_COMPOSITION = process.env.VUE_APP_YUN_API_COMPOSITION;
 
 export const YUN_API_PORTRAIT = process.env.VUE_APP_YUN_API_PORTRAIT;
-export const YUN_API_ONECARD_MQTT = process.env.VUE_APP_YUN_API_ONECARD_MQTT;
-export const VUE_APP_YUN_API_COMPOSITION_MQTT = process.env.VUE_APP_YUN_API_COMPOSITION_MQTT;
-export const YUN_API_VIDEO_PROJECT_MQTT = process.env.VUE_APP_YUN_API_VIDEO_PROJECT_MQTT;
+export const VUE_APP_YUN_API_MQTT = process.env.VUE_APP_YUN_API_MQTT;
 
 export const VUE_APP_YUN_PLATFORM = process.env.VUE_APP_YUN_PLATFORM;
 export const RESOURCE_API = process.env.VUE_APP_RESOURCE_API;

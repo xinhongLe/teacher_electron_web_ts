@@ -4,8 +4,8 @@ import Store from "electron-store";
 import { app, ipcMain } from "electron";
 import { access, mkdir } from "fs/promises";
 import { createWriteStream, createReadStream } from "fs";
+import crypto from "crypto";
 
-const crypto = require("crypto");
 type func = (value: unknown) => void;
 
 export const store = new Store({ watch: true });
@@ -26,10 +26,7 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
                     })
                     .on("end", () => {
                         const md5 = hash.digest("hex");
-                        return resolve(
-                            md5.toLocaleLowerCase() ===
-                                fileName.toLocaleLowerCase()
-                        );
+                        return resolve(md5.toLocaleLowerCase() === fileName.toLocaleLowerCase());
                     })
                     .on("error", () => {
                         return resolve(false);

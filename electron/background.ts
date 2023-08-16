@@ -9,6 +9,15 @@ import {createWinCardWindow} from "./wincard";
 import {initialize, enable} from "@electron/remote/main";
 import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
 import {app, protocol, BrowserWindow, ipcMain, Menu, screen} from "electron";
+
+if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+        app.setAsDefaultProtocolClient("lyxteacher", process.execPath, [path.resolve(process.argv[1])])
+    }
+} else {
+    app.setAsDefaultProtocolClient("lyxteacher")
+}
+
 import {
     registerVirtualKeyBoard,
     closeKeyBoard,
@@ -19,13 +28,8 @@ import {
     createLocalPreviewWindow,
     registerEvent,
     unfoldSuspensionWinSendMessage,
-    courseShow,
+    courseShow
 } from "./suspension";
-import {
-    registerPblWinCardEvent,
-    registerPblWinCardLessonEvent,
-    registerPreviewFileEvent,
-} from "./pblWincard";
 
 const editWinList = new Map<number, any>();
 const isDevelopment = process.env.NODE_ENV !== "production";
@@ -49,7 +53,7 @@ let isCreateWindow = false;
 let singalr: SingalRHelper | null;
 let mainWindow: BrowserWindow | null;
 let loginWindow: BrowserWindow | null;
- 
+
 if (!process.env.WEBPACK_DEV_SERVER_URL) {
     const menu = Menu.buildFromTemplate([]);
     Menu.setApplicationMenu(menu);
@@ -154,9 +158,6 @@ const onReady = () => {
     }
 
     registerEvent();
-    registerPblWinCardEvent();
-    registerPblWinCardLessonEvent();
-    registerPreviewFileEvent();
 
     ipcMain.handle("logout", () => {
         createLoginWindow();
@@ -251,10 +252,6 @@ const onReady = () => {
         mainWindow && mainWindow.webContents.send("openWindow", data);
     });
 
-    ipcMain.handle("closePblWincard", (_, data) => {
-        mainWindow && mainWindow.webContents.send("closePblWincard", data);
-    });
-
     // 上课消息通知
     ipcMain.on("attendClass", (e, to, data) => {
         if (to === "unfoldSuspension") {
@@ -314,23 +311,24 @@ const onReady = () => {
         closeKeyBoard();
     });
 
-    ipcMain.on("updateSelectClass", (e, v) => {
-        mainWindow!.webContents.send("updateSelectClass", v);
-    });
-    ipcMain.on("closeCourse", (e, v) => {
-        mainWindow!.webContents.send("closeCourse", v);
-    });
+    ipcMain.on('updateSelectClass', (e, v) => {
+        mainWindow!.webContents.send('updateSelectClass', v)
+    })
+    ipcMain.on('closeCourse', (e, v) => {
+        mainWindow!.webContents.send('closeCourse', v)
+    })
     ipcMain.handle("closeCourse", () => {
         mainWindow!.webContents.send("closeCourse");
     });
 
-    ipcMain.on("setCourseMaximize", (v) => {
-        mainWindow!.webContents.send("setCourseMaximize", v);
-    });
+    ipcMain.on('setCourseMaximize', (v) => {
+        mainWindow!.webContents.send('setCourseMaximize', v)
+    })
     ipcMain.handle("setCourseMaximize", (v, data) => {
         mainWindow!.webContents.send("setCourseMaximize", JSON.parse(data));
-        courseShow();
+        courseShow()
     });
+
 };
 
 app.on("window-all-closed", () => {
@@ -357,20 +355,14 @@ function createLocalPreview(args: Array<string>) {
     return false;
 }
 
-let isOpenFile = false;
-let isOpenUrl = false;
-
 app.on("will-finish-launching", () => {
     app.on("open-file", (event, path) => {
-        isOpenFile = true;
         event.preventDefault();
         if (app.isReady()) {
             createLocalPreviewWindow(path);
-            isOpenFile = false;
         } else {
             app.on("ready", async () => {
                 createLocalPreviewWindow(path);
-                isOpenFile = false;
             });
         }
     });
@@ -397,10 +389,10 @@ const webOpenUrl = (url: string) => {
         store.clear();
         store.set(`VUE_${STORAGE_TYPES.SET_TOKEN}`, token);
         record && store.set(`VUE_${STORAGE_TYPES.RECORD_LOGIN_LIST}`, record);
-        isOpenUrl = true;
-
         loginWindow && loginWindow.close();
+        return true;
     }
+    return false;
 };
 
 app.on("ready", async () => {
@@ -409,24 +401,26 @@ app.on("ready", async () => {
     let result = false;
     if (process.argv.length > 1) {
         const url = process.argv[1];
-        webOpenUrl(url);
-        if (isOpenUrl) createWindow();
+        if (webOpenUrl(url)) {
+            createWindow();
+            return;
+        }
     }
 
-    if (app.isPackaged && isOpenFile) {
+    if (app.isPackaged) {
         result = createLocalPreview(process.argv);
+        if (result) {
+            return;
+        }
     }
 
-    if (!result && !isOpenFile && !isOpenUrl) {
-        createLoginWindow();
-    }
+    createLoginWindow();
     // createLocalPreview(["/Users/moneyinto/Desktop/第一课时.lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
     ElectronLog.error(
-        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${
-            details.reason
+        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${details.reason
         }, exitCode: ${details.exitCode}`
     );
 });

@@ -50,7 +50,7 @@ import {computed, defineComponent, reactive, toRefs, PropType, watch, onUnmounte
 import {Homework, StudentMission} from "@/types/homework";
 import {sendWrongTopicDetail, GetStudentMissionList, overWrongTopicCollection} from "../api";
 import mqtt from "mqtt";
-import {YUN_API_ONECARD_MQTT} from "@/config";
+import {VUE_APP_YUN_API_MQTT} from "@/config";
 
 interface State {
     status: number,
@@ -99,10 +99,8 @@ export default defineComponent({
         });
         const visible = computed(() => props.dialogVisible);
 
-        const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
-            port: 1883,
-            username: "u001",
-            password: "p001",
+        const client = mqtt.connect(VUE_APP_YUN_API_MQTT || "", {
+            port: process.env.NODE_ENV === "development" ? 8083 : 0,
             keepalive: 30
         });
 
