@@ -29,7 +29,6 @@ export default (tagList: Ref<Tag[]>, selectSubjectId: Ref<string>) => {
             const list = tagStudentListMap.get(tagName) || [];
             list.push(info);
         });
-        console.log('tagStudentListMap', tagStudentListMap)
         tagStudentListMap.forEach((value, key) => {
             const obj: StudentTag = {
                 tagName: selectSubjectName.value + key,
@@ -37,7 +36,6 @@ export default (tagList: Ref<Tag[]>, selectSubjectId: Ref<string>) => {
             };
             newStudentList.push(obj);
         });
-        console.log('tagStudentListMap', tagStudentListMap)
 
         studentList.value = newStudentList;
     };

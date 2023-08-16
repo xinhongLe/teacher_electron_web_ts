@@ -144,7 +144,7 @@ export default defineComponent({
         float: left;
         flex: 1;
         margin-left: 24px;
-        margin-top: 16px;
+        margin-top: 20px;
     }
     :deep(.el-input-group__append) {
         background: none;
