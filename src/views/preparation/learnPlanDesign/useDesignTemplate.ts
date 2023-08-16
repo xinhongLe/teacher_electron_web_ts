@@ -14,8 +14,8 @@ export default (type: number) => {
     // 模板1信息
     const templateInfo = reactive({
         Title: "苏州市****学校**导学案",//标题
-        Class: classData.value.ClassName,
-        Name: userName.value,
+        Class: classData.value?.ClassName || "",
+        Name: userName.value || "",
         Time: formattedDate,
         Lesson: "",
         Learn: "",
