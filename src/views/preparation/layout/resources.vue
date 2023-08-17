@@ -406,14 +406,19 @@ export default defineComponent({
                         });
                     }
                     if (data.ResourceShowType === 1) {
+                        // if (store.state.common.showResourceFullScreen.length) {
+                        //     console.log('store.state.common.showResourceFullScreen.length', store.state.common.showResourceFullScreen)
+                        //     const params = {
+                        //         id: data.OldResourceId,
+                        //         name: data.Name,
+                        //         isMinimized: false
+                        //     };
+                        //     window.electron.ipcRenderer.invoke("setCourseMaximize", JSON.stringify(params));
+                        // } else {
                         if (store.state.common.showResourceFullScreen.length) {
-                            const params = {
-                                id: data.OldResourceId,
-                                name: data.Name,
-                                isMinimized: false
-                            };
-                            window.electron.ipcRenderer.invoke("setCourseMaximize", JSON.stringify(params));
-                        } else {
+                            window.electron.ipcRenderer.invoke("closeCourse");
+                        }
+                        setTimeout(() => {
                             store.commit(MutationTypes.SET_RESOURCE_INTO, props.resourceIntoType);
                             store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                                 component: "WinCard",
@@ -423,7 +428,8 @@ export default defineComponent({
                                     openMore: true
                                 }
                             });
-                        }
+                        }, 100)
+                        // }
                     }
                     if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {

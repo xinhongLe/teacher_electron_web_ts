@@ -6,7 +6,7 @@
             isShowHistoryBroadList = false;
         "
     >
-        <div class="canvas-warp" ref="boxRef">
+        <div class="canvas-warp" ref="boxRef" id="canvaswarp">
             <canvas ref="canvasRef"></canvas>
             <div
                 class="move"

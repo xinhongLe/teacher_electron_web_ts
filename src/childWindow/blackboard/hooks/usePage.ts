@@ -1,12 +1,10 @@
-import { computed, Ref, ref } from "vue";
+import {computed, Ref, ref} from "vue";
 
 export default (fabCanvas: Ref<any>, clear: () => void) => {
-    const storageCanvasData = ref<
-        {
-            data: string;
-            img: string;
-        }[]
-    >([
+    const storageCanvasData = ref<{
+        data: string;
+        img: string;
+    }[]>([
         {
             data: "",
             img: ""
@@ -22,9 +20,10 @@ export default (fabCanvas: Ref<any>, clear: () => void) => {
     function getCanvasData() {
         const dataUrl = fabCanvas.value.toJSON();
         const canvasimg = fabCanvas.value.toDataURL();
-        const data = { data: dataUrl, img: canvasimg };
+        const data = {data: dataUrl, img: canvasimg};
         return data;
     }
+
     function saveCurrentCanvasData() {
         storageCanvasData.value[pageIndex.value] = getCanvasData();
     }

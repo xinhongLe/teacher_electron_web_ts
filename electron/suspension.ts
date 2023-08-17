@@ -274,7 +274,7 @@ function createBlackboardWindow() {
         show: false,
         useContentSize: true,
     });
-    // blackboardWin.webContents.openDevTools(); // 打开黑板调试
+    blackboardWin.webContents.openDevTools(); // 打开黑板调试
 
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
@@ -642,6 +642,13 @@ class CustomCallBack implements CallBack {
 export function courseShow() {
     if (socketHelper) {
         isShowCourse = true;
+        socketHelper.sendMessage(new Action("COURSEWARE1SHOW", ""));
+    }
+}
+
+export function courseHide() {
+    if (socketHelper) {
+        isShowCourse = false;
         socketHelper.sendMessage(new Action("COURSEWARE1SHOW", ""));
     }
 }

@@ -52,7 +52,7 @@ onMounted(() => {
     })
     ipcRenderer.on('closeCourse', (e, data) => {
         store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
-            id: couresData.value.id,
+            id: couresData.value?.id || data?.id,
             openMore: true
         });
         isMinimized.value = true

@@ -884,6 +884,7 @@ export default defineComponent({
         const dateRange = ref("");
         const total = ref(0);
         const openCourseCartOptions = () => {
+            dateRange.value = "";
             if (!course.value.lessonId) return;
             courseCartOpen.value = true;
             pageNumber.value = 1;

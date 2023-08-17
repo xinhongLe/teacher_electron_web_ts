@@ -28,7 +28,8 @@ import {
     createLocalPreviewWindow,
     registerEvent,
     unfoldSuspensionWinSendMessage,
-    courseShow
+    courseShow,
+    courseHide
 } from "./suspension";
 
 const editWinList = new Map<number, any>();
@@ -318,13 +319,16 @@ const onReady = () => {
         mainWindow!.webContents.send('closeCourse', v)
     })
     ipcMain.handle("closeCourse", () => {
+        courseHide();
         mainWindow!.webContents.send("closeCourse");
     });
 
     ipcMain.on('setCourseMaximize', (v) => {
+        mainWindow!.show();
         mainWindow!.webContents.send('setCourseMaximize', v)
     })
     ipcMain.handle("setCourseMaximize", (v, data) => {
+        mainWindow!.show();
         mainWindow!.webContents.send("setCourseMaximize", JSON.parse(data));
         courseShow()
     });
