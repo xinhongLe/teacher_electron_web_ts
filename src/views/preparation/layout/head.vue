@@ -117,7 +117,7 @@
                     required
                     v-if="form.files.length < 2"
                 >
-                    <el-input v-model="form.name" size="large"/>
+                    <el-input v-model="form.name" size="large" :maxlength="30"/>
                 </el-form-item>
                 <el-form-item
                     label="资源："
@@ -795,6 +795,7 @@ export default defineComponent({
                     isLearningGuide: form.isLearningGuide
                 };
                 if (form.type.Name === '导学案' && form.isLearningGuide == 1) {
+                    uploadResourceOpen.value = false;
                     emit("learnPlanDesign", resourceData);
                 } else {
                     res = await uploadResource(resourceData);
