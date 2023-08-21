@@ -101,7 +101,8 @@
                             go('pblstudy'), clicKBuryPoint('PBL项目式学习')
                         ">
                                 <div class="item_div">
-                                    <img src="../../assets/indexImages/pic_pbl@2x.png" alt=""/>
+                                    <img src="../../assets/indexImages/icon_pbl@2x.png" alt=""/>
+
                                     <span>PBL项目式学习</span>
                                 </div>
                             </div>
@@ -197,7 +198,7 @@
 
                 <div class="item" @click="go('pblstudy'), clicKBuryPoint('PBL项目式学习')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/pic_pbl@2x.png" alt=""/>
+                        <img src="../../assets/indexImages/icon_pbl@2x.png" alt=""/>
                         <span>PBL项目式学习</span>
                     </div>
                 </div>
