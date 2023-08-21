@@ -112,9 +112,9 @@
                 </div>
             </transition-group>
         </vue-draggable-next>
-        <!--        <div class="pagination">-->
-        <!--            当前页{{ currentPage?.Index || 1 }}/{{ total }}-->
-        <!--        </div>-->
+        <div class="pagination">
+            当前页{{ currentPage?.Index || 1 }}/{{ total }}
+        </div>
         <div class="shrink" @click="toggleCollapse">
             <el-icon :style="{ transform:'rotate(' + (collapse ? 0 : 180) + 'deg)'}">
                 <ArrowLeft/>
@@ -332,7 +332,7 @@ export default defineComponent({
     }
 
     .card {
-        height: calc(100% - 112px);
+        height: calc(100% - 152px);
         overflow-y: auto;
 
         .folder {

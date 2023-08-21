@@ -1,10 +1,8 @@
 import { PPTElement } from "wincard";
-import {
-    getElementsMaxSize,
-    getElementsMinPoints,
-} from "@/utils/elementsParse";
-import { saveSourceAssembly } from "@/api/material";
 import { ElMessage } from "element-plus";
+import { saveSourceAssembly } from "@/api/material";
+import { getElementsMaxSize, getElementsMinPoints } from "@/utils/elementsParse";
+
 export default () => {
     const parseElements = (elements: PPTElement[]) => {
         const { minLeft, minTop } = getElementsMinPoints(elements);
@@ -13,7 +11,7 @@ export default () => {
                 ...element,
                 left: element.left - minLeft,
                 top: element.top - minTop,
-                ossSrc: "",
+                ossSrc: ""
             };
         });
 
@@ -23,29 +21,17 @@ export default () => {
             elements: { ...elements, ossSrc: "" },
             offSetElements,
             maxWidth,
-            maxHeight,
+            maxHeight
         };
     };
 
-    const saveElements = async (
-        elements: PPTElement[],
-        SubjectID: string,
-        TeacherID: string
-    ) => {
+    const saveElements = async (elements: PPTElement[], SubjectID: string, TeacherID: string) => {
         const newElements = parseElements(elements);
         const data = {
             Status: 1,
             TeacherID: TeacherID,
             Json: JSON.stringify(newElements),
-            SubjectID: SubjectID,
-            // Type: 4,
-            // Files: [{ Json: JSON.stringify(newElements) }],
-            // lessons: [
-            //     {
-            //         SubjectID: SubjectID,
-            //         LessonID: [LessonID],
-            //     },
-            // ],
+            SubjectID: SubjectID
         };
         const res: any = await saveSourceAssembly(data);
         if (res.resultCode === 200) {
@@ -59,6 +45,6 @@ export default () => {
 
     return {
         parseElements,
-        saveElements,
+        saveElements
     };
 };

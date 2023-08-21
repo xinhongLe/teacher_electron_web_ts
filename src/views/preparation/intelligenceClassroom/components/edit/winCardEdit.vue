@@ -65,6 +65,7 @@ import GameType from "./games/index.vue";
 import { IGameItem } from "@/types/game";
 import { store } from "@/store";
 import { getOssUrl } from "@/utils/oss";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 
 export default defineComponent({
     name: "winCardEdit",
@@ -98,7 +99,8 @@ export default defineComponent({
     ],
     setup(props, { emit }) {
         const { saveElements } = useSaveElements();
-        const TeacherID = computed(() => store.state.userInfo.id);
+        const TeacherID = computed(() => get(STORAGE_TYPES.YUN_INFO).UserId);
+        console.log(TeacherID.value);
         const windowInfo = computed(() => store.state.preparation.editWindowInfo);
 
         const page = ref<IPageValue>();
