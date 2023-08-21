@@ -6,7 +6,7 @@
                 导学案设计
             </div>
             <div class="right-btnitems">
-                <div class="btn" @click="reviewPage">{{ isReview ? '取消预览' : '预览' }}</div>
+                <div class="btn" @click="reviewPage">预览</div>
                 <div class="btn" @click="downLoad">下载</div>
                 <div class="btn save" @click="saveTemplate">保存</div>
             </div>

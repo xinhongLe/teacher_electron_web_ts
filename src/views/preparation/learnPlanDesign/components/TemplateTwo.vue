@@ -2,10 +2,10 @@
     <div class="template-edit" v-if="!isResourceReview">
         <div class="edit-content" v-for="(item,index) in templatePageData">
             <div class="content-title" v-if="item.Level === 1">
-                    <span v-if="!isTitleEdit" @click="titleClick">
+                    <span v-if="!isTitleEdit && Title" @click="titleClick">
                         {{ Title }}
                     </span>
-                <el-input v-else ref="titleRef" :autofocus="true" v-model="Title"
+                <el-input v-else ref="titleRef" :autofocus="true" v-model="Title" placeholder="请输入标题"
                           @blur="isTitleEdit = false"
                           :maxlength="30"
                           show-word-limit></el-input>
@@ -19,20 +19,20 @@
                     <div class="info-input black-spot">
                         <div class="input-item">
                             <div class="text">班级</div>
-                            <el-input disabled v-model="Class"></el-input>
+                            <!--                            <el-input disabled v-model="Class"></el-input>-->
                         </div>
 
                     </div>
                     <div class="info-input black-spot">
                         <div class="input-item">
                             <div class="text">姓名</div>
-                            <el-input disabled v-model="Name"></el-input>
+                            <!--                            <el-input disabled v-model="Name"></el-input>-->
                         </div>
                     </div>
                     <div class="info-input">
                         <div class="input-item">
                             <div class="text">时间</div>
-                            <el-input disabled v-model="Time"></el-input>
+                            <!--                            <el-input disabled v-model="Time"></el-input>-->
                         </div>
                     </div>
                 </div>
@@ -43,7 +43,8 @@
                         </div>
                         <div class="right-con">
                             <div v-show="isReview" style="padding: 0 10px">{{ Learn }}</div>
-                            <el-input v-show="!isReview" v-model="Learn" type="text" placeholder="点击输入"></el-input>
+                            <el-input v-show="!isReview" v-model="Learn" type="text" placeholder="点击输入"
+                                      :maxlength="50"></el-input>
                         </div>
                     </div>
                     <div class="template-items point" v-if="item.Level === 1">
@@ -52,7 +53,8 @@
                         </div>
                         <div class="right-con">
                             <div v-show="isReview" style="padding: 0 10px">{{ Zpoint }}</div>
-                            <el-input v-show="!isReview" v-model="Zpoint" type="text" placeholder="点击输入"></el-input>
+                            <el-input v-show="!isReview" v-model="Zpoint" type="text" placeholder="点击输入"
+                                      :maxlength="50"></el-input>
                         </div>
                     </div>
                     <div class="template-items point" v-if="item.Level === 1">
@@ -61,16 +63,18 @@
                         </div>
                         <div class="right-con">
                             <div v-show="isReview" style="padding: 0 10px">{{ Npoint }}</div>
-                            <el-input v-show="!isReview" v-model="Npoint" type="text" placeholder="点击输入"></el-input>
+                            <el-input v-show="!isReview" v-model="Npoint" type="text" placeholder="点击输入"
+                                      :maxlength="50"></el-input>
                         </div>
                     </div>
                     <div class="template-items" v-for="(question) in item.Data"
                          :style="{minHeight:question.ConHeight + 'px',maxHeight:item.Level === 1 ? '650px' : '1014px'}">
                         <div class="left-name">
-                            <span @click="question.isEdit = true" v-if="!question.isEdit">
+                            <span @click="question.isEdit = true" v-if="!question.isEdit && question.Name">
                                 {{ question.Name }}
                             </span>
                             <el-input v-else v-model="question.Name" autofocus @blur="question.isEdit = false"
+                                      placeholder="请输入"
                                       :maxlength="12"></el-input>
                         </div>
                         <div class="right-con">
@@ -88,6 +92,7 @@
                                     <span>添加题目</span>
                                 </div>
                                 <el-popconfirm
+                                    v-if="qindex > 0"
                                     width="220"
                                     confirm-button-text="确定"
                                     cancel-button-text="取消"
@@ -145,19 +150,16 @@
                                 <div class="info-input black-spot">
                                     <div class="input-item">
                                         <div class="text">班级</div>
-                                        <div>{{ Class }}</div>
                                     </div>
                                 </div>
                                 <div class="info-input black-spot">
                                     <div class="input-item">
                                         <div class="text">姓名</div>
-                                        <div>{{ Name }}</div>
                                     </div>
                                 </div>
                                 <div class="info-input">
                                     <div class="input-item">
                                         <div class="text">时间</div>
-                                        <div>{{ Time }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -187,7 +189,7 @@
                                     </div>
                                 </div>
                                 <div class="template-items" v-for="(question) in item.Data"
-                                     :style="{minHeight:question.ConHeight + 'px'}">
+                                     :style="{minHeight:question.ConHeight + 'px',maxHeight:item.Level === 1 ? '650px' : '1014px'}">
                                     <div class="left-name">
                                     <span>
                                         {{ question.Name }}
@@ -195,7 +197,7 @@
                                     </div>
                                     <div class="right-con">
                                         <div class="top-con">
-                                            <div v-show="isReview" v-html="question.Content"></div>
+                                            <div v-html="question.Content" style="word-break: break-all;"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -250,7 +252,7 @@ export default defineComponent({
             addItem, setQuestionItem, currentAddItems, delItem, templateInfo, formateLearningGuidDetail
         } = useDesignTemplate(2);
         // 标题是否处在可编辑状态
-        const isTitleEdit = ref(false);
+        const isTitleEdit = ref(true);
         // 标题
         const titleRef = ref();
         // 点击标题进入编辑
@@ -486,7 +488,7 @@ export default defineComponent({
                     .input-item {
                         display: flex;
                         align-items: center;
-                        background: #f5f7fa;
+                        //background: #f5f7fa;
                         padding: 0 16px;
 
                         .text {
@@ -808,10 +810,15 @@ export default defineComponent({
 
     .template-review-content {
 
-        position: absolute;
-        top: 4%;
+        //position: absolute;
+        //top: 4%;
+        //left: 50%;
+        //transform: translateX(-50%);
+        position: fixed;
+        top: 2%;
         left: 50%;
         transform: translateX(-50%);
+        bottom: -50px;
 
         .close-icon {
             cursor: pointer;

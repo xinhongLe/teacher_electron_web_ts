@@ -24,8 +24,6 @@
     "rebuild": "electron-rebuild -f"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-build-classic": "^39.0.0",
-    "@ckeditor/ckeditor5-vue": "^5.1.0",
     "@element-plus/icons-vue": "^0.2.7",
     "@microsoft/signalr": "^6.0.1",
     "@types/resize-observer-browser": "^0.1.7",
@@ -53,6 +51,7 @@
     "js-md5": "^0.7.3",
     "jspdf": "^2.5.1",
     "jsqr": "^1.4.0",
+    "katex": "^0.16.3",
     "lodash": "^4.17.21",
     "lottie-web": "^5.9.6",
     "mexcel": "0.0.4",
@@ -93,6 +92,7 @@
     "@types/fluent-ffmpeg": "^2.1.21",
     "@types/html-pdf": "^3.0.0",
     "@types/js-md5": "^0.4.3",
+    "@types/katex": "^0.16.2",
     "@types/lodash": "^4.14.176",
     "@types/node": "17.0.4",
     "@types/spark-md5": "^3.0.2",

@@ -7,16 +7,13 @@ export default (type: number) => {
     // 最后一页是第几页
     const lastPageNum = ref(1);
     const proxy = getCurrentInstance() as any;
-    const classData = computed(() => store.state.userInfo.currentSelectClass);
-    const userName = computed(() => store.state.userInfo.name);
     const currentDate = new Date();
-    const formattedDate = currentDate.toLocaleDateString();
     // 模板1信息
     const templateInfo = reactive({
-        Title: "苏州市****学校**导学案",//标题
-        Class: classData.value?.ClassName || "",
-        Name: userName.value || "",
-        Time: formattedDate,
+        Title: "",//标题
+        Class: "",
+        Name: "",
+        Time: "",
         Lesson: "",
         Learn: "",
         Zpoint: "",
@@ -110,7 +107,6 @@ export default (type: number) => {
         // }
         item.Content = data.target.innerHTML;
         watchLayoutChange();
-
     };
     // 新增一项
     const addItem = (item: any) => {
@@ -126,6 +122,8 @@ export default (type: number) => {
     };
     // 删除一项
     const delItem = (pageData: any, item: any, index: number) => {
+
+        // if (pageData.Data?.length === 1) return;
         proxy.refs['editerRef' + item.Id][0].innerHTML = "";
         nextTick(() => {
             pageData?.Data.splice(pageData.Data.indexOf(item), 1);
@@ -138,6 +136,7 @@ export default (type: number) => {
 
     // 监听页面布局改变
     const watchLayoutChange = () => {
+        console.log('监听布局改变', templatePageData.value);
         templatePageData.value.forEach((pageData: any, index: number) => {
             let allContentHeight = 0;
             const topHeight = pageData.Level === 1 ? currentPageLayout.basicTopHeight : 0;
@@ -161,6 +160,7 @@ export default (type: number) => {
                 }
                 allContentHeight += item.ConHeight;
             })
+            console.log('allContentHeight', allContentHeight);
             if (allContentHeight + topHeight > basicPageHeight) {
                 const data = pageData.Data.pop();
                 if (!templatePageData.value[index + 1]) {
@@ -204,30 +204,39 @@ export default (type: number) => {
         });
         lastPageNum.value = templatePageData.value.length;
     };
-    // 设置题目
+
+    let questionString: string = "";
+    let questionIds: string[] = [];
     const setQuestionItem = (questions: any) => {
-        let questionString: string = "";
-        const questionIds: string[] = [];
-        questions.forEach((item: any, index: number) => {
-            // let title = `${index + 1}、${item.Title}`;
-            let title = `${item.Title}`;
-            let options = "";
-            if (item.QuestionOptions.length) {
-                item.QuestionOptions.forEach((item: any, index: number) => {
-                    if (!item.OptionContent) return;
-                    options += `<div>${convertToLetters(index + 1)}、${item.OptionContent}</div> `
-                })
-            }
-            const questionItemString =
-                `${title}
+        const getQuestionString = (que: any) => {
+            que.forEach((item: any, index: number) => {
+                let title = item.Title;
+                title = title.replace(/\\\(/g, "").replace(/\\\)/g, "")
+                let options = "";
+                if (item.QuestionOptions.length) {
+                    item.QuestionOptions.forEach((item: any, index: number) => {
+                        if (!item.OptionContent) return;
+                        options += `<div>${convertToLetters(index + 1)}.${item.OptionContent}</div> `
+                    })
+                }
+                const questionItemString =
+                    `${title}
                      <div><br/></div>
                      <div>
                      ${options}
                      </div>
                     `;
-            questionString += questionItemString + '<div><br/></div>' + '\n';
-            questionIds.push(item.Id)
-        })
+                questionString += questionItemString + '<div><br/></div>' + '\n';
+                if (item.ChildrenQuestions?.length) {
+                    getQuestionString(item.ChildrenQuestions)
+                }
+                if (!questionIds.includes(item?.Id)) {
+                    questionIds.push(item?.Id)
+                }
+            })
+        }
+        getQuestionString(questions)
+
         nextTick(() => {
             proxy.refs['editerRef' + currentAddItems.value.Id][0].innerHTML = currentAddItems.value.Content + questionString;
             const imgData = proxy.refs['editerRef' + currentAddItems.value.Id][0].querySelectorAll('img');
@@ -239,12 +248,18 @@ export default (type: number) => {
                 const index = item.Data.indexOf(currentAddItems.value);
                 if (index > -1) {
                     item.Data[index].Content = currentAddItems.value.Content + questionString;
-                    item.Data[index].ConHeight = proxy.refs['editerRef' + currentAddItems.value.Id][0].offsetHeight + 74;
                     item.Data[index].questionIds = questionIds;
+                    setTimeout(() => {
+                        item.Data[index].ConHeight = proxy.refs['editerRef' + currentAddItems.value.Id][0].offsetHeight + 74;
+                    }, 50)
                 }
             });
-            console.log('templatePageData.value', templatePageData.value)
-            watchLayoutChange();
+            console.log('templatePageData', templatePageData.value)
+            setTimeout(() => {
+                watchLayoutChange();
+                questionString = "";
+                questionIds = []
+            }, 100)
         })
     };
     // 处理返回来的详情格式

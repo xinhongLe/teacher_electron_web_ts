@@ -45,8 +45,11 @@ export default defineComponent({
                 emit("selectedQuestion", selectQuestionList.value)
             }
         };
+        //云平台信息
+        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+        const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
         const getPlatformIdByOrgId = async () => {
-            const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
+            console.log('currentUserInfo', currentUserInfo)
             const id = currentUserInfo.schoolId;
             // return getPlatformByOrgId([{id}]).then(res => {
             //     return res.result.length > 0 ? res.result[0].platformId : "";
@@ -54,8 +57,6 @@ export default defineComponent({
             const res = await getPlatformByOrgId([{id}]);
             return res.result.length > 0 ? res.result[0].platformId : "";
         };
-        //云平台信息
-        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
 
         onMounted(async () => {
             const platformID = await getPlatformIdByOrgId();
@@ -63,7 +64,7 @@ export default defineComponent({
             const token = get(STORAGE_TYPES.SET_TOKEN);
             // webview地址
             nextTick(() => {
-                url.value = `${VUE_APP_GVC_WEB}/?platformID=${platformID}&orgId=${yunInfo.OrgId}&orgTypeID=${yunInfo.OrgTypeId}&userID=${yunInfo.UserId}&userName=${yunInfo.UserName}&systemID=${yunInfo.SystemId}&token=${token}&#/addItem`;
+                url.value = `${VUE_APP_GVC_WEB}/?platformID=${platformID}&orgId=${currentUserInfo.schoolId}&userID=${yunInfo.UserId}&userName=${yunInfo.UserName}&systemID=${yunInfo.SystemId}&token=${token}&#/addItem`;
                 window.addEventListener("message", selectedQuestion, false);
             })
         })
