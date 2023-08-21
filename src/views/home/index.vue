@@ -11,14 +11,20 @@
                         <div class="work" @click="go('homework'), clicKBuryPoint('作业')">
                             <span>作业</span>
                         </div>
-                        <div class="composition-pbl">
-                            <div class="composition" @click="go('composition'), clicKBuryPoint('AI作文批改')">
-                                <span>AI作文批改</span>
-                            </div>
-                            <div class="pbl" @click="go('pblstudy'), clicKBuryPoint('PBL项目式学习')">
-                                <span>PBL项目式学习</span>
-                            </div>
+                        <div class="wrong-book" @click="go('wrongbook'), clicKBuryPoint('班级错题本')">
+                            <span>班级错题本</span>
                         </div>
+                        <!--                        <div class="composition-pbl">-->
+                        <!--                            <div class="composition" @click="go('wrongbook'), clicKBuryPoint('班级错题本')">-->
+                        <!--                                <span>班级错题本</span>-->
+                        <!--                            </div>-->
+                        <!--                            <div class="composition" @click="go('composition'), clicKBuryPoint('AI作文批改')">-->
+                        <!--                                <span>AI作文批改</span>-->
+                        <!--                            </div>-->
+                        <!--                            <div class="pbl" @click="go('pblstudy'), clicKBuryPoint('PBL项目式学习')">-->
+                        <!--                                <span>PBL项目式学习</span>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
                     </div>
                     <!--                    <div class="left-row" v-if="layoutAdjust">-->
                     <!--                        <div class="left-one" @click="go('preparation'), clicKBuryPoint('备课')">-->
@@ -49,16 +55,7 @@
                     <!--                    </div>-->
                     <div class="bottom-left" v-if="layoutAdjust">
                         <div class="bottom-item">
-                            <div class="item" @click="
-                            go('report-center'), clicKBuryPoint('报表中心')
-                        ">
-                                <div class="item_div">
-                                    <img src="../../assets/indexImages/pic_baobiao_new.png" alt=""/>
-                                    <span>报表中心</span>
-                                </div>
-                            </div>
-                            <div class="item" @click="
-                            go('resource-center/' + platformId), clicKBuryPoint('资源中心')
+                            <div class="item" @click="go('resource-center/' + platformId), clicKBuryPoint('资源中心')
                         ">
                                 <div class="item_div">
                                     <img src="../../assets/indexImages/pic_zyzx.png" alt=""/>
@@ -74,14 +71,38 @@
                                     <span>测评中心</span>
                                 </div>
                             </div>
-                        </div>
-                        <div class="bottom-item">
                             <div class="item" @click="
-                            go('wrongbook'), clicKBuryPoint('班级错题本')
+                            go('composition'), clicKBuryPoint('AI作文')
                         ">
                                 <div class="item_div">
-                                    <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>
-                                    <span>班级错题本</span>
+                                    <img src="../../assets/indexImages/pic_aizw@2x.png" alt=""/>
+                                    <span>AI作文</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bottom-item">
+                            <!--                            <div class="item" @click="-->
+                            <!--                            go('wrongbook'), clicKBuryPoint('班级错题本')-->
+                            <!--                        ">-->
+                            <!--                                <div class="item_div">-->
+                            <!--                                    <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>-->
+                            <!--                                    <span>班级错题本</span>-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
+                            <!--                            <div class="item" @click="-->
+                            <!--                            go('composition'), clicKBuryPoint('AI作文')-->
+                            <!--                        ">-->
+                            <!--                                <div class="item_div">-->
+                            <!--                                    <img src="../../assets/indexImages/pic_aizw@2x.png" alt=""/>-->
+                            <!--                                    <span>AI作文</span>-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
+                            <div class="item" @click="
+                            go('pblstudy'), clicKBuryPoint('PBL项目式学习')
+                        ">
+                                <div class="item_div">
+                                    <img src="../../assets/indexImages/pic_pbl@2x.png" alt=""/>
+                                    <span>PBL项目式学习</span>
                                 </div>
                             </div>
                             <div class="item" @click="
@@ -92,12 +113,21 @@
                                     <span>班级管理</span>
                                 </div>
                             </div>
-                            <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">
+                            <div class="item" @click="
+                            go('report-center'), clicKBuryPoint('报表中心')
+                        ">
                                 <div class="item_div">
-                                    <img src="../../assets/indexImages/icon_more.png" alt=""/>
-                                    <span>更多</span>
+                                    <img src="../../assets/indexImages/pic_baobiao_new.png" alt=""/>
+                                    <span>报表中心</span>
                                 </div>
                             </div>
+                            <!--                            <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">-->
+                            <!--                                <div class="item_div">-->
+                            <!--                                    <img src="../../assets/indexImages/icon_more.png" alt=""/>-->
+                            <!--                                    <span>更多</span>-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
+
                         </div>
 
 
@@ -136,12 +166,7 @@
                 </div>
             </div>
             <div class="bottom-bto" v-if="!layoutAdjust">
-                <div class="item" @click="go('report-center'), clicKBuryPoint('报表中心')">
-                    <div class="item_div">
-                        <img src="../../assets/indexImages/pic_baobiao_new.png" alt=""/>
-                        <span>报表中心</span>
-                    </div>
-                </div>
+
                 <div
                     class="item"
                     @click="go('resource-center/' + platformId), clicKBuryPoint('资源中心')"
@@ -157,22 +182,42 @@
                         <span>测评中心</span>
                     </div>
                 </div>
-                <div class="item" @click="go('wrongbook'), clicKBuryPoint('班级错题本')">
+                <div class="item" @click="go('composition'), clicKBuryPoint('AI作文')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>
-                        <span>班级错题本</span>
+                        <img src="../../assets/indexImages/pic_aizw@2x.png" alt=""/>
+                        <span>AI作文</span>
                     </div>
                 </div>
+                <!--                <div class="item" @click="go('wrongbook'), clicKBuryPoint('班级错题本')">-->
+                <!--                    <div class="item_div">-->
+                <!--                        <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>-->
+                <!--                        <span>班级错题本</span>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+
+                <div class="item" @click="go('pblstudy'), clicKBuryPoint('PBL项目式学习')">
+                    <div class="item_div">
+                        <img src="../../assets/indexImages/pic_pbl@2x.png" alt=""/>
+                        <span>PBL项目式学习</span>
+                    </div>
+                </div>
+
                 <div class="item" @click="go('class-manage'), clicKBuryPoint('班级管理')">
                     <div class="item_div">
                         <img src="../../assets/indexImages/icon_xuesheng.png" alt=""/>
                         <span>班级管理</span>
                     </div>
                 </div>
-                <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">
+                <!--                <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">-->
+                <!--                    <div class="item_div">-->
+                <!--                        <img src="../../assets/indexImages/icon_more.png" alt=""/>-->
+                <!--                        <span>更多</span>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <div class="item" @click="go('report-center'), clicKBuryPoint('报表中心')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/icon_more.png" alt=""/>
-                        <span>更多</span>
+                        <img src="../../assets/indexImages/pic_baobiao_new.png" alt=""/>
+                        <span>报表中心</span>
                     </div>
                 </div>
             </div>
@@ -230,6 +275,7 @@ export default defineComponent({
         initDays();
         const moreVisible = ref(false); //点击更多的弹框
         const go = (val: string) => {
+            console.log('val', val)
             if (val === "") {
                 ElMessage.warning({
                     message: "功能建设中 敬请期待"
@@ -520,12 +566,12 @@ export default defineComponent({
                     // background: url("./../../assets/indexImages/card_zuoye.png") no-repeat;
                     // background-position: center center;
                     // background-size: cover;
-                    .work {
+                    .work, .wrong-book {
                         position: relative;
                         box-sizing: border-box;
                         cursor: pointer;
                         border-radius: 15px;
-                        width: calc(50% - 2px);
+                        width: calc(50% - 10px);
                         height: 100%;
                         background: url("./../../assets/indexImages/card_zuoye_half.png") no-repeat;
                         background-position: center center;
@@ -541,6 +587,12 @@ export default defineComponent({
                             font-weight: 800;
                             color: #ffffff;
                         }
+                    }
+
+                    .wrong-book {
+                        background: url("./../../assets/indexImages/card_cuotiben_half.png") no-repeat;
+                        background-position: center center;
+                        background-size: cover;
                     }
 
                     .composition-pbl {
@@ -655,7 +707,7 @@ export default defineComponent({
                                 span {
                                     position: absolute;
                                     top: 18%;
-                                    left: 10%;
+                                    left: 8%;
                                     z-index: 10;
                                     font-size: 1.4vw;
                                     font-family: PingFang-SC-Heavy, PingFang-SC;
@@ -664,11 +716,11 @@ export default defineComponent({
                                 }
                             }
 
-                            &:first-child {
-                                .item_div span {
-                                    left: 15%;
-                                }
-                            }
+                            //&:first-child {
+                            //    .item_div span {
+                            //        left: 15%;
+                            //    }
+                            //}
                         }
 
                         .item:hover {
