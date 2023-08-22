@@ -1,5 +1,6 @@
 <template>
-    <div class="preparation" @mousedown="clickOutSide($event)" v-click-outside="clickOutSide">
+    <!--备课页面-->
+    <div class="preparation" @mousedown="clickOutSide($event)" v-click-outside="clickOutSide" v-if="isPreparation">
         <LeftMenu v-model:course="course" v-model:bookId="bookId"/>
         <div class="content-wrapper">
             <head-com
@@ -8,6 +9,8 @@
                 v-model:type="type"
                 v-model:source="source"
                 @updateBagList="updateBagList"
+                @learnPlanDesign="learnPlanDesign"
+
             />
             <div class="content-p-layout">
                 <div class="p-layout-lesson" v-if="source === 'me'">
@@ -39,6 +42,22 @@
 
         </div>
     </div>
+
+    <!--编辑导学案模板页面-->
+    <div v-else class="preparation">
+        <LearnPlanEditTemplate @goBack="goBack" :templateType="templateType"
+                               :resourceData="currentResourceData"
+                               ref="learnPlanEditTemplateRef"></LearnPlanEditTemplate>
+    </div>
+
+    <!--导学案设计选择模板组件-->
+    <LearnPlanDesign v-model:learnSelectVisible="learnSelectVisible" :resourceData="currentResourceData"
+                     @openEditTemplate="openEditTemplate"></LearnPlanDesign>
+
+    <!--    模板预览页面-->
+    <component v-if="isReview && currentComponents" :is="currentComponents" v-model:isReview="isReview"
+               ref="templateRef"
+               :isResourceReview="true" :currentLearningGuidDetail="currentLearningGuidDetail"></component>
 </template>
 
 <script lang="ts">
@@ -52,7 +71,15 @@ import {RESOURCE_TYPE} from "@/config/resource";
 import LessonPackage from "./layout/lessonPackage.vue";
 import useLessonPackage from "@/hooks/useLessonPackage";
 import ClassArrangement from "./classArrangement/index.vue";
-import {defineComponent, nextTick, watch, ref} from "vue";
+import LearnPlanDesign from "@/views/preparation/learnPlanDesign/index.vue";
+import LearnPlanEditTemplate from "@/views/preparation/learnPlanDesign/LearnPlanEditTemplate.vue";
+import {defineComponent, nextTick, watch, ref, computed, markRaw, onMounted} from "vue";
+import TemplateOne from "@/views/preparation/learnPlanDesign/components/TemplateOne.vue";
+import TemplateTwo from "@/views/preparation/learnPlanDesign/components/TemplateTwo.vue";
+import emitter from "@/utils/mitt";
+import {
+    getLearningGuidDetail
+} from "@/api/resource";
 
 export default defineComponent({
     name: "Preparation",
@@ -61,7 +88,9 @@ export default defineComponent({
         LeftMenu,
         Resources,
         LessonPackage,
-        ClassArrangement
+        ClassArrangement,
+        LearnPlanDesign,
+        LearnPlanEditTemplate
     },
     setup() {
         const {clickOutSide} = useClickDrag();
@@ -84,6 +113,13 @@ export default defineComponent({
             HeadRef.value && HeadRef.value.toMyLessonPackage();
         };
         const ClassArrangementRef = ref();
+        const templateNumber = ref(1);
+        const isReview = ref(false);
+        const templateRef = ref();
+        // 当前模板组件
+        const currentComponents: any = computed(() => {
+            return templateNumber.value == 1 ? markRaw(TemplateOne) : markRaw(TemplateTwo)
+        })
 
         // 新增课包数据
         const addLessonBag = ref<IAddLessonBag>({
@@ -105,6 +141,10 @@ export default defineComponent({
             albumName: "",
             acaSectionId: null
         });
+        // 当前资源数据
+        const currentResourceData: any = ref();
+        // 导学案组件
+        const learnPlanEditTemplateRef: any = ref();
         // 监听课时变化了就赋值
         watch(() => course.value, (val) => {
             addLessonBag.value.chapterId = val.chapterId;
@@ -144,7 +184,6 @@ export default defineComponent({
         // 去备课包排课
         const toLessonBagArrange = (data: any, type: number, ev?: TouchEvent) => {
             nextTick(() => {
-                console.log("showClassArrangement", data, type, ev);
                 LessonPackageRef.value && LessonPackageRef.value.toLessonBagArrange(data, type, ev);
             });
         };
@@ -161,6 +200,57 @@ export default defineComponent({
                 ClassArrangementRef.value && ClassArrangementRef.value.updateSchedules();
             });
         };
+        // 是否是备课中的状态
+        const isPreparation = ref(true);
+        // 导学案设计模板选择
+        const learnSelectVisible = ref(false);
+        // 导学案设计
+        const learnPlanDesign = (data: any) => {
+            // console.log('data--186', data);
+            currentResourceData.value = data;
+            learnSelectVisible.value = true;
+        };
+        const templateType = ref(1);
+        // 打开模板编辑页面
+        const openEditTemplate = (type: number) => {
+            learnSelectVisible.value = false;
+            isPreparation.value = false;
+            templateType.value = type;
+        };
+        // 退出模板编辑页面
+        const goBack = () => {
+            isPreparation.value = true;
+        };
+        const currentLearningGuidDetail: any = ref([]);
+        const openLearningGuidSource = async (data: any) => {
+            // console.log('data--225', data);
+            const res = await getLearningGuidDetail({id: data.ResourceId});
+            if (res.success && res.resultCode == 200) {
+                currentLearningGuidDetail.value = res.result;
+                if (data.openType == 'view') {
+                    templateNumber.value = data.Template;
+                    isReview.value = true;
+                } else if (data.openType == 'edit') {
+                    isPreparation.value = false;
+                    templateType.value = data.Template;
+                    nextTick(() => {
+                        learnPlanEditTemplateRef.value.renderTemplate(data.ResourceId, currentLearningGuidDetail.value)
+                    })
+                } else if (data.openType == 'download') {
+                    templateNumber.value = data.Template;
+                    isReview.value = true;
+                    nextTick(() => {
+                        templateRef.value.downLoad()
+                    })
+                }
+
+            }
+        };
+        onMounted(() => {
+            emitter.on("openLearningGuidSource", (data: any) => {
+                openLearningGuidSource(data)
+            })
+        })
         return {
             course,
             showClassArrangement,
@@ -174,6 +264,16 @@ export default defineComponent({
             LessonPackageRef,
             addLessonBag,
             resourcesRef,
+            learnSelectVisible,
+            isPreparation,
+            templateType,
+            currentResourceData,
+            templateNumber,
+            currentComponents,
+            isReview,
+            currentLearningGuidDetail,
+            learnPlanEditTemplateRef,
+            templateRef,
             clickOutSide,
             addLessonPackage,
             toMyLessonPackage,
@@ -182,7 +282,11 @@ export default defineComponent({
             deleteLessonPackage,
             toLessonBagArrange,
             closeCalendar,
-            updateSchedules
+            updateSchedules,
+            learnPlanDesign,
+            openEditTemplate,
+            goBack,
+            openLearningGuidSource
 
         };
     }

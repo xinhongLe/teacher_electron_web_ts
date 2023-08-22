@@ -277,7 +277,7 @@ export default defineComponent({
         let localCache: any = null;
 
         const downloadFile = async (data: IResourceItem) => {
-            logDownload({id: data.ResourceId});
+            await logDownload({id: data.ResourceId});
             data.DownloadNum++;
             if (data.ResourceShowType === 1) {
                 store.commit(MutationTypes.SET_DOWNLOAD_LIST, {
@@ -325,6 +325,9 @@ export default defineComponent({
                 // });
                 return;
             }
+            if (data.ResourceShowType === 0 && data.LearningGuidSource === 2) {
+                emitter.emit("openLearningGuidSource", {openType: 'download', ...data});
+            }
             if (data.File) {
                 store.commit(MutationTypes.SET_DOWNLOAD_LIST, {
                     type: "file",
@@ -360,11 +363,15 @@ export default defineComponent({
                     deleteTipVisible.value = true;
                     break;
                 case "edit":
-                    if ((data.ResourceShowType === 1 || data.ResourceShowType === 0) && data.UserId !== userId.value) {
-                        resource.value = data;
-                        editTipVisible.value = true;
-                    } else if (data.IsMine === 1 && data.IsSchool !== 1) {
-                        editWincard(data);
+                    if (data.LearningGuidSource === 2) {
+                        emitter.emit("openLearningGuidSource", {openType: 'edit', ...data});
+                    } else {
+                        if ((data.ResourceShowType === 1 || data.ResourceShowType === 0) && data.UserId !== userId.value) {
+                            resource.value = data;
+                            editTipVisible.value = true;
+                        } else if (data.IsMine === 1 && data.IsSchool !== 1) {
+                            editWincard(data);
+                        }
                     }
                     break;
                 case "version":
@@ -426,14 +433,18 @@ export default defineComponent({
                         }
                     }
                     if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
-                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                            component: "ScreenViewFile",
-                            resource: {
-                                ...data,
-                                id: data.OldResourceId,
-                                openMore: true
-                            }
-                        });
+                        if (props.resourceIntoType !== 2 && data.LearningGuidSource === 2) {
+                            emitter.emit("openLearningGuidSource", {openType: 'view', ...data});
+                        } else {
+                            store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                                component: "ScreenViewFile",
+                                resource: {
+                                    ...data,
+                                    id: data.OldResourceId,
+                                    openMore: true
+                                }
+                            });
+                        }
                     }
                     if (data.ResourceShowType === 5) {
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {

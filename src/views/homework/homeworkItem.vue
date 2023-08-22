@@ -140,22 +140,24 @@
                             v-if="info.showPublish"
                             type="success"
                             @click="publish(info)"
-                            >立即发布</el-button
+                        >立即发布
+                        </el-button
                         >
                         <span
                             v-if="!info.showPublish"
                             style="margin-right: 10px"
-                            >答案已公布</span
+                        >答案已公布</span
                         >
                         <el-button
                             v-if="!info.showPublish"
                             @click="hideAnswer(info)"
-                            >撤回发布</el-button
+                        >撤回发布
+                        </el-button
                         >
                     </div>
                     <div class="detail" style="margin-left: 10px" v-else>
                         <span
-                            >手动发布
+                        >手动发布
                             <i
                                 @click="changeTag"
                                 class="el-icon-edit-outline"
@@ -174,7 +176,8 @@
                             </el-date-picker>
                         </span>
                         <el-button type="success" @click="publish(info)"
-                            >立即发布</el-button
+                        >立即发布
+                        </el-button
                         >
                     </div>
                 </div>
@@ -187,18 +190,21 @@
                     style="background-color: #00c0ff; border-color: #00c0ff"
                     type="primary"
                     @click="quickUpload(info)"
-                    >快速上传</el-button
+                >快速上传
+                </el-button
                 >
-                 <el-button
+                <el-button
                     v-if="info.HomeworkPaperType == 2 && info.FinishStudentCount < info.AllStudentCount"
                     plain
                     type="warning"
                     @click="handleMistakesCollect(info)"
-                    >收集错题</el-button
+                >收集错题
+                </el-button
                 >
                 <el-button type="primary" plain @click="review">查阅作业</el-button>
                 <el-button type="danger" plain @click="deleteHomework"
-                    >删除</el-button
+                >删除
+                </el-button
                 >
             </div>
         </div>
@@ -247,6 +253,7 @@ import {
 import HignPhoto from "./hignphoto.vue";
 import FileItem from "./FileItem.vue";
 import MistakesCollect from "@/views/homework/components/mistakesCollect.vue";
+
 export default defineComponent({
     props: {
         info: {
@@ -592,6 +599,8 @@ export default defineComponent({
     color: #5f626f;
     margin-bottom: 10px;
     .homework-warp {
+        width: 20%;
+
         :deep(.el-date-editor) {
             width: 0;
             height: 25px;
@@ -614,7 +623,8 @@ export default defineComponent({
         }
         > span:nth-of-type(2),
         .progress-content {
-            width: 160px;
+            flex: 1.5;
+
             span {
                 white-space: nowrap;
             }
@@ -625,17 +635,17 @@ export default defineComponent({
             white-space: nowrap;
         }
         .people {
-            width: 150px;
+            flex: 1;
             white-space: nowrap;
         }
         .progress-content1 {
-            width: 100px;
+            width: 5%;
             margin: 0 20px;
         }
         .btn-list {
+            float: right;
             margin-left: 10px;
             text-align: right;
-            white-space: nowrap;
         }
         .answer,
         .detail {
@@ -658,7 +668,7 @@ export default defineComponent({
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        width: 450px;
+        flex: 2;
         margin-right: 3rem;
         img {
             width: 20px;
@@ -674,8 +684,7 @@ export default defineComponent({
             margin: 0 30px;
         }
         .course-bag-type {
-            display: block;
-            width: 90px;
+            flex: 1;
             min-width: 0;
             font-size: 14px;
             color: #4b71ee;

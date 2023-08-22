@@ -63,7 +63,6 @@ const mutations: MutationTree<PreparationState> = {
         state,
         bookList: IBookItem[]
     ) {
-        console.log('bookList', bookList)
         state.subjectPublisherBookList = bookList;
     },
     [MutationTypes.SET_TERM](state, term: { id: string; code: string }) {

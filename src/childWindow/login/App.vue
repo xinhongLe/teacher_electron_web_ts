@@ -5,7 +5,7 @@
         </div>
         <div class="right-content">
             <div class="login-logo">
-                <img src="@/assets/images/login/logo.png" alt="" />
+                <img src="@/assets/images/login/logo.png" alt=""/>
                 <p>爱学仕校园</p>
             </div>
             <el-form :model="form" label-width="0px" size="large">
@@ -28,6 +28,7 @@
                         v-model="form.account"
                         @change="handleChange"
                         popper-class="login-select-class"
+                        no-data-text="无数据"
                     >
                         <el-option
                             v-for="(item, index) in recordAccountList"
@@ -43,7 +44,7 @@
                                     font-size: 13px;
                                 "
                             >
-                                <el-icon @click.stop="delAccount(index)"><Close /></el-icon>
+                                <el-icon @click.stop="delAccount(index)"><Close/></el-icon>
                             </span>
                         </el-option>
                     </el-select>
@@ -88,11 +89,11 @@
                                 class="get-code-btn"
                                 @click="getCode"
                                 v-if="codeTime === 0"
-                                >获取验证码</span
+                            >获取验证码</span
                             >
                             <span class="get-code-btn" v-else>{{
-                                `${codeTime}秒后重发`
-                            }}</span>
+                                    `${codeTime}秒后重发`
+                                }}</span>
                         </template>
                     </el-input>
                 </el-form-item>
@@ -102,7 +103,8 @@
                         style="width: 100%"
                         type="primary"
                         @click="login"
-                        >登录</el-button
+                    >登录
+                    </el-button
                     >
                 </el-form-item>
             </el-form>
@@ -114,7 +116,7 @@
                         :width="13"
                     />
                     <span @click="isPassWordLogin = false" class="text"
-                        >验证码登录</span
+                    >验证码登录</span
                     >
                 </template>
                 <template v-else>
@@ -124,13 +126,13 @@
                         :width="12"
                     />
                     <span @click="isPassWordLogin = true" class="text"
-                        >密码登录</span
+                    >密码登录</span
                     >
                 </template>
             </div>
             <div class="close-icon" v-if="isElectron" @click="close">
                 <el-icon :size="16">
-                    <Close />
+                    <Close/>
                 </el-icon>
             </div>
             <div class="prompt-text">
@@ -151,10 +153,10 @@ import {
     ref
 } from "vue";
 import useLogin from "@/hooks/useLogin";
-import { ILoginData } from "@/types/login";
-import { STORAGE_TYPES, get, set, clear } from "@/utils/storage";
+import {ILoginData} from "@/types/login";
+import {STORAGE_TYPES, get, set, clear} from "@/utils/storage";
 import isElectron from "is-electron";
-import { sendMsg } from "@/api/login";
+import {sendMsg} from "@/api/login";
 import "simple-keyboard/build/css/index.css"; // 导入simple-keyboard的CSS样式
 
 export default defineComponent({
@@ -174,10 +176,10 @@ export default defineComponent({
         recordAccountList.value =
             get(STORAGE_TYPES.RECORD_LOGIN_LIST, true) || [];
 
-        const { userLogin } = useLogin();
+        const {userLogin} = useLogin();
 
         const login = async () => {
-            const { account, password, code } = form;
+            const {account, password, code} = form;
             if (
                 (isPassWordLogin.value &&
                     (account.length === 0 || password.length === 0)) ||
@@ -339,8 +341,7 @@ $btn_color: #4b71ee;
 
     .left-content {
         width: 50%;
-        background: url("../../assets/images/login/bg_login.png") no-repeat
-            center center;
+        background: url("../../assets/images/login/bg_login.png") no-repeat center center;
         background-size: cover;
         -webkit-app-region: drag;
         position: relative;

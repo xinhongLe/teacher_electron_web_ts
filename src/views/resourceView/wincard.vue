@@ -30,7 +30,6 @@ const setMinimize = async (data: any) => {
         isMinimized: true,
         url
     };
-    console.log('params', params)
     couresData.value = params;
     isMinimized.value = true
     if (isElectron()) {
@@ -52,7 +51,7 @@ onMounted(() => {
     })
     ipcRenderer.on('closeCourse', (e, data) => {
         store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
-            id: couresData.value.id,
+            id: couresData.value?.id,
             openMore: true
         });
         isMinimized.value = true

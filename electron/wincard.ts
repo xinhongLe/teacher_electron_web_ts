@@ -1,4 +1,4 @@
-import { createWindow } from "./createWindow";
+import {createWindow} from "./createWindow";
 
 const wincardURL = process.env.NODE_ENV === "development" ? `${process.env.WEBPACK_DEV_SERVER_URL}editWinCard.html` : `file://${__dirname}/editWinCard.html`;
 
