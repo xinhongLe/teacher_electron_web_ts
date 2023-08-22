@@ -126,15 +126,14 @@
                         <div
                             class="blackboard-box"
                             @click.stop="
-                                clicKBuryPoint('答题器'),
-                                    openAnswerMachineWindow()
+                                clicKBuryPoint('随手画'), openPainting()
                             "
                         >
                             <img
-                                src="@/assets/images/suspension/img_datiqi.png"
+                                src="@/assets/images/suspension/pic_suishouhua.png"
                                 alt=""
                             />
-                            <div class="blackboard-text">答题器</div>
+                            <div class="blackboard-text">随手画</div>
                         </div>
                         <div
                             class="blackboard-box"
@@ -156,12 +155,28 @@
                         </div>
                         <div
                             class="blackboard-box"
-                            @click.stop="clicKBuryPoint('计时器'), openTimer()"
+                            @click.stop="
+                                clicKBuryPoint('小组比拼'), openTeamCompetition()
+                            "
                         >
-                            <img src="@/assets/images/suspension/pic_timer@2x.png" alt=""/>
-                            <div class="blackboard-text">计时器</div>
+                            <img
+                                src="@/assets/images/suspension/pic_xzbp@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">小组比拼</div>
                         </div>
-                        <!-- openRollCall -->
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('小组比拼2'), openTeamCompetition2()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_xzbp2@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">小组比拼2</div>
+                        </div>
                         <div
                             class="blackboard-box"
                             @click.stop="clicKBuryPoint('点名'), openRollCall()"
@@ -171,6 +186,26 @@
                                 alt=""
                             />
                             <div class="blackboard-text">点名</div>
+                        </div>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="clicKBuryPoint('计时器'), openTimer()"
+                        >
+                            <img src="@/assets/images/suspension/pic_timer@2x.png" alt=""/>
+                            <div class="blackboard-text">计时器</div>
+                        </div>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('答题器'),
+                                    openAnswerMachineWindow()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/img_datiqi.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">答题器</div>
                         </div>
                         <div
                             class="blackboard-box"
@@ -196,42 +231,6 @@
                                 alt=""
                             />
                             <div class="blackboard-text">锁屏管理</div>
-                        </div>
-                        <div
-                            class="blackboard-box"
-                            @click.stop="
-                                clicKBuryPoint('随手画'), openPainting()
-                            "
-                        >
-                            <img
-                                src="@/assets/images/suspension/pic_suishouhua.png"
-                                alt=""
-                            />
-                            <div class="blackboard-text">随手画</div>
-                        </div>
-                        <div
-                            class="blackboard-box"
-                            @click.stop="
-                                clicKBuryPoint('小组比拼'), openTeamCompetition()
-                            "
-                        >
-                            <img
-                                src="@/assets/images/suspension/pic_xzbp@2x.png"
-                                alt=""
-                            />
-                            <div class="blackboard-text">小组比拼</div>
-                        </div>
-                        <div
-                            class="blackboard-box"
-                            @click.stop="
-                                clicKBuryPoint('小组比拼2'), openTeamCompetition2()
-                            "
-                        >
-                            <img
-                                src="@/assets/images/suspension/pic_xzbp2@2x.png"
-                                alt=""
-                            />
-                            <div class="blackboard-text">小组比拼2</div>
                         </div>
                     </div>
                 </el-collapse-item>
@@ -320,26 +319,26 @@ import {
     ref,
     watch
 } from "vue";
-import {Game} from "./interface";
-import {getToolList} from "@/api/index";
-import {getOssUrl} from "@/utils/oss";
+import { Game } from "./interface";
+import { getToolList } from "@/api/index";
+import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
-import {ElMessage} from "element-plus";
-import {BookList} from "@/types/preparation";
-import {get, set, STORAGE_TYPES, storeChange} from "@/utils/storage";
-import {fetchAllStudents} from "@/views/labelManage/api";
-import {IpcRendererEvent} from "electron";
-import {iconResources, textResources, typeResources} from "@/config/resource";
+import { ElMessage } from "element-plus";
+import { BookList } from "@/types/preparation";
+import { get, set, STORAGE_TYPES, storeChange } from "@/utils/storage";
+import { fetchAllStudents } from "@/views/labelManage/api";
+import { IpcRendererEvent } from "electron";
+import { iconResources, textResources, typeResources } from "@/config/resource";
 import usePageEvent from "@/hooks/usePageEvent";
-import {EVENT_TYPE} from "@/config/event";
-import {IYunInfo} from "@/types/login";
-import {UserInfoState} from "@/types/store";
-import {Search, RefreshRight} from "@element-plus/icons-vue";
+import { EVENT_TYPE } from "@/config/event";
+import { IYunInfo } from "@/types/login";
+import { UserInfoState } from "@/types/store";
+import { Search, RefreshRight } from "@element-plus/icons-vue";
 
 export default defineComponent({
-    components: {RefreshRight},
-    setup(props, {emit}) {
-        const {createBuryingPointFn} = usePageEvent("智课助手");
+    components: { RefreshRight },
+    setup(props, { emit }) {
+        const { createBuryingPointFn } = usePageEvent("智课助手");
         const gameList = ref<Game[]>([]);
         const initBookList = [
             {
@@ -386,25 +385,25 @@ export default defineComponent({
                 data.bookIDs =
                     subjectPublisherBookList.value
                         .find((item) => item.Value === selectBookList.value[0])
-                        ?.Children?.flatMap((x) => x.Children || {Value: ""})
+                        ?.Children?.flatMap((x) => x.Children || { Value: "" })
                         .map((x) => x?.Value || "") || [];
             } else if (selectBookList.value.length === 2) {
                 data.bookIDs =
                     subjectPublisherBookList.value
                         .find((item) => item.Value === selectBookList.value[0])
                         ?.Children?.find(
-                        (item) => item.Value === selectBookList.value[1]
-                    )
+                            (item) => item.Value === selectBookList.value[1]
+                        )
                         ?.Children?.map((x) => x?.Value || "") || [];
             } else {
                 data.bookID = selectBookList.value[2];
             }
             const res = await getToolList(data);
             if (res.resultCode === 200) {
-                const list = res.result.filter(({Url}) => Url);
+                const list = res.result.filter(({ Url }) => Url);
                 const imgListPromise = list.map((item) => {
-                    const {File} = item;
-                    const {FileName, Bucket, FilePath, Extention} = File;
+                    const { File } = item;
+                    const { FileName, Bucket, FilePath, Extention } = File;
                     const key = `${FilePath}/${FileName}.${Extention}`;
                     return getOssUrl(key, Bucket);
                 });
@@ -487,12 +486,12 @@ export default defineComponent({
         // 打开小组比拼
         const openTeamCompetition = () => {
             if (isElectron()) window.electron.ipcRenderer.invoke("openTeamCompetition");
-        }
+        };
 
         // 打开小组比拼
         const openTeamCompetition2 = () => {
             if (isElectron()) window.electron.ipcRenderer.invoke("openTeamCompetition2");
-        }
+        };
 
         const close = () => {
             if (isElectron()) {
@@ -507,7 +506,7 @@ export default defineComponent({
             }
         };
         const uncultivated = () => {
-            ElMessage({type: "warning", message: "功能暂未开发"});
+            ElMessage({ type: "warning", message: "功能暂未开发" });
         };
         const exitApp = () => {
             window.electron.ipcRenderer.invoke("exitApp");
@@ -626,7 +625,6 @@ export default defineComponent({
             });
         };
 
-
         watch(selectBookList, getGradeList);
         return {
             Search,
@@ -664,7 +662,7 @@ export default defineComponent({
             currentClickCol,
             openPainting,
             openTeamCompetition,
-            openTeamCompetition2,
+            openTeamCompetition2
         };
     }
 });
