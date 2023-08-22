@@ -17,57 +17,34 @@
                     <div class="template-view">
                         <div class="template-img-1">
                             <div class="top">
-                                <img src="@/assets/images/preparation/learndesign/icon_muban.png" alt="">
+                                <img src="@/assets/images/preparation/icon_muban.png" alt="">
                                 <span>模板一</span>
                             </div>
-                            <img src="@/assets/images/preparation/learndesign/pic_muban1.png" alt="">
+                            <img src="@/assets/images/preparation/pic_muban1.png" alt="">
                             <div class="template-hover">
-                                <div class="view" @click="reviewTemplate(1)">预览模板</div>
-                                <div class="use" @click="useCurrentTemplate(1)">直接使用</div>
+                                <div class="view">预览模板</div>
+                                <div class="use">直接使用</div>
                             </div>
                         </div>
                         <div class="template-img-2" style="margin-right: 0">
                             <div class="top">
-                                <img src="@/assets/images/preparation/learndesign/icon_muban.png" alt="">
+                                <img src="@/assets/images/preparation/icon_muban.png" alt="">
                                 <span>模板二</span>
                             </div>
-                            <img src="@/assets/images/preparation/learndesign/pic_muban2.png" alt="">
+                            <img src="@/assets/images/preparation/pic_muban2.png" alt="">
 
                             <div class="template-hover">
-                                <div class="view" @click="reviewTemplate(2)">预览模板</div>
-                                <div class="use" @click="useCurrentTemplate(2)">直接使用</div>
+                                <div class="view">预览模板</div>
+                                <div class="use">直接使用</div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="right-template" v-if="false">
+
+                </div>
             </div>
 
-        </el-dialog>
-
-        <!--模板预览界面-->
-        <el-dialog
-            v-if="viewVisible"
-            class="custom-dialog"
-            v-model="viewVisible"
-            :title="currentTitle"
-            width="790px"
-            align-center
-            center
-            :destroy-on-close="true"
-            @close="closeView"
-        >
-            <div class="template-view">
-                <img v-if="reviewType === 1" src="@/assets/images/preparation/learndesign/pic_,muban1.png" alt="">
-                <img v-else src="@/assets/images/preparation/learndesign/pic_,muban2.png" alt="">
-            </div>
-            <template #footer>
-                  <span class="dialog-footer">
-<!--                    <el-button @click="dialogFormVisible = false">Cancel</el-button>-->
-                    <el-button type="primary" @click="useCurrentTemplate(reviewType)">
-                      使用模板
-                    </el-button>
-                  </span>
-            </template>
         </el-dialog>
     </div>
 
@@ -75,10 +52,16 @@
 
 <script lang="ts">
 import {
+    computed,
     defineComponent,
+    onUnmounted,
+    PropType,
+    reactive,
     ref,
+    toRefs,
+    watch,
+    nextTick
 } from "vue";
-import {useRouter, useRoute} from "vue-router";
 
 export default defineComponent({
     name: "index",
@@ -86,51 +69,17 @@ export default defineComponent({
         learnSelectVisible: {
             type: Boolean,
             default: false
-        },
-        resourceData: {
-            type: Object,
-            default: {}
         }
     },
-    emits: ["update:learnSelectVisible", "openEditTemplate"],
+    emits: ["update:learnSelectVisible"],
     setup(props, {emit}) {
-        // 路由
-        const router = useRouter();
-        // 预览弹框
-        const viewVisible = ref(false);
-        // 当前模板标题
-        const currentTitle = ref("");
-        // 关闭弹框
+
         const close = () => {
             emit("update:learnSelectVisible")
         }
-        // 模板类型
-        const reviewType = ref(0);
-        // 预览模板
-        const reviewTemplate = (type: number) => {
-            reviewType.value = type;
-            viewVisible.value = true;
-            currentTitle.value = `模板${type === 1 ? '一' : '二'}`
-        }
-        // 直接使用模板
-        const useCurrentTemplate = (type: number) => {
-            viewVisible.value = false
-            // 跳转到模板编辑界面
-            emit("openEditTemplate", type);
-        }
-        // 关闭预览弹框
-        const closeView = () => {
-            viewVisible.value = false
-        }
 
         return {
-            currentTitle,
-            viewVisible,
-            reviewType,
-            close,
-            reviewTemplate,
-            useCurrentTemplate,
-            closeView
+            close
         }
     }
 })
@@ -157,9 +106,8 @@ export default defineComponent({
 
         .el-dialog__body {
             background: #F5F6FA !important;
-            min-height: 406px;
-            max-height: 80vh;
-            overflow: auto;
+            padding-top: 72px;
+            padding-bottom: 72px;
         }
     }
 }
@@ -170,7 +118,6 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 351px;
 
     .left-template {
 
@@ -199,7 +146,6 @@ export default defineComponent({
                 .top {
                     margin-bottom: 16px;
                     display: flex;
-                    align-items: center;
 
                     span {
                         padding-left: 2px;
@@ -264,9 +210,5 @@ export default defineComponent({
     .right-template {
     }
 
-}
-
-.template-view {
-    text-align: center;
 }
 </style>

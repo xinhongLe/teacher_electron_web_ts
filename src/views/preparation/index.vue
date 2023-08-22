@@ -32,7 +32,6 @@
                         @toArrangeClass="toArrangeClass"
                         @toMyLessonPackage="toMyLessonPackage"
                         :showClassArrangement="showClassArrangement"
-                        :resourceIntoType="1"
                     />
                 </div>
                 <div class="p-layout-right" v-if="showPackage && showClassArrangement">
@@ -184,6 +183,7 @@ export default defineComponent({
         // 去备课包排课
         const toLessonBagArrange = (data: any, type: number, ev?: TouchEvent) => {
             nextTick(() => {
+                console.log("showClassArrangement", data, type, ev);
                 LessonPackageRef.value && LessonPackageRef.value.toLessonBagArrange(data, type, ev);
             });
         };
