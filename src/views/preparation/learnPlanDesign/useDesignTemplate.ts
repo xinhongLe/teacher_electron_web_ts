@@ -122,13 +122,14 @@ export default (type: number) => {
     };
     // 删除一项
     const delItem = (pageData: any, item: any, index: number) => {
-
-        // if (pageData.Data?.length === 1) return;
         proxy.refs['editerRef' + item.Id][0].innerHTML = "";
         nextTick(() => {
             pageData?.Data.splice(pageData.Data.indexOf(item), 1);
             if (!pageData.Data.length) {
-                templatePageData.value.splice(index, 1);
+                templatePageData.value = [{
+                    Level: 1,
+                    Data: []
+                }]
             }
             watchLayoutChange();
         })
@@ -211,7 +212,7 @@ export default (type: number) => {
         const getQuestionString = (que: any) => {
             que.forEach((item: any, index: number) => {
                 let title = item.Title;
-                title = title.replace(/\\\(/g, "").replace(/\\\)/g, "")
+                // title = title.replace(/\\\(/g, "").replace(/\\\)/g, "")
                 let options = "";
                 if (item.QuestionOptions.length) {
                     item.QuestionOptions.forEach((item: any, index: number) => {
@@ -239,6 +240,12 @@ export default (type: number) => {
 
         nextTick(() => {
             proxy.refs['editerRef' + currentAddItems.value.Id][0].innerHTML = currentAddItems.value.Content + questionString;
+            nextTick(() => {
+                (window as any).MathJax?.Hub.Queue(['Typeset', (window as any).MathJax.Hub, proxy.refs['editerRef' + currentAddItems.value.Id][0], () => {
+                    // 渲染完成的回调函数
+                    // 可以在这里执行其他代码
+                }]);
+            });
             const imgData = proxy.refs['editerRef' + currentAddItems.value.Id][0].querySelectorAll('img');
             imgData?.forEach((item: any) => {
                 item.style.maxWidth = "100%";
