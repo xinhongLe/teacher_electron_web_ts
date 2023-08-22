@@ -123,6 +123,7 @@
                     label="资源："
                     required
                     v-if="form.type.Name !== '导学案' && (!isWincard || currentEditType === 'add')"
+                    style="width: 100%"
                 >
                     <el-upload
                         style="width: 100%"
@@ -525,6 +526,7 @@ export default defineComponent({
         let cacheResource: IResourceItem;
 
         emitter.on("openEditResource", async (resource) => {
+            console.log('resource', resource)
             cacheResource = resource;
             form.name = resource.Name;
             form.type = {
@@ -822,7 +824,7 @@ export default defineComponent({
             if (res?.success) {
                 uploadResourceOpen.value = false;
                 if (currentEditType.value === "add") {
-                    type.value = "";
+                    // type.value = "";
                     source.value = "4";
                     emit("update:type", type.value);
                     emit("update:source", source.value);
@@ -1416,6 +1418,12 @@ export default defineComponent({
 .custom-form {
     :deep(.el-form-item) {
         margin-bottom: 15px;
+
+        .el-form-item__content {
+            //div {
+            //    width: 100%;
+            //}
+        }
     }
 
     :deep(.el-icon) {
