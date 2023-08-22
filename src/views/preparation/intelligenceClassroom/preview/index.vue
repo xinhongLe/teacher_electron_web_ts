@@ -6,41 +6,49 @@
             </el-icon>
         </div>
         <div class="left" v-if="lVisit">
-            <div class="folder" v-for="folder in windowCards" :key="folder.ID">
-                <div class="title" @click="folder.Fold = !folder.Fold">
-                    <i class="triangle" :class="{rotate:!folder.Fold}"></i>
-                    <img class="file-icon" src="@/assets/edit/icon_file.png" alt=""/>
-                    <span>{{ folder.Name }}</span>
-                </div>
-                <div class="pages" v-if="folder.Fold">
-                    <template v-if="mode">
-                        <div class="page" v-for="page in folder.PageList" :key="page.ID"
-                             @click="handlePage(page.Index)">
-                            <div class="page-left">{{ page.Index }}</div>
-                            <div class="page-right" :class="{active: page.Index === index+1}">
-                                <img
-                                    alt=""
-                                    class="cover"
-                                    v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url"
-                                />
-                                <template v-else>
-                                    <thumbnail-slide
-                                        :size="228"
-                                        :slide="page.Json"
-                                        v-if="[pageType.listen,pageType.element].includes(page.Type)"
+            <div class="tabs">
+                <div class="tab" :class="{active :!mode}" @click="handleChangeMode()">大纲</div>
+                <div class="tab" :class="{active :mode}" @click="handleChangeMode()">幻灯片</div>
+            </div>
+            <div class="card">
+                <div class="folder" v-for="folder in windowCards" :key="folder.ID">
+                    <div class="title" @click="folder.Fold = !folder.Fold">
+                        <i class="triangle" :class="{rotate:!folder.Fold}"></i>
+                        <img class="file-icon" src="@/assets/edit/icon_file.png" alt=""/>
+                        <span>{{ folder.Name }}</span>
+                    </div>
+                    <div class="pages" v-if="folder.Fold">
+                        <template v-if="mode">
+                            <div class="page" v-for="page in folder.PageList" :key="page.ID" @click="handlePage(page.Index)">
+                                <div class="page-left">{{ page.Index }}</div>
+                                <div class="page-right" :class="{active: page.Index === index+1}">
+                                    <img
+                                        alt=""
+                                        class="cover"
+                                        v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url"
                                     />
-                                    <div class="view-empty" v-else>{{ page.Name }}</div>
-                                </template>
+                                    <template v-else>
+                                        <thumbnail-slide
+                                            :size="228"
+                                            :slide="page.Json"
+                                            v-if="[pageType.listen,pageType.element].includes(page.Type)"
+                                        />
+                                        <div class="view-empty" v-else>{{ page.Name }}</div>
+                                    </template>
+                                </div>
                             </div>
-                        </div>
-                    </template>
-                    <template v-else>
-                        <div class="row" :class="{active:page.Index === index+1}" v-for="page in folder.PageList"
-                             :key="page.ID" @click="handlePage(page.Index)">
-                            <span>{{ page.Index }}、{{ page.Name }}</span>
-                        </div>
-                    </template>
+                        </template>
+                        <template v-else>
+                            <div class="row" :class="{active:page.Index === index+1}" v-for="page in folder.PageList"
+                                 :key="page.ID" @click="handlePage(page.Index)">
+                                <span>{{ page.Index }}、{{ page.Name }}</span>
+                            </div>
+                        </template>
+                    </div>
                 </div>
+            </div>
+            <div class="pagination">
+                当前页{{ index }}/{{ pages.length }}
             </div>
         </div>
         <div class="center" :style="{width:centerW}">
@@ -52,11 +60,11 @@
                 @pageNext="pageNext"
                 @openCard="openCard"
                 :slide="currentSlide"
+                :canvasData="canvasData"
                 :is-show-pen-tools="false"
                 :keyDisabled="openCardShow"
                 v-model:isCanUndo="canUndo"
                 v-model:isCanRedo="canRedo"
-                :canvasData="canvasData"
                 v-model:currentDrawColor="currentDrawColor"
                 v-model:currentLineWidth="currentLineWidth"
                 v-model:eraserLineWidth="eraserLineWidth"
@@ -85,6 +93,7 @@ import Remark from "../components/preview/remark.vue";
 import OpenCardViewDialog from "../components/edit/openCardViewDialog.vue";
 import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import { setShowModel } from "@/api/home";
 
 export default defineComponent({
     name: "WinPreview",
@@ -119,12 +128,23 @@ export default defineComponent({
             default: true
         }
     },
-    emits: ["update:index", "update:l-visit", "update:r-visit", "update:is-can-undo", "update:is-can-redo", "update:currentDrawColor", "update:currentLineWidth", "update:eraserLineWidth"],
+    emits: [
+        "update:mode",
+        "update:index",
+        "update:l-visit",
+        "update:r-visit",
+        "update:is-can-undo",
+        "update:is-can-redo",
+        "update:eraserLineWidth",
+        "update:currentDrawColor",
+        "update:currentLineWidth"
+    ],
     setup(props, { emit }) {
-        const windowCards = ref<CardProps[]>([]);
-        const currentDrawColor = ref("#f60000");
         const currentLineWidth = ref(2);
         const eraserLineWidth = ref(30);
+        const windowCards = ref<CardProps[]>([]);
+        const currentDrawColor = ref("#f60000");
+
         watch(
             () => currentDrawColor.value,
             (val) => {
@@ -152,7 +172,6 @@ export default defineComponent({
 
                 list[i].PageList = pages.filter(item => item.State);
             }
-            console.log(list);
             windowCards.value = list;
         }, { immediate: true, deep: true });
 
@@ -309,6 +328,17 @@ export default defineComponent({
             openCardList.value = pages;
         };
 
+        const handleChangeMode = () => {
+            setShowModel({
+                Type: props.mode ? 1 : 0,
+                WindowID: props.resource.id
+            }).then(res => {
+                if (res.resultCode !== 200) return;
+
+                emit("update:mode", !props.mode);
+            });
+        };
+
         return {
             page,
             isInit,
@@ -332,7 +362,8 @@ export default defineComponent({
             currentSlide,
             openCardList,
             handleIsHideL,
-            previewHandle
+            previewHandle,
+            handleChangeMode
         };
     }
 });
@@ -369,7 +400,44 @@ export default defineComponent({
 
     .left {
         width: 280px;
-        overflow-y: auto;
+
+        .tabs {
+            height: 28px;
+            width: 124px;
+            background: #F1F3F5;
+            margin: 12px auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #414E65;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+
+            .tab {
+                width: 60px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                &.active {
+                    background-color: #FFFFFF;
+                    font-weight: bold;
+                }
+            }
+        }
+
+        .pagination {
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            font-size: 13px;
+            padding-right: 12px;
+            box-sizing: border-box;
+            color: #333;
+            text-align: right;
+        }
     }
 
     .center {
@@ -378,6 +446,16 @@ export default defineComponent({
 
     .right {
         width: 279px;
+    }
+}
+
+.card {
+    height: calc(100% - 96px);
+    overflow-y: auto;
+
+    .folder {
+        margin: 0 16px 0 12px;
+        width: calc(100% - 28px);
     }
 }
 

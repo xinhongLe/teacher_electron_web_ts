@@ -3,17 +3,17 @@
         <win-preview
             :pages="pages"
             ref="previewRef"
-            v-model:r-visit="rVisit"
             :cards="winCards"
-            :mode="previewMode"
             :resource="resource"
             v-model:index="index"
+            v-model:r-visit="rVisit"
             v-model:l-visit="lVisit"
+            v-model:mode="previewMode"
             v-model:isCanUndo="isCanUndo"
             v-model:isCanRedo="isCanRedo"
+            v-model:eraserLineWidth="eraserLineWidth"
             v-model:currentDrawColor="currentDrawColor"
             v-model:currentLineWidth="currentLineWidth"
-            v-model:eraserLineWidth="eraserLineWidth"
         />
         <Tools
             @redo="redo"
@@ -53,23 +53,23 @@
 
 <script lang="ts">
 import mqtt from "mqtt";
-import {Slide} from "wincard";
+import { Slide } from "wincard";
 import useHome from "@/hooks/useHome";
 import WinPreview from "./preview/index.vue";
-import {VUE_APP_YUN_API_MQTT} from "@/config";
-import {IViewResourceData} from "@/types/store";
+import { VUE_APP_YUN_API_MQTT } from "@/config";
+import { IViewResourceData } from "@/types/store";
 import Tools from "./components/preview/tools.vue";
-import {dealAnimationData} from "@/utils/dataParse";
+import { dealAnimationData } from "@/utils/dataParse";
 import SelectClassDialog from "./components/preview/selectClassDialog.vue";
-import {ref, watchEffect, PropType, onUnmounted, computed, defineComponent} from "vue";
-import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
-import {getOssUrl} from "@/utils/oss";
-import {getWindowStruct} from "@/api/home";
-import {store, useStore} from "@/store";
+import { ref, watchEffect, PropType, onUnmounted, computed, defineComponent } from "vue";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import { getOssUrl } from "@/utils/oss";
+import { getWindowStruct } from "@/api/home";
+import { store, useStore } from "@/store";
 
 export default defineComponent({
     name: "IntelligenceClassroom",
-    components: {WinPreview, Tools, SelectClassDialog},
+    components: { WinPreview, Tools, SelectClassDialog },
     props: {
         dialog: {
             type: Boolean,
@@ -85,7 +85,7 @@ export default defineComponent({
         }
     },
     emits: ["setMinimize"],
-    setup(props, {emit}) {
+    setup(props, { emit }) {
         const index = ref(0);
         const lVisit = ref(true);
         const rVisit = ref(false);
@@ -104,7 +104,7 @@ export default defineComponent({
         });
         const currentSlide = computed(() => pages.value.filter(item => item.State)[index.value].Json);
 
-        const {transformPageDetail} = useHome();
+        const { transformPageDetail } = useHome();
 
         // 教具页分享-选择班级
         const selectClassVisible = ref(false);
@@ -228,7 +228,7 @@ export default defineComponent({
                             const key = `${file?.FilePath}/${file?.FileMD5}.${file?.FileExtention || file?.Extention}`;
                             url = json?.ToolFileModel ? await getOssUrl(key, "axsfile") : "";
                         }
-                        const slide: Slide = await transformPageDetail({ID: page.ID, Type: page.Type}, json);
+                        const slide: Slide = await transformPageDetail({ ID: page.ID, Type: page.Type }, json);
                         page.Url = url;
 
                         page.Json = dealAnimationData(slide);

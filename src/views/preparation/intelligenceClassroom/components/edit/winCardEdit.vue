@@ -99,7 +99,7 @@ export default defineComponent({
     ],
     setup(props, { emit }) {
         const { saveElements } = useSaveElements();
-        const TeacherID = computed(() => get(STORAGE_TYPES.YUN_INFO).UserId);
+        const TeacherID = computed(() => get(STORAGE_TYPES.CURRENT_USER_INFO).id);
         console.log(TeacherID.value);
         const windowInfo = computed(() => store.state.preparation.editWindowInfo);
 
