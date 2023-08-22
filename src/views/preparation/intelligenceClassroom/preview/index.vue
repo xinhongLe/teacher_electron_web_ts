@@ -187,8 +187,8 @@ export default defineComponent({
             const page = props.pages?.filter(item => item.State)[props.index];
             const json = page ? page.Json : {};
             json.design = page.DesignIntent;
-            json.remark = page.Remark;
-            return cloneDeep(json);
+            json.remark = page.Remark || page.AcademicPresupposition;
+            return json;
         });
         watch(() => currentSlide.value, (val, oldVal) => {
             const elements = screenRef.value.whiteboard.getElements();

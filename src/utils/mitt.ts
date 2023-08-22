@@ -1,4 +1,4 @@
-import { IResourceItem } from "@/api/resource";
+import {IResourceItem} from "@/api/resource";
 import mitt from "mitt";
 
 type Events = {
@@ -20,7 +20,8 @@ type Events = {
     clearErrorBookList: any;
     toMyResource: any;
     closeTool: any;
-    checkUpdate: any
+    checkUpdate: any;
+    openLearningGuidSource: any;
 };
 
 const emitter = mitt<Events>();

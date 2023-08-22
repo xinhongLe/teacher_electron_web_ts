@@ -88,16 +88,83 @@
         <el-dialog
             class="custom-dialog"
             v-model="uploadResourceOpen"
+            align-center
             center
             :title="currentEditType === 'edit' ? '编辑资源' : '上传资源'"
             width="550px"
             :destroy-on-close="true"
         >
             <el-form class="custom-form" :model="form" label-width="100px">
+                <el-form-item label="类型：" required>
+                    <el-radio-group class="custom-radio" v-model="form.type" :disabled="currentEditType !== 'add'">
+                        <el-radio-button
+                            v-for="item in typeList.slice(1)"
+                            :disabled="
+                                [
+                                    RESOURCE_TYPE.TEACHING_AIDS,
+                                    RESOURCE_TYPE.TOOL,
+                                ].indexOf(item.Id) > -1
+                            "
+                            :key="item.Id"
+                            :label="item"
+                        >
+                            {{ item.Name }}
+                        </el-radio-button>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item
+                    label="资源名称："
+                    required
+                    v-if="form.files.length < 2"
+                >
+                    <el-input v-model="form.name" size="large" :maxlength="30"/>
+                </el-form-item>
                 <el-form-item
                     label="资源："
                     required
-                    v-if="!isWincard || currentEditType === 'add'"
+                    v-if="form.type.Name !== '导学案' && (!isWincard || currentEditType === 'add')"
+                    style="width: 100%"
+                >
+                    <el-upload
+                        style="width: 100%"
+                        ref="upload"
+                        action=""
+                        :accept="acceptList"
+                        :show-file-list="true"
+                        :before-remove="beforeRemove"
+                        :before-upload="beforeUpload"
+                        :http-request="(e: { file: File & Blob & { uid: number; }; }) => uploadSuccess(e, index)"
+                        :file-list="fileList"
+                        :limit="
+                            currentEditType === 'edit' && form.files.length > 0
+                                ? 1
+                                : 5
+                        "
+                        :on-exceed="onExceed"
+                    >
+                        <el-button type="primary" style="font-size: 13px">
+                            &nbsp;&nbsp;&nbsp;
+                            <el-icon :size="14">
+                                <upload/>
+                            </el-icon>
+                            &nbsp;上&nbsp;传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </el-button>
+                    </el-upload>
+                </el-form-item>
+                <el-form-item
+                    label="资源："
+                    required
+                    v-if="form.type.Name === '导学案' && (!isWincard || currentEditType === 'add')"
+                >
+                    <el-radio-group v-model="form.isLearningGuide">
+                        <el-radio :label="0">本地上传</el-radio>
+                        <el-radio :label="1">在线设计</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+
+                <el-form-item
+                    label=""
+                    v-if="form.type.Name === '导学案' && !form.isLearningGuide"
                 >
                     <el-upload
                         ref="upload"
@@ -123,7 +190,9 @@
                             &nbsp;上&nbsp;传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </el-button>
                     </el-upload>
+
                 </el-form-item>
+
                 <!-- <el-form-item label="资源文件：" v-else>
                     <el-button
                         type="primary"
@@ -135,30 +204,6 @@
                         &nbsp;编&nbsp;辑&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </el-button>
                 </el-form-item> -->
-                <el-form-item
-                    label="资源名称："
-                    required
-                    v-if="form.files.length < 2"
-                >
-                    <el-input v-model="form.name" size="large"/>
-                </el-form-item>
-                <el-form-item label="类型：" required>
-                    <el-radio-group class="custom-radio" v-model="form.type">
-                        <el-radio-button
-                            v-for="item in typeList.slice(1)"
-                            :disabled="
-                                [
-                                    RESOURCE_TYPE.TEACHING_AIDS,
-                                    RESOURCE_TYPE.TOOL,
-                                ].indexOf(item.Id) > -1
-                            "
-                            :key="item.Id"
-                            :label="item"
-                        >
-                            {{ item.Name }}
-                        </el-radio-button>
-                    </el-radio-group>
-                </el-form-item>
                 <el-form-item label="目录：" required>
                     <div
                         class="select-box"
@@ -363,6 +408,33 @@ interface IFile {
     size: number;
 }
 
+interface ILearningGuide {
+    /**
+     * 列
+     */
+    columnNumber?: number;
+    /**
+     * ID
+     */
+    id?: null | string;
+    /**
+     * key
+     */
+    key?: null | string;
+    /**
+     * 关联题目ID
+     */
+    questionIds?: string[] | null;
+    /**
+     * 行
+     */
+    rowNumber?: number;
+    /**
+     * 值
+     */
+    value?: null | string;
+}
+
 interface IForm {
     resourceId: string;
     name: string;
@@ -376,6 +448,8 @@ interface IForm {
     files: IFile[];
     isSchool: boolean;
     isShelf: boolean;
+    isLearningGuide: number;
+    learningGuideDetails: ILearningGuide[]
 }
 
 interface ICourse {
@@ -400,10 +474,14 @@ export default defineComponent({
         course: {
             type: Object as PropType<ICourse>,
             required: true
-        }
+        },
+        type: {
+            type: String,
+            required: true
+        },
     },
     components: {Plus, Refresh, Upload, CustomSelect, Edit, Loading},
-    emits: ["update:source", "update:type", "updateBagList"],
+    emits: ["update:source", "update:type", "updateBagList", "learnPlanDesign"],
     setup(props, {emit}) {
         const {createBuryingPointFn} = usePageEvent("备课"); //备课埋点
         const {getPrepareGetMyBagCountNew, packageCount} = useLessonPackage();
@@ -447,6 +525,7 @@ export default defineComponent({
         let cacheResource: IResourceItem;
 
         emitter.on("openEditResource", async (resource) => {
+            console.log('resource', resource)
             cacheResource = resource;
             form.name = resource.Name;
             form.type = {
@@ -483,26 +562,29 @@ export default defineComponent({
                     }
                 };
             });
-
             if (resource.ResourceShowType === 0) {
-                fileList.value = [];
-                const url = await getOssUrl(
-                    `${resource.File.FilePath}/${resource.File.FileMD5}.${resource.File.FileExtention}`,
-                    resource.File.FileBucket
-                );
-                fileList.value.push({
-                    name: resource.File.FileName,
-                    url
-                });
-                form.files = [
-                    {
-                        uid: 20121130,
-                        extension: resource.File.FileExtention,
-                        md5: resource.File.FileMD5,
-                        fileName: resource.File.FileName,
-                        size: resource.File.Size
-                    }
-                ];
+                if (resource.LearningGuidSource) {
+                    form.isLearningGuide = 1
+                } else {
+                    fileList.value = [];
+                    const url = await getOssUrl(
+                        `${resource.File.FilePath}/${resource.File.FileMD5}.${resource.File.FileExtention}`,
+                        resource.File.FileBucket
+                    );
+                    fileList.value.push({
+                        name: resource.File.FileName,
+                        url
+                    });
+                    form.files = [
+                        {
+                            uid: 20121130,
+                            extension: resource.File.FileExtention,
+                            md5: resource.File.FileMD5,
+                            fileName: resource.File.FileName,
+                            size: resource.File.Size
+                        }
+                    ];
+                }
             }
 
             isWincard.value = resource.ResourceShowType === 1;
@@ -586,19 +668,21 @@ export default defineComponent({
             knowledge: "",
             files: [],
             isSchool: false,
-            isShelf: true
+            isShelf: true,
+            isLearningGuide: 1
         };
         const form = reactive<IForm>(JSON.parse(JSON.stringify(formEmpty)));
 
         const uploadResourceOpen = ref(false);
 
-        const type = ref<string>(RESOURCE_TYPE.COURSEWARD);
+        const type = computed(() => props.type);
+        // ref<string>(RESOURCE_TYPE.COURSEWARD);
         const typeList = ref<{ Id: string; Name: string }[]>([]);
-        const onTypeChange = () => {
-            emit("update:type", type.value);
+        const onTypeChange = (val: any) => {
+            emit("update:type", val);
             //匹配到对应的name值
             const typeName = typeList.value.find(
-                (item: any) => item.Id == type.value
+                (item: any) => item.Id == val
             )?.Name;
             if (typeName) {
                 createBuryingPointFn(EVENT_TYPE.PageClick, typeName, typeName);
@@ -640,7 +724,8 @@ export default defineComponent({
 
         // 确认上传
         const sureUpload = async () => {
-            if (form.files.length === 0 && !isWincard.value)
+
+            if (form.files.length === 0 && !isWincard.value && !form.isLearningGuide)
                 return ElMessage.warning("请上传资源文件！");
             if (!form.name && form.files.length < 2)
                 return ElMessage.warning("资源名称不能为空！");
@@ -692,9 +777,9 @@ export default defineComponent({
                 };
             });
 
-            let res;
+            let res: any;
             if (currentEditType.value === "add") {
-                res = await uploadResource({
+                const resourceData = {
                     lessonTrees,
                     rescourceTypeId: form.type.Id,
                     rescourceTypeName: form.type.Name,
@@ -705,8 +790,15 @@ export default defineComponent({
                     resourceFiles,
                     isSchool: form.isSchool ? 1 : 2,
                     isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
-                    knowledgePonitId: []
-                });
+                    knowledgePonitId: [],
+                    isLearningGuide: form.isLearningGuide
+                };
+                if (form.type.Name === '导学案' && form.isLearningGuide == 1) {
+                    uploadResourceOpen.value = false;
+                    emit("learnPlanDesign", resourceData);
+                } else {
+                    res = await uploadResource(resourceData);
+                }
             } else {
                 res = await editResource({
                     resourceId: form.resourceId,
@@ -726,10 +818,10 @@ export default defineComponent({
                 });
             }
 
-            if (res.success) {
+            if (res?.success) {
                 uploadResourceOpen.value = false;
                 if (currentEditType.value === "add") {
-                    type.value = "";
+                    // type.value = "";
                     source.value = "4";
                     emit("update:type", type.value);
                     emit("update:source", source.value);
@@ -740,6 +832,7 @@ export default defineComponent({
                     );
                 }
             }
+
         };
 
         const refreshResourceList = () => {
@@ -1176,6 +1269,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+
 .p-layout-head {
     padding: 20px;
 }
@@ -1321,6 +1415,12 @@ export default defineComponent({
 .custom-form {
     :deep(.el-form-item) {
         margin-bottom: 15px;
+
+        .el-form-item__content {
+            //div {
+            //    width: 100%;
+            //}
+        }
     }
 
     :deep(.el-icon) {
@@ -1388,4 +1488,5 @@ export default defineComponent({
     align-items: center;
     justify-content: space-between;
 }
+
 </style>

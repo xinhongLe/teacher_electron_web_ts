@@ -16,7 +16,7 @@ const initState = (): UserInfoState => ({
         ClassUserCenterId: "",
         ClassName: ""
     },
-    classList: []
+    classList: [],
 });
 
 const mutations: MutationTree<UserInfoState> = {

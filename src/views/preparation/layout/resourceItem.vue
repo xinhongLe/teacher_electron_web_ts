@@ -17,9 +17,10 @@
                 <div class="resource-title">
                     {{ data.Name }}
                     <img class="resource-format" v-if="data.File" :src="formatImg" alt=""/>
+                    <div class="resource-learnguid" v-if="data.LearningGuidSource === 2">在线导学案</div>
                 </div>
                 <div class="resource-message">
-                    <p>
+                    <p style="margin-left:0">
                         <img src="@/assets/images/preparation/icon_gengxin.png" alt=""/>
                         更新时间：{{ dealTime(data.DateTime || data.CreateTime) }}
                     </p>
@@ -113,7 +114,7 @@
                         下载
                     </el-button>
                     <el-button class="p-control-btn" @click.stop="handleCommand('edit')" v-if="
-                        canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType
+                        (canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType) || data.LearningGuidSource === 2
                     ">
                         <img src="@/assets/images/preparation/icon_bianji.png" alt=""/>
                         编辑
@@ -157,7 +158,7 @@
                     下载
                 </el-button>
                 <el-button class="p-control-btn" @click.stop="handleCommand('edit')"
-                           v-if="canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType">
+                           v-if="(canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType) || data.LearningGuidSource === 2">
                     <img src="@/assets/images/preparation/icon_bianji.png" alt=""/>
                     编辑
                 </el-button>
@@ -227,18 +228,18 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, ref } from "vue";
-import { MoreFilled } from "@element-plus/icons-vue";
-import { iconResources, textResources, typeResources, RESOURCE_TYPE } from "@/config/resource";
-import { IResourceItem } from "@/api/resource";
+import {computed, defineComponent, PropType, ref} from "vue";
+import {MoreFilled} from "@element-plus/icons-vue";
+import {iconResources, textResources, typeResources, RESOURCE_TYPE} from "@/config/resource";
+import {IResourceItem} from "@/api/resource";
 import moment from "moment";
-import { useStore } from "@/store";
-import { IGetLessonBagOutDto } from "@/api/prepare";
+import {useStore} from "@/store";
+import {IGetLessonBagOutDto} from "@/api/prepare";
 import isElectron from "is-electron";
-import { ElMessage } from "element-plus";
+import {ElMessage} from "element-plus";
 
 export default defineComponent({
-    components: { MoreFilled },
+    components: {MoreFilled},
     props: {
         data: {
             type: Object as PropType<IResourceItem>,
@@ -270,7 +271,7 @@ export default defineComponent({
         }
     },
     emits: ["eventEmit", "addLessonPackage", "toArrangeClass", "handleSelectLessonBag", "handleRemoveLessonBag"],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const store = useStore();
 
         const handleCommand = (command: string, event?: MouseEvent | TouchEvent) => {
@@ -510,6 +511,21 @@ export default defineComponent({
             display: block;
             margin-left: 10px;
             width: 16px;
+        }
+
+        .resource-learnguid {
+            width: 72px;
+            height: 20px;
+            background: #FFFFFF;
+            border-radius: 4px;
+            border: 1px solid rgba(123, 89, 255, 0.2);
+            font-size: 12px;
+            font-weight: 400;
+            color: #7B59FF;
+            margin-left: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     }
 

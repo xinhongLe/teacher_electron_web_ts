@@ -152,8 +152,6 @@ export default defineComponent({
 
         const getFirstLessonId = () => {
             let hasLesson = false;
-            console.log('treeData.value', treeData.value)
-
             for (let i = 0; i < treeData.value.length; i++) {
                 if (
                     treeData.value[i].Children &&

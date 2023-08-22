@@ -419,7 +419,7 @@ $blue: #4b71ee;
 
         .select-warp {
             display: flex;
-            align-items: center;
+            align-items: baseline;
 
             :deep(.el-button) {
                 width: 110px;
@@ -440,6 +440,7 @@ $blue: #4b71ee;
                 color: #5f626f;
                 margin-right: 24px;
                 text-align: right;
+                white-space: nowrap;
             }
 
             .p_b_20 {

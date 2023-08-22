@@ -146,7 +146,6 @@ export default defineComponent({
         watch(() => newSchedules.value, (val) => {
             if (val) {
                 nextTick(() => {
-                    console.log('---------reLoadLayout',)
                     emit("reLoadLayout");
                 })
             }
