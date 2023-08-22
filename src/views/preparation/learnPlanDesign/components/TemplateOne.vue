@@ -65,7 +65,6 @@
                                     <span>添加题目</span>
                                 </div>
                                 <el-popconfirm
-                                    v-if="qindex > 0 || item.Level > 1"
                                     width="220"
                                     confirm-button-text="确定"
                                     cancel-button-text="取消"

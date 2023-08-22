@@ -19,7 +19,8 @@
                     </div>
                     <div class="pages" v-if="folder.Fold">
                         <template v-if="mode">
-                            <div class="page" :id="`page-${page.ID}`" v-for="page in folder.PageList" :key="page.ID" @click="handlePage(page.Index)">
+                            <div class="page" :id="`page-${page.ID}`" v-for="page in folder.PageList" :key="page.ID"
+                                 @click="handlePage(page.Index)">
                                 <div class="page-left">{{ page.Index }}</div>
                                 <div class="page-right" :class="{active: page.Index === index+1}">
                                     <img
@@ -84,20 +85,20 @@
 </template>
 
 <script lang=ts>
-import { store } from "@/store";
-import { cloneDeep } from "lodash";
-import { pageType } from "@/config";
-import { ElMessage } from "element-plus";
-import { IViewResourceData } from "@/types/store";
+import {store} from "@/store";
+import {cloneDeep} from "lodash";
+import {pageType} from "@/config";
+import {ElMessage} from "element-plus";
+import {IViewResourceData} from "@/types/store";
 import Remark from "../components/preview/remark.vue";
 import OpenCardViewDialog from "../components/edit/openCardViewDialog.vue";
-import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
-import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
-import { setShowModel } from "@/api/home";
+import {computed, defineComponent, onMounted, PropType, ref, watch} from "vue";
+import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
+import {setShowModel} from "@/api/home";
 
 export default defineComponent({
     name: "WinPreview",
-    components: { OpenCardViewDialog, Remark },
+    components: {OpenCardViewDialog, Remark},
     props: {
         cards: {
             type: Array as PropType<CardProps[]>,
@@ -139,7 +140,7 @@ export default defineComponent({
         "update:currentDrawColor",
         "update:currentLineWidth"
     ],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const currentLineWidth = ref(2);
         const eraserLineWidth = ref(30);
         const windowCards = ref<CardProps[]>([]);
@@ -173,7 +174,7 @@ export default defineComponent({
                 list[i].PageList = pages.filter(item => item.State);
             }
             windowCards.value = list;
-        }, { immediate: true, deep: true });
+        }, {immediate: true, deep: true});
 
         const canvasDataMap = new Map();
         const canvasData = computed(() => {
@@ -193,7 +194,7 @@ export default defineComponent({
         watch(() => currentSlide.value, (val, oldVal) => {
             const elements = screenRef.value.whiteboard.getElements();
             oldVal && canvasDataMap.set(oldVal.id, elements);
-        }, { deep: true });
+        }, {deep: true});
 
         const page = computed(() => {
             return props.pages?.filter(item => item.State)[props.index];
@@ -253,13 +254,13 @@ export default defineComponent({
             const page = list[index];
             const pageDom = document.getElementById(`page-${page.ID}`);
             const cardDom = document.getElementById("card");
-            if (!pageDom || !cardDom) return;
-
-            const height = pageDom.clientHeight;
-            const pageTop = pageDom.getBoundingClientRect().top;
-            const cardTop = cardDom.getBoundingClientRect().top;
-            if (pageTop - height > cardTop) {
-                cardDom.scrollTop = cardDom.scrollTop - pageDom.offsetHeight - 16;
+            if (pageDom && cardDom) {
+                const height = pageDom.clientHeight;
+                const pageTop = pageDom.getBoundingClientRect().top;
+                const cardTop = cardDom.getBoundingClientRect().top;
+                if (pageTop - height > cardTop) {
+                    cardDom.scrollTop = cardDom.scrollTop - pageDom.offsetHeight - 16;
+                }
             }
 
             emit("update:index", index);
@@ -278,13 +279,13 @@ export default defineComponent({
             const page = list[index];
             const pageDom = document.getElementById(`page-${page.ID}`);
             const cardDom = document.getElementById("card");
-            if (!pageDom || !cardDom) return;
-
-            const height = pageDom.clientHeight;
-            const pageTop = pageDom.getBoundingClientRect().top;
-            const cardBottom = cardDom.getBoundingClientRect().bottom;
-            if (pageTop + height > cardBottom) {
-                cardDom.scrollTop = pageDom.offsetHeight + cardDom.scrollTop + 16;
+            if (pageDom && cardDom) {
+                const height = pageDom.clientHeight;
+                const pageTop = pageDom.getBoundingClientRect().top;
+                const cardBottom = cardDom.getBoundingClientRect().bottom;
+                if (pageTop + height > cardBottom) {
+                    cardDom.scrollTop = pageDom.offsetHeight + cardDom.scrollTop + 16;
+                }
             }
             emit("update:index", index);
         };

@@ -123,7 +123,6 @@
                     label="资源："
                     required
                     v-if="form.type.Name !== '导学案' && (!isWincard || currentEditType === 'add')"
-                    style="width: 100%"
                 >
                     <el-upload
                         style="width: 100%"
@@ -167,6 +166,7 @@
                     v-if="form.type.Name === '导学案' && !form.isLearningGuide"
                 >
                     <el-upload
+                        style="width: 100%"
                         ref="upload"
                         action=""
                         :accept="acceptList"
@@ -671,7 +671,7 @@ export default defineComponent({
             isSchool: false,
             sourceType: 0,
             isShelf: true,
-            isLearningGuide: 1
+            isLearningGuide: 0
         };
         const form = reactive<IForm>(JSON.parse(JSON.stringify(formEmpty)));
 
