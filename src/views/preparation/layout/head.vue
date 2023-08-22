@@ -669,8 +669,7 @@ export default defineComponent({
             knowledge: "",
             files: [],
             isSchool: false,
-            isShelf: true,
-            sourceType: 0
+            sourceType: 0,
             isShelf: true,
             isLearningGuide: 1
         };
