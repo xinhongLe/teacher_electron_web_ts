@@ -78,7 +78,7 @@
                                       :maxlength="12"></el-input>
                         </div>
                         <div class="right-con">
-                            <div class="top-con">
+                            <div class="top-con" :style="{maxHeight:item.Level === 1 ? '574px' : '938px'}">
                                 <div v-show="isReview" v-html="question.Content"></div>
                                 <div v-show="!isReview" :ref="'editerRef' + question.Id"
                                      :id="'editerRef' + question.Id"
@@ -92,7 +92,7 @@
                                     <span>添加题目</span>
                                 </div>
                                 <el-popconfirm
-                                    v-if="qindex > 0"
+                                    v-if="qindex > 0 || item.Level > 1"
                                     width="220"
                                     confirm-button-text="确定"
                                     cancel-button-text="取消"
@@ -245,7 +245,7 @@ export default defineComponent({
             default: () => []
         }
     },
-    emits: ["update:isReview", "addQuestionItem", "saveTemplateContent"],
+    emits: ["update:isReview", "addQuestionItem", "saveTemplateContent", "close"],
     setup(props, {emit}) {
         const {
             templatePageData, lastPageNum, getEditer,
@@ -272,6 +272,7 @@ export default defineComponent({
         // 关闭
         const close = () => {
             emit("update:isReview", false);
+            emit("close");
         };
         // 保存模板
         const saveTemplate = () => {
@@ -367,10 +368,10 @@ export default defineComponent({
             emit("saveTemplateContent", allPageData)
         };
         watch(() => props.currentLearningGuidDetail, (val: any) => {
+            console.log('val-----', val)
             if (val.length) {
                 formateLearningGuidDetail(val, 2)
             }
-
         }, {deep: true, immediate: true})
         const downLoad = () => {
             // 获取需要下载的DOM元素

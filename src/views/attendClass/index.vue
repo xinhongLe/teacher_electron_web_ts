@@ -49,6 +49,7 @@ import {
 } from "vue";
 import {useRoute} from "vue-router";
 import Resources from "../preparation/layout/resources.vue";
+import emitter from "@/utils/mitt";
 
 export default defineComponent({
     components: {Resources},

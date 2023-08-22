@@ -433,7 +433,7 @@ export default defineComponent({
                         }
                     }
                     if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
-                        if (data.LearningGuidSource === 2) {
+                        if (props.resourceIntoType !== 2 && data.LearningGuidSource === 2) {
                             emitter.emit("openLearningGuidSource", {openType: 'view', ...data});
                         } else {
                             store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {

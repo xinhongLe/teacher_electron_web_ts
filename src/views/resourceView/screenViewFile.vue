@@ -13,8 +13,15 @@
             <div class="iframe-video" v-if="isVideo">
                 <video :src="url" controls/>
             </div>
+            <div class="learn-design" v-if="resource.LearningGuidSource === 2 && showDesign">
+                <!--    模板预览页面-->
+                <component v-if="currentComponents" :is="currentComponents" v-model:isReview="isReview"
+                           ref="templateRef"
+                           :isResourceReview="true" :currentLearningGuidDetail="currentLearningGuidDetail"
+                           @close="close"></component>
+            </div>
             <div class="not-preview" v-if="
-                !isVideo && !isAudio && !isImage && !isOffice && type !== 4
+                !isVideo && !isAudio && !isImage && !isOffice && type !== 4 && resource.LearningGuidSource !== 2
             ">
                 暂不支持预览，请下载查看
             </div>
@@ -82,7 +89,7 @@
 </template>
 
 <script lang="ts">
-import {IResourceItem} from "@/api/resource";
+import {getLearningGuidDetail, IResourceItem} from "@/api/resource";
 import {MutationTypes, useStore} from "@/store";
 import {getOssUrl} from "@/utils/oss";
 import PenTool from "@/views/preparation/intelligenceClassroom/components/preview/PenTool.vue";
@@ -93,10 +100,13 @@ import {
     onMounted,
     onUnmounted,
     PropType,
-    ref,
+    ref, watch,
     watchEffect,
+    markRaw
 } from "vue";
 import DrawingBoard from "@/components/drawingBoard/index.vue";
+import TemplateOne from "@/views/preparation/learnPlanDesign/components/TemplateOne.vue";
+import TemplateTwo from "@/views/preparation/learnPlanDesign/components/TemplateTwo.vue";
 
 export default defineComponent({
     components: {DrawingBoard, PenTool},
@@ -108,6 +118,9 @@ export default defineComponent({
         },
     },
     setup(props, {emit}) {
+        const templateRef = ref();
+        // 当前模板组件
+        const currentComponents: any = ref();
         const drawingBoardRef = ref();
         //显示隐藏画笔
         const drawingShow = ref(false);
@@ -122,6 +135,7 @@ export default defineComponent({
                 : null
         );
         const type = computed(() => resource.value?.ResourceShowType);
+        console.log('resource,type', resource, type)
         const extention = computed(() =>
             resource.value && resource.value.File
                 ? resource.value.File.FileExtention
@@ -208,6 +222,27 @@ export default defineComponent({
             console.log('value', value)
             drawingBoardRef.value.whiteboardOption("setEraserSize", value)
         };
+        const currentLearningGuidDetail: any = ref([]);
+        const showDesign = ref(false);
+        const isReview = ref(false);
+        const openLearningGuidSource = async (data: any) => {
+            // console.log('data--225', data);
+            const res = await getLearningGuidDetail({id: data.ResourceId});
+            if (res.success && res.resultCode == 200) {
+                showDesign.value = true;
+                await nextTick(() => {
+                    isReview.value = true;
+                    currentLearningGuidDetail.value = res.result;
+                    // templateNumber.value = data.Template;
+                    currentComponents.value = data.Template == 1 ? markRaw(TemplateOne) : markRaw(TemplateTwo)
+                })
+            }
+        };
+        watch(() => resource.value?.LearningGuidSource, (val) => {
+            if (val === 2) {
+                openLearningGuidSource(resource.value)
+            }
+        }, {deep: true, immediate: true})
         onMounted(() => {
             const iframe: any = document.getElementById("office-iframe");
             const mask: any = document.querySelector('.mask');
@@ -247,6 +282,13 @@ export default defineComponent({
             currentDrawColor,
             currentLineWidth,
             eraserLineWidth,
+            currentComponents,
+            templateRef,
+            openLearningGuidSource,
+            showDesign,
+            isReview,
+            currentLearningGuidDetail
+
         };
     },
 });

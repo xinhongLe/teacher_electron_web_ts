@@ -123,8 +123,10 @@
                     label="资源："
                     required
                     v-if="form.type.Name !== '导学案' && (!isWincard || currentEditType === 'add')"
+                    style="width: 100%"
                 >
                     <el-upload
+                        style="width: 100%"
                         ref="upload"
                         action=""
                         :accept="acceptList"
@@ -472,7 +474,11 @@ export default defineComponent({
         course: {
             type: Object as PropType<ICourse>,
             required: true
-        }
+        },
+        type: {
+            type: String,
+            required: true
+        },
     },
     components: {Plus, Refresh, Upload, CustomSelect, Edit, Loading},
     emits: ["update:source", "update:type", "updateBagList", "learnPlanDesign"],
@@ -519,6 +525,7 @@ export default defineComponent({
         let cacheResource: IResourceItem;
 
         emitter.on("openEditResource", async (resource) => {
+            console.log('resource', resource)
             cacheResource = resource;
             form.name = resource.Name;
             form.type = {
@@ -555,26 +562,29 @@ export default defineComponent({
                     }
                 };
             });
-
             if (resource.ResourceShowType === 0) {
-                fileList.value = [];
-                const url = await getOssUrl(
-                    `${resource.File.FilePath}/${resource.File.FileMD5}.${resource.File.FileExtention}`,
-                    resource.File.FileBucket
-                );
-                fileList.value.push({
-                    name: resource.File.FileName,
-                    url
-                });
-                form.files = [
-                    {
-                        uid: 20121130,
-                        extension: resource.File.FileExtention,
-                        md5: resource.File.FileMD5,
-                        fileName: resource.File.FileName,
-                        size: resource.File.Size
-                    }
-                ];
+                if (resource.LearningGuidSource) {
+                    form.isLearningGuide = 1
+                } else {
+                    fileList.value = [];
+                    const url = await getOssUrl(
+                        `${resource.File.FilePath}/${resource.File.FileMD5}.${resource.File.FileExtention}`,
+                        resource.File.FileBucket
+                    );
+                    fileList.value.push({
+                        name: resource.File.FileName,
+                        url
+                    });
+                    form.files = [
+                        {
+                            uid: 20121130,
+                            extension: resource.File.FileExtention,
+                            md5: resource.File.FileMD5,
+                            fileName: resource.File.FileName,
+                            size: resource.File.Size
+                        }
+                    ];
+                }
             }
 
             isWincard.value = resource.ResourceShowType === 1;
@@ -665,13 +675,14 @@ export default defineComponent({
 
         const uploadResourceOpen = ref(false);
 
-        const type = ref<string>(RESOURCE_TYPE.COURSEWARD);
+        const type = computed(() => props.type);
+        // ref<string>(RESOURCE_TYPE.COURSEWARD);
         const typeList = ref<{ Id: string; Name: string }[]>([]);
-        const onTypeChange = () => {
-            emit("update:type", type.value);
+        const onTypeChange = (val: any) => {
+            emit("update:type", val);
             //匹配到对应的name值
             const typeName = typeList.value.find(
-                (item: any) => item.Id == type.value
+                (item: any) => item.Id == val
             )?.Name;
             if (typeName) {
                 createBuryingPointFn(EVENT_TYPE.PageClick, typeName, typeName);
@@ -810,7 +821,7 @@ export default defineComponent({
             if (res?.success) {
                 uploadResourceOpen.value = false;
                 if (currentEditType.value === "add") {
-                    type.value = "";
+                    // type.value = "";
                     source.value = "4";
                     emit("update:type", type.value);
                     emit("update:source", source.value);
@@ -1257,6 +1268,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+
 .p-layout-head {
     padding: 20px;
 }
@@ -1402,6 +1414,12 @@ export default defineComponent({
 .custom-form {
     :deep(.el-form-item) {
         margin-bottom: 15px;
+
+        .el-form-item__content {
+            //div {
+            //    width: 100%;
+            //}
+        }
     }
 
     :deep(.el-icon) {
@@ -1469,4 +1487,5 @@ export default defineComponent({
     align-items: center;
     justify-content: space-between;
 }
+
 </style>
