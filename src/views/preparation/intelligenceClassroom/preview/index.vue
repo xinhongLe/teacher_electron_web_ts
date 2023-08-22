@@ -10,7 +10,7 @@
                 <div class="tab" :class="{active :!mode}" @click="handleChangeMode()">大纲</div>
                 <div class="tab" :class="{active :mode}" @click="handleChangeMode()">幻灯片</div>
             </div>
-            <div class="card">
+            <div class="card" tabindex="0" id="card">
                 <div class="folder" v-for="folder in windowCards" :key="folder.ID">
                     <div class="title" @click="folder.Fold = !folder.Fold">
                         <i class="triangle" :class="{rotate:!folder.Fold}"></i>
@@ -19,7 +19,7 @@
                     </div>
                     <div class="pages" v-if="folder.Fold">
                         <template v-if="mode">
-                            <div class="page" v-for="page in folder.PageList" :key="page.ID" @click="handlePage(page.Index)">
+                            <div class="page" :id="`page-${page.ID}`" v-for="page in folder.PageList" :key="page.ID" @click="handlePage(page.Index)">
                                 <div class="page-left">{{ page.Index }}</div>
                                 <div class="page-right" :class="{active: page.Index === index+1}">
                                     <img
@@ -208,12 +208,9 @@ export default defineComponent({
         watch(() => canRedo.value, val => {
             emit("update:is-can-redo", val);
         });
-        // watch(() => store.state.common.currentResourceInto, (val) => {
-        //     console.log('store.state.common.currentResourceInto', store.state.common.currentResourceInto)
-        // }, {deep: true})
+
         onMounted(() => {
-            console.log("store.state.common.resourceIntoType", store.state.common.resourceIntoType);
-            if (store.state.common.resourceIntoType == 1) {
+            if (Number(store.state.common.resourceIntoType) === 1) {
                 emit("update:r-visit", store.state.common.currentBeikeResource);
             } else {
                 emit("update:r-visit", store.state.common.currentKebiaoResource);
@@ -245,12 +242,26 @@ export default defineComponent({
             screenRef.value && screenRef.value.execNext();
         };
         const pagePrev = () => {
+            const list = props.pages.filter(item => item.State);
             if (props.index === 0) {
                 ElMessage.warning("已经第一页了");
                 return;
             }
             isInit.value = false;
             const index = props.index - 1;
+
+            const page = list[index];
+            const pageDom = document.getElementById(`page-${page.ID}`);
+            const cardDom = document.getElementById("card");
+            if (!pageDom || !cardDom) return;
+
+            const height = pageDom.clientHeight;
+            const pageTop = pageDom.getBoundingClientRect().top;
+            const cardTop = cardDom.getBoundingClientRect().top;
+            if (pageTop - height > cardTop) {
+                cardDom.scrollTop = cardDom.scrollTop - pageDom.offsetHeight - 16;
+            }
+
             emit("update:index", index);
         };
 
@@ -260,9 +271,21 @@ export default defineComponent({
                 ElMessage.warning("已经最后一页了");
                 return;
             }
-            const index = props.index + 1;
 
             isInit.value = true;
+            const index = props.index + 1;
+
+            const page = list[index];
+            const pageDom = document.getElementById(`page-${page.ID}`);
+            const cardDom = document.getElementById("card");
+            if (!pageDom || !cardDom) return;
+
+            const height = pageDom.clientHeight;
+            const pageTop = pageDom.getBoundingClientRect().top;
+            const cardBottom = cardDom.getBoundingClientRect().bottom;
+            if (pageTop + height > cardBottom) {
+                cardDom.scrollTop = pageDom.offsetHeight + cardDom.scrollTop + 16;
+            }
             emit("update:index", index);
         };
 
@@ -451,6 +474,8 @@ export default defineComponent({
 
 .card {
     height: calc(100% - 96px);
+    padding-bottom: 10px;
+    box-sizing: border-box;
     overflow-y: auto;
 
     .folder {

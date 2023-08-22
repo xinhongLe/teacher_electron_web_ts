@@ -28,16 +28,16 @@
             @openShape="openShape"
             @fullScreen="fullScreen"
             @toggleRemark="toggleRemark"
+            :currentSlide="currentSlide"
             @openPaintTool="openPaintTool"
+            @handleMinSize="handleMinSize"
             @openClassDialog="openClassDialog"
             @clockFullScreen="clockFullScreen"
-            @whiteboardOption="whiteboardOption"
-            :isFullScreenStatus="isFullScreenStatus"
-            :currentSlide="currentSlide"
-            @handleMinSize="handleMinSize"
+            :eraserLineWidth="eraserLineWidth"
             :currentDrawColor="currentDrawColor"
             :currentLineWidth="currentLineWidth"
-            :eraserLineWidth="eraserLineWidth"
+            @whiteboardOption="whiteboardOption"
+            :isFullScreenStatus="isFullScreenStatus"
         />
         <!--页发送至 学生端-->
         <select-class-dialog
@@ -65,7 +65,7 @@ import { ref, watchEffect, PropType, onUnmounted, computed, defineComponent } fr
 import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 import { getOssUrl } from "@/utils/oss";
 import { getWindowStruct } from "@/api/home";
-import { store, useStore } from "@/store";
+import { store } from "@/store";
 
 export default defineComponent({
     name: "IntelligenceClassroom",
@@ -130,7 +130,7 @@ export default defineComponent({
 
         const toggleRemark = () => {
             rVisit.value = !rVisit.value;
-            if (store.state.common.resourceIntoType == 1) {
+            if (Number(store.state.common.resourceIntoType) === 1) {
                 store.state.common.currentBeikeResource = rVisit.value;
             } else {
                 store.state.common.currentKebiaoResource = rVisit.value;
@@ -196,19 +196,12 @@ export default defineComponent({
         const currentCouresData = ref();
         // 最小化课件
         const handleMinSize = async () => {
-            // window.electron.hideWindow();
-            // window.electron.ipcRenderer.invoke("timerWinHide", showTime.value);
-            // const url: string = await window.electron.getWindowImg()
             emit("setMinimize", currentCouresData.value);
-
         };
 
         function getWinCardData() {
             const OriginType = (props.resource.isSystem as number) === 1 ? 0 : 1;
-            getWindowStruct({
-                WindowID: props.resource.id,
-                OriginType
-            }).then(async res => {
+            getWindowStruct({ WindowID: props.resource.id, OriginType }).then(async res => {
                 if (res.resultCode !== 200) return;
                 previewMode.value = !res.result.ShowType;
                 currentCouresData.value = res.result;
