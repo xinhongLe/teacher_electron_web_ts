@@ -137,6 +137,7 @@ export default (type: number) => {
 
     // 监听页面布局改变
     const watchLayoutChange = () => {
+
         console.log('监听布局改变', templatePageData.value);
         templatePageData.value.forEach((pageData: any, index: number) => {
             let allContentHeight = 0;

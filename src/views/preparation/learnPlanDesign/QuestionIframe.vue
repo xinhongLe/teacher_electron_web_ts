@@ -38,9 +38,15 @@ export default defineComponent({
             if (e.source === (iframe && iframe.contentWindow)) {
                 console.log('questionData====>40', questionData);
                 questionData?.forEach((item: any) => {
-                    item.Questions.forEach((question: any) => {
-                        selectQuestionList.value.push(question);
-                    })
+                    if (item.Questions) {
+                        item.Questions.forEach((question: any) => {
+                            selectQuestionList.value.push(question);
+                        })
+                    } else {
+                        item.List.forEach((question: any) => {
+                            selectQuestionList.value.push(question);
+                        })
+                    }
                 });
                 emit("selectedQuestion", selectQuestionList.value)
             }
@@ -64,7 +70,7 @@ export default defineComponent({
             const token = get(STORAGE_TYPES.SET_TOKEN);
             // webview地址
             nextTick(() => {
-                url.value = `${VUE_APP_GVC_WEB}/?platformID=${platformID}&orgId=${currentUserInfo.schoolId}&userID=${yunInfo.UserId}&userName=${yunInfo.UserName}&systemID=${yunInfo.SystemId}&token=${token}&#/addItem`;
+                url.value = `${VUE_APP_GVC_WEB}/?platformID=${platformID}&appID=16662462570678105996252073380532&appKey=16662462570678174865564538490630&appSecret=16662462570678182362101982065296&orgId=${currentUserInfo.schoolId}&userID=${yunInfo.UserId}&userName=${yunInfo.UserName}&systemID=${yunInfo.SystemId}&token=${token}&#/addItem`;
                 window.addEventListener("message", selectedQuestion, false);
             })
         })
