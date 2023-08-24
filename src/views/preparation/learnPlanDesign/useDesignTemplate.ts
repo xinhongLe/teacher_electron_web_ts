@@ -89,7 +89,6 @@ export default (type: number) => {
     };
     // 获取edit内容
     const getEditer = (data: any, item: any, page: any) => {
-        console.log('data,page', data, page)
         const contHeight = data.target.parentElement.offsetHeight + 50 + 24;
         item.ConHeight = contHeight + 2;
         // if (type == 1) {
@@ -126,10 +125,14 @@ export default (type: number) => {
         nextTick(() => {
             pageData?.Data.splice(pageData.Data.indexOf(item), 1);
             if (!pageData.Data.length) {
-                templatePageData.value = [{
-                    Level: 1,
-                    Data: []
-                }]
+                if (pageData.Level === 1) {
+                    templatePageData.value = [{
+                        Level: 1,
+                        Data: []
+                    }]
+                } else {
+                    templatePageData.value.splice(index, 1);
+                }
             }
             watchLayoutChange();
         })
@@ -162,7 +165,6 @@ export default (type: number) => {
                 }
                 allContentHeight += item.ConHeight;
             })
-            console.log('allContentHeight', allContentHeight);
             if (allContentHeight + topHeight > basicPageHeight) {
                 const data = pageData.Data.pop();
                 if (!templatePageData.value[index + 1]) {
@@ -177,7 +179,6 @@ export default (type: number) => {
                     templatePageData.value[index + 1].Data?.unshift(data);
 
                 }
-                console.log('templatePageData', templatePageData.value)
                 templatePageData.value.forEach((item: any) => {
                     if (item.Level !== pageData.Level) {
                         setFirseEditerCon(item, pageData.Level)
@@ -262,7 +263,6 @@ export default (type: number) => {
                     }, 50)
                 }
             });
-            console.log('templatePageData', templatePageData.value)
             setTimeout(() => {
                 watchLayoutChange();
                 questionString = "";
