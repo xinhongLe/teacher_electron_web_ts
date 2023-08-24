@@ -29,7 +29,7 @@
                 </div>
             </div>
 
-            <div class="student-list-content" v-show="!isPackUp">在·
+            <div class="student-list-content" v-show="!isPackUp">
                 <div
                     class="student-box"
                     :style="{

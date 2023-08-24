@@ -73,7 +73,8 @@ window.electron = {
     path,
     getFileName: (path: string, fileName: string, i: number) => {
         // const name = (i === 0 ? fileName : fileName.replace(/([^.]+).([^.]+)/gi, `$1(${i}).$2`));
-        const name = (i === 0 ? fileName : fileName.replace(".lyxpkg", `(${i}).lyxpkg`));
+        const result = fileName.replace(/^.*\./, "");
+        const name = (i === 0 ? fileName : fileName.replace(/\.[^.]*$/, `(${i}).${result}`));
         if (window.electron.isExistFile(path + "/" + name)) return window.electron.getFileName(path, fileName, i + 1);
         return name;
     },
