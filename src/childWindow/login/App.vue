@@ -29,6 +29,7 @@
                         @change="handleChange"
                         popper-class="login-select-class"
                         no-data-text="无数据"
+
                     >
                         <el-option
                             v-for="(item, index) in recordAccountList"
@@ -294,7 +295,11 @@ export default defineComponent({
     },
 });
 </script>
-
+<style lang="scss">
+.login-select-class {
+    -webkit-app-region: no-drag;
+}
+</style>
 <style scoped lang="scss">
 .keyboard {
     position: absolute;

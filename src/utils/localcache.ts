@@ -384,7 +384,8 @@ export default class LocalCache {
 
             // 将json文件写入到指定文件夹，将缓存资源文件复制到指定文件夹，并对文件夹压缩后加密，形成离线包
             const cacheData = {
-                windowName: cacheFileName.replace(/(.*\/)*([^.]+).*/gi, "$2"),
+                // windowName: cacheFileName.replace(/(.*\/)*([^.]+).*/gi, "$2"),
+                windowName: cacheFileName.replace(".lyxpkg", ""),
                 windowId: winInfo.WindowID,
                 cards,
                 pages,

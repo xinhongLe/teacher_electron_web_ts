@@ -100,7 +100,7 @@ export default () => {
         }
     }, {deep: true});
     watch(() => store.state.userInfo.currentSelectClass, (val: any) => {
-        if (!val.ClassId) return;
+        if (!val.ClassAixueshiId) return;
         initData()
     }, {deep: true})
 

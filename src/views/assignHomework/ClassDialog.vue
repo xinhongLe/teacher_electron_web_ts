@@ -23,10 +23,10 @@
             <template #footer>
                 <span class="dialog-footer">
                     <el-button size="large" @click="handleClose"
-                        >取消</el-button
+                    >取消</el-button
                     >
                     <el-button size="large" type="primary" @click="handleSave"
-                        >确定</el-button
+                    >确定</el-button
                     >
                 </span>
             </template>
@@ -35,10 +35,11 @@
 </template>
 
 <script lang="ts">
-import { ElTreeType } from "@/types/elementType";
-import { defineComponent, ref } from "vue";
-import { useRoute } from "vue-router";
-import { fetchGradeClassStudents } from "./api";
+import {ElTreeType} from "@/types/elementType";
+import {defineComponent, ref} from "vue";
+import {useRoute} from "vue-router";
+import {fetchGradeClassStudents} from "./api";
+
 export default defineComponent({
     props: {
         dialogVisible: {
@@ -46,12 +47,12 @@ export default defineComponent({
             default: false,
         },
     },
-    setup(porps, { emit }) {
+    setup(porps, {emit}) {
         const visible = ref(true);
         const route = useRoute();
         const classTreeList = ref<unknown>([]);
         const treeRef = ref<ElTreeType>();
-        const treeProps = { label: "ClassName", children: "classData" };
+        const treeProps = {label: "ClassName", children: "classData"};
         let currentGradeId = "";
         let lastCheckKeys: unknown[] = [];
         const handleClose = () => {
@@ -95,8 +96,6 @@ export default defineComponent({
         fetchGradeClassStudents({
             subjectID: route.params.subjectId as string,
         }).then((res) => {
-            console.log("分层标签", res);
-
             if (res.resultCode === 200) {
                 classTreeList.value = res.result.map((item) => {
                     const classData = item.ClassData.map((j) => {
@@ -141,6 +140,7 @@ export default defineComponent({
 .class-tree {
     height: 400px;
     overflow-y: auto;
+
     :deep(.el-tree) {
         > div {
             > div {
@@ -150,9 +150,11 @@ export default defineComponent({
                 }
             }
         }
+
         .el-icon-caret-right:before {
             content: "";
         }
+
         .el-tree-node.is-expanded > .el-tree-node__children {
             display: flex !important;
             flex-wrap: wrap;

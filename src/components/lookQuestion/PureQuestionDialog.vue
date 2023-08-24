@@ -115,7 +115,7 @@ export default defineComponent({
     }
 
     :deep(.el-dialog) {
-        --el-dialog-width: 90%;
+        --el-dialog-width: 100%;
         margin: 0 auto;
         top: 50%;
         transform: translateY(-50%);

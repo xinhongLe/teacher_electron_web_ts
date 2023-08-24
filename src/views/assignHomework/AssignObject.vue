@@ -22,7 +22,7 @@
     </div>
     <!--    <SelectAttendClass v-model:classVisible="dialogVisible" v-model:currentClassList="classList" v-if="dialogVisible">-->
     <!--    </SelectAttendClass>-->
-</template>
+</template>3
 
 <script lang="ts">
 import {ClassData} from "@/types/assignHomework";
@@ -30,9 +30,14 @@ import {ElMessage, ElMessageBox} from "element-plus";
 import {defineComponent, ref, watch} from "vue";
 import ClassDialog from "./ClassDialog.vue";
 import SelectAttendClass from "@/components/navBar/selectAttendClass.vue";
+import {store} from "@/store";
+import {fetchGradeClassStudents} from "@/views/assignHomework/api";
+import {useRoute} from "vue-router";
 
 export default defineComponent({
     setup(props, {emit}) {
+        const globalSelectClass: any = store.state.userInfo.currentSelectClass;
+        const route = useRoute();
         const classList = ref<ClassData[]>([]);
         const dialogVisible = ref(false);
 
@@ -70,6 +75,41 @@ export default defineComponent({
             },
             {deep: true}
         );
+        const classTreeList = ref<any>([]);
+        // fetchGradeClassStudents({
+        //     subjectID: route.params.subjectId as string,
+        // }).then((res) => {
+        //     if (res.resultCode === 200) {
+        //         classTreeList.value = res.result
+        //         //     .map((item) => {
+        //         //     const classData = item.ClassData.map((j) => {
+        //         //         j.Students = j.Students.map((items) => {
+        //         //             return {
+        //         //                 ...items,
+        //         //                 TagName: items.TagName
+        //         //                     ? items.TagName
+        //         //                     : "未标记",
+        //         //             };
+        //         //         });
+        //         //         return {
+        //         //             ...j,
+        //         //             GradeId: item.GradeId,
+        //         //             GradeName: item.GradeName,
+        //         //         };
+        //         //     });
+        //         //     return {
+        //         //         classData,
+        //         //         ...item,
+        //         //         ClassName: item.GradeName,
+        //         //         ClassId: item.GradeId,
+        //         //     };
+        //         // });
+        //     }
+        // });
+        // watch(() => classTreeList.value, (val) => {
+        //     console.log('globalSelectClass', globalSelectClass)
+        //     console.log('classTreeList', val)
+        // }, {deep: true})
 
         return {
             classList,

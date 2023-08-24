@@ -46,6 +46,14 @@
                         @click="setRulersTool(OPTION_TYPE.COMPASS)"
                     />
                 </el-tooltip>
+                <el-tooltip :hide-after="0" :show-after="0.5" placement="top" content="直角三角形">
+                    <img src="../../images/slices/pic_triangle1.png" alt="" height="40"
+                         @click="setRulersTool(OPTION_TYPE.RIGHTTRIANGLE)"/>
+                </el-tooltip>
+                <el-tooltip :hide-after="0" :show-after="0.5" placement="top" content="等腰直角三角形">
+                    <img src="../../images/slices/pic_triangle2.png" alt="" width="40"
+                         @click="setRulersTool(OPTION_TYPE.ISOSCELESTRIANGLE)"/>
+                </el-tooltip>
             </div>
         </div>
     </div>

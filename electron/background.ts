@@ -36,7 +36,7 @@ const editWinList = new Map<number, any>();
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 initialize();
-
+ 
 protocol.registerSchemesAsPrivileged([
     {scheme: "app", privileges: {secure: true, standard: true}},
     {
@@ -54,7 +54,7 @@ let isCreateWindow = false;
 let singalr: SingalRHelper | null;
 let mainWindow: BrowserWindow | null;
 let loginWindow: BrowserWindow | null;
- 
+
 if (!process.env.WEBPACK_DEV_SERVER_URL) {
     const menu = Menu.buildFromTemplate([]);
     Menu.setApplicationMenu(menu);
