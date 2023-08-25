@@ -323,7 +323,7 @@ const onReady = () => {
         mainWindow!.webContents.send("closeCourse");
     });
 
-    ipcMain.on('setCourseMaximize', (v) => {
+    ipcMain.on("setCourseMaximize", (v) => {
         mainWindow!.show();
         mainWindow!.webContents.send('setCourseMaximize', v)
     })

@@ -124,6 +124,8 @@ function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     }
     const winPosition = suspensionWin.getPosition();
     const winSize = suspensionWin.getSize();
+    suspensionWin.setContentSize(width, height);
+
     if (isResetPosition) {
         suspensionWin.setPosition(
             winPosition[0] + (winSize[0] - width),
@@ -133,7 +135,6 @@ function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     if (isCloseWelt) {
         suspensionWin.setPosition(winPosition[0] - width, winPosition[1]);
     }
-    suspensionWin.setContentSize(width, height);
 }
 
 function checkIsWelt() {
@@ -947,8 +948,7 @@ export function registerEvent() {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("QUICKTIMEHIDE", time));
         } else {
-            suspensionWin &&
-            suspensionWin.webContents.send("timerWinHide", time);
+            suspensionWin && suspensionWin.webContents.send("timerWinHide", time);
         }
     });
 
@@ -960,11 +960,20 @@ export function registerEvent() {
         currentCourseData = data;
         setSuspensionSize();
         if (socketHelper) {
-            console.error(data);
             socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `${path.resolve(data.url)},${data.name}`));
         } else {
             suspensionWin && suspensionWin.webContents.send("courseWinHide", data);
         }
+    });
+
+    // 关闭球球工具重置尺寸
+    ipcMain.handle("closeBallTool", (_, type: "COURSE_CLOSE") => {
+        switch (type) {
+            case "COURSE_CLOSE":
+                isShowCourse = false;
+                break;
+        }
+        setSuspensionSize();
     });
 
 
