@@ -14,11 +14,6 @@
             <span>{{ time }}</span>
             <i class="icon-close" ref="iconCloseRef"></i>
         </div>
-        <!--        <el-tooltip-->
-        <!--            effect="light"-->
-        <!--            :content="courseData?.name || ''"-->
-        <!--            placement="top"-->
-        <!--        >-->
         <div
             v-show="isShowCourse && !isShowWelt"
             :style="
@@ -30,10 +25,9 @@
             class="icon course"
             ref="courseRef"
         >
-            <img :src="'file:///'+courseData?.url" alt="">
-            <i class="icon-close" ref="iconCourseCloseRef"></i>
+            <img :src="'file:///' + courseData?.url" alt="">
+            <i class="icon-close" @mousedown.stop="mouseDown" ref="iconCourseCloseRef"></i>
         </div>
-        <!--        </el-tooltip>-->
         <div
             class="video icon"
             v-show="isShowVideo && !isShowWelt"
@@ -195,11 +189,11 @@ export default defineComponent({
                         ) {
                             window.electron.ipcRenderer.invoke("closeQuestion");
                         } else if (event.target === courseRef.value) {
+                            isShowCourse.value = false
                             window.electron.ipcRenderer.invoke("setCourseMaximize", JSON.stringify(courseData.value));
-                            isShowCourse.value = false
                         } else if (event.target === iconCourseCloseRef.value) {
-                            window.electron.ipcRenderer.invoke("closeCourse");
                             isShowCourse.value = false
+                            window.electron.ipcRenderer.invoke("closeCourse");
                         } else {
                             window.electron.ipcRenderer.invoke(
                                 "openUnfoldSuspension"
@@ -270,8 +264,7 @@ export default defineComponent({
                     }
                 );
                 window.electron.ipcRenderer.on("courseWinHide", (_, data) => {
-                    courseData.value = JSON.parse(data)
-                    console.log('courseData.value', courseData.value)
+                    courseData.value = data;
                     isShowCourse.value = true;
                 });
             }
