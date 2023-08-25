@@ -43,28 +43,28 @@
         <!--            </div>-->
         <!--        </div>-->
 
-        <SelectAttendClass
-            v-model:classVisible="chooseFlag"
-            v-model:currentClassList="currentClassList"
-            v-if="chooseFlag"
-            @close="close"
-            @confirm="submit"
-        >
-        </SelectAttendClass>
-        <StudentList :studentList="checkStudentList" v-else />
+        <!--        <SelectAttendClass-->
+        <!--            v-model:classVisible="chooseFlag"-->
+        <!--            v-model:currentClassList="currentClassList"-->
+        <!--            v-if="chooseFlag"-->
+        <!--            @close="close"-->
+        <!--            @confirm="submit"-->
+        <!--        >-->
+        <!--        </SelectAttendClass>-->
+        <StudentList :studentList="checkStudentList"/>
     </div>
 </template>
 
 <script lang="ts">
-import { Student } from "@/types/labelManage";
-import { IYunInfo, LessonClasses } from "@/types/login";
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import { ElMessage } from "element-plus";
-import { defineComponent, reactive, ref, toRefs } from "vue";
+import {Student} from "@/types/labelManage";
+import {IYunInfo, LessonClasses} from "@/types/login";
+import {get, STORAGE_TYPES} from "@/utils/storage";
+import {ElMessage} from "element-plus";
+import {defineComponent, reactive, ref, toRefs} from "vue";
 import StudentList from "./studentList.vue";
-import { getTeacherClassList } from "@/api/login";
-import { UserInfoState } from "@/types/store";
-import { IClassItem, IGradeItem } from "@/types/quickAnswer";
+import {getTeacherClassList} from "@/api/login";
+import {UserInfoState} from "@/types/store";
+import {IClassItem, IGradeItem} from "@/types/quickAnswer";
 import SelectAttendClass from "@/components/navBar/selectAttendClass.vue";
 
 interface State {
@@ -91,6 +91,7 @@ export default defineComponent({
         const currentUserInfo: UserInfoState = get(
             STORAGE_TYPES.CURRENT_USER_INFO
         );
+
 
         // const map = new Map();
         // const classList = userInfo?.Classes as LessonClasses[];
@@ -144,6 +145,10 @@ export default defineComponent({
             lastCheckGradeId: "",
             currentClassList: get(STORAGE_TYPES.CURRENT_SELECT_CLASS) || {},
         });
+        const currentGlobalClass = get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId || "";
+        state.checkStudentList = state.allStudentList.filter(
+            (student) => currentGlobalClass === student.ClassID
+        );
         const submit = (value: string) => {
             // const data = treeRef.value!.getCheckedNodes(true, false);
             // if (data.length === 0) {
@@ -285,7 +290,7 @@ export default defineComponent({
             currentUserInfo,
         };
     },
-    components: { StudentList, SelectAttendClass },
+    components: {StudentList, SelectAttendClass},
 });
 </script>
 

@@ -11,27 +11,18 @@
                 }}
             </div> -->
             <el-form ref="formRef" :model="form" :rules="rules">
-                <div class="select-warp">
-                    <span class="label p_b_20">请选择班级：</span>
-                    <el-form-item label="" prop="selectClass">
-                        <!--                        <el-select popper-class="answer-select" v-model="form.selectClass"-->
-                        <!--                                   @change="_getAnswerMachineQuestionList">-->
-                        <!--                            <el-option-->
-                        <!--                                v-for="item in classList"-->
-                        <!--                                :key="item.ClassUserCenterId"-->
-                        <!--                                :label="item.ClassName"-->
-                        <!--                                :value="item.ClassUserCenterId"-->
-                        <!--                            />-->
-                        <!--                        </el-select>-->
-                        <el-radio-group v-model="form.selectClass" @change="_getAnswerMachineQuestionList">
-                            <el-radio v-for="(item, i) in classList" :key="i"
-                                      :label="item.ClassUserCenterId" size="large">{{ item.ClassName }}
-                            </el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                    <span class="view-btn" v-show="answerMode === AnswerMode.AnswerMachine"
-                          @click="isShowStudentList = true">查看</span>
-                </div>
+                <!--                <div class="select-warp">-->
+                <!--                    <span class="label p_b_20">请选择班级：</span>-->
+                <!--                    <el-form-item label="" prop="selectClass">-->
+                <!--                        <el-radio-group v-model="form.selectClass" @change="_getAnswerMachineQuestionList">-->
+                <!--                            <el-radio v-for="(item, i) in classList" :key="i"-->
+                <!--                                      :label="item.ClassUserCenterId" size="large">{{ item.ClassName }}-->
+                <!--                            </el-radio>-->
+                <!--                        </el-radio-group>-->
+                <!--                    </el-form-item>-->
+                <!--                    <span class="view-btn" v-show="answerMode === AnswerMode.AnswerMachine"-->
+                <!--                          @click="isShowStudentList = true">查看</span>-->
+                <!--                </div>-->
                 <div v-for="(item, i) in form.topicList" :key="i">
                     <div class="row">
                         <div class="select-warp m_b_22">
@@ -342,11 +333,13 @@ export default defineComponent({
             };
             state.classList = get(STORAGE_TYPES.CLASS_LIST);
             const currentClass = get(STORAGE_TYPES.CURRENT_SELECT_CLASS).ClassUserCenterId;
-            const classData = await GetLastSelectedClassIdByTeacherID({ID: data.TeacherId})
-            state.form.selectClass = currentClass;
-            if (classData.resultCode === 200) {
-                state.form.selectClass = classData.result || currentClass;
-            }
+            console.log('currentClass ', currentClass)
+            // const classData = await GetLastSelectedClassIdByTeacherID({ID: data.TeacherId})
+            // state.form.selectClass = currentClass;
+            // if (classData.resultCode === 200) {
+            //     state.form.selectClass = classData.result || currentClass;
+            // }
+            state.form.selectClass = currentClass || "";
             _getAnswerMachineQuestionList(); // 不传ClassID 获取上次的草稿记录
 
         };

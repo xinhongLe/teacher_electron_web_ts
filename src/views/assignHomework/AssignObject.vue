@@ -2,10 +2,10 @@
     <div class="container">
         <p class="title-class">布置对象</p>
         <div class="class-wrapper">
-            <el-button size="large" plain @click="openDialog">{{
-                    classList.length > 0 ? "重选" : "选择"
-                }}
-            </el-button>
+            <!--            <el-button size="large" plain @click="openDialog">{{-->
+            <!--                    classList.length > 0 ? "重选" : "选择"-->
+            <!--                }}-->
+            <!--            </el-button>-->
             <div class="class-content">
                 <p v-for="(item, index) in classList" :key="index">
                     {{ item.ClassName }}
@@ -89,7 +89,29 @@ export default defineComponent({
             subjectID: route.params.subjectId as string,
         }).then((res) => {
             if (res.resultCode === 200) {
-                classTreeList.value = res.result
+                classTreeList.value = res.result.map((item) => {
+                    const classData = item.ClassData.map((j) => {
+                        j.Students = j.Students.map((items) => {
+                            return {
+                                ...items,
+                                TagName: items.TagName
+                                    ? items.TagName
+                                    : "未标记",
+                            };
+                        });
+                        return {
+                            ...j,
+                            GradeId: item.GradeId,
+                            GradeName: item.GradeName,
+                        };
+                    });
+                    return {
+                        classData,
+                        ...item,
+                        ClassName: item.GradeName,
+                        ClassId: item.GradeId,
+                    };
+                });
             }
         });
         const setDefaultClass = (val: any) => {

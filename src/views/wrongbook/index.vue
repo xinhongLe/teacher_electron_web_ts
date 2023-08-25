@@ -1,55 +1,55 @@
 <template>
     <div class="wrongbook-wrapper" v-show="state.isShowContent == 1">
         <header class="wrongbook-header">
-            <div class="header-left-con" style="max-width: 30%">
-                <div
-                    style="padding-right: 10px; cursor: pointer"
-                    @click="fnPrev()"
-                    v-if="isShowIcon"
-                >
-                    <img
-                        src="~@/assets/images/wrongbook/icon_left.png"
-                        alt=""
-                    />
-                </div>
-                <div class="fixedBox" ref="fixedBoxRef">
-                    <div
-                        v-if="fourClassList.length"
-                        class="header-left"
-                        :style="
-                            classList.length > 4
-                                ? `width${
-                                      signleWidth * fourClassList.length
-                                  }px;transform:translate(${scrollResultWidth}px,0);transition:1s;`
-                                : ''
-                        "
-                    >
-                        <el-button
-                            @click="switchClass(item)"
-                            :key="item.ClassAixueshiId"
-                            :class="
-                                item.ClassAixueshiId == state.currentClassId
-                                    ? 'isActive'
-                                    : ''
-                            "
-                            v-for="item in fourClassList"
-                        >{{ item.ClassName }}
-                        </el-button
-                        >
-                    </div>
-                </div>
-                <div
-                    style="padding-left: 10px; cursor: pointer"
-                    @click="fnNext()"
-                    v-if="isShowIcon"
-                >
-                    <!-- v-if="isShowIcon && noScrollRight"  -->
-                    <img
-                        src="~@/assets/images/wrongbook/icon_right_qiehuan.png"
-                        alt=""
-                    />
-                </div>
-            </div>
+<!--            <div class="header-left-con" style="max-width: 30%">-->
+<!--                <div-->
+<!--                    style="padding-right: 10px; cursor: pointer"-->
+<!--                    @click="fnPrev()"-->
+<!--                    v-if="isShowIcon"-->
+<!--                >-->
+<!--                    <img-->
+<!--                        src="~@/assets/images/wrongbook/icon_left.png"-->
+<!--                        alt=""-->
+<!--                    />-->
+<!--                </div>-->
+<!--                <div class="fixedBox" ref="fixedBoxRef">-->
+<!--                    <div-->
+<!--                        v-if="fourClassList.length"-->
+<!--                        class="header-left"-->
+<!--                        :style="-->
+<!--                            classList.length > 4-->
+<!--                                ? `width${-->
+<!--                                      signleWidth * fourClassList.length-->
+<!--                                  }px;transform:translate(${scrollResultWidth}px,0);transition:1s;`-->
+<!--                                : ''-->
+<!--                        "-->
+<!--                    >-->
+<!--                        <el-button-->
+<!--                            @click="switchClass(item)"-->
+<!--                            :key="item.ClassAixueshiId"-->
+<!--                            :class="-->
+<!--                                item.ClassAixueshiId == state.currentClassId-->
+<!--                                    ? 'isActive'-->
+<!--                                    : ''-->
+<!--                            "-->
+<!--                            v-for="item in fourClassList"-->
+<!--                        >{{ item.ClassName }}-->
+<!--                        </el-button-->
+<!--                        >-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div-->
+<!--                    style="padding-left: 10px; cursor: pointer"-->
+<!--                    @click="fnNext()"-->
+<!--                    v-if="isShowIcon"-->
+<!--                >-->
+<!--                    &lt;!&ndash; v-if="isShowIcon && noScrollRight"  &ndash;&gt;-->
+<!--                    <img-->
+<!--                        src="~@/assets/images/wrongbook/icon_right_qiehuan.png"-->
+<!--                        alt=""-->
+<!--                    />-->
+<!--                </div>-->
+<!--            </div>-->
 
             <div class="header-right">
                 <!-- 题型 -->

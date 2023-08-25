@@ -1,10 +1,10 @@
 <template>
     <div class="composition" style="height: 100%;">
         <div class="upper align-center">
-            <el-select v-model="classId" @change="classChange" placeholder="请选择班级">
-                <el-option v-for="item in classList" :key="item.Id" :label="item.Name" :value="item.Id">
-                </el-option>
-            </el-select>
+            <!--            <el-select v-model="classId" @change="classChange" placeholder="请选择班级">-->
+            <!--                <el-option v-for="item in classList" :key="item.Id" :label="item.Name" :value="item.Id">-->
+            <!--                </el-option>-->
+            <!--            </el-select>-->
             <div class="align-center">
                 <el-button @click="refresh">
                     刷新
