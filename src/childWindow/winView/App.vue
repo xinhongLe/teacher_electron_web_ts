@@ -1,84 +1,89 @@
 <template>
     <div class="intelligence">
         <NavBar :resourceName="WindowName"/>
-        <div class="right">
-            <div class="right-bottom">
-                <div class="card-box-left" :class="{
-                    hidden: isFullScreen && !isShowCardList,
-                }">
-                    <div class="card-box-lefts">
-                        <CardList ref="cardListComponents" :winActiveId="winActiveId" :WindowName="WindowName"
-                                  :cardList="cardList" @updatePageList="updatePageList" @updateFlag="updateFlag"/>
-                    </div>
-                    <div class="card-box-outbottom" v-show="!isFullScreen || isShowCardList"></div>
-
-                    <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
-                        <i :class="
-                            isShowCardList
-                                ? 'el-icon-arrow-left'
-                                : 'el-icon-arrow-right'
-                        "></i>
-                    </div>
-                </div>
-                <div class="card-detail">
-                    <div class="card-detail-content">
-                        <PreviewSection ref="previewSectionRef" :options="previewOptions" :winActiveId="winActiveId"
-                                        :WindowName="WindowName" :winList="cardList" :isPreview="true"
-                                        :isShowCardList="isShowCardList"
-                                        :isFullScreen="isFullScreen" @lastPage="lastPage" @firstPage="firstPage"
-                                        @changeWinSize="changeWinSize" @fullScreen="fullScreen"
-                                        @clockFullScreen="clockFullScreen"
-                                        v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo"
-                                        v-model:currentDrawColor="currentDrawColor"
-                                        v-model:currentLineWidth="currentLineWidth"/>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <Tools :cardClass="'intelligence'" :id="winActiveId" :dialog="false" :showClose="true"
-               :showRemark="previewSectionRef?.showRemark" @toggleRemark="toggleRemark" @prevStep="prevStep"
-               @nextStep="nextStep" @fullScreen="fullScreen" @clockFullScreen="clockFullScreen"
-               @showWriteBoard="showWriteBoard" @openShape="openShape" @hideWriteBoard="hideWriteBoard"
-               @closeWinCard="closeWinCard"
-               :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" :isFullScreenStatus="true" @openPaintTool="openPaintTool"
-               :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth"
-               @whiteboardOption="whiteboardOption"
-               @redo="redo" @undo="undo"/>
+        <win-preview
+            style="height: calc(100% - 48px)"
+            :pages="pages"
+            ref="previewRef"
+            :cards="cardList"
+            :resource="appjson"
+            v-model:index="index"
+            v-model:r-visit="rVisit"
+            v-model:l-visit="lVisit"
+            v-model:mode="previewMode"
+            v-model:isCanUndo="isCanUndo"
+            v-model:isCanRedo="isCanRedo"
+            v-model:eraserLineWidth="eraserLineWidth"
+            v-model:currentDrawColor="currentDrawColor"
+            v-model:currentLineWidth="currentLineWidth"
+        />
+        <Tools
+            :isOutLine="true"
+            @redo="redo"
+            @undo="undo"
+            :dialog="false"
+            :id="appjson.windowId"
+            :showRemark="rVisit"
+            @prevStep="prevStep"
+            @nextStep="nextStep"
+            :isCanUndo="isCanUndo"
+            :isCanRedo="isCanRedo"
+            @openShape="openShape"
+            @fullScreen="fullScreen"
+            @toggleRemark="toggleRemark"
+            :currentSlide="currentSlide"
+            @openPaintTool="openPaintTool"
+            @handleMinSize="useMinimizeWindow"
+            @clockFullScreen="clockFullScreen"
+            :eraserLineWidth="eraserLineWidth"
+            :currentDrawColor="currentDrawColor"
+            :currentLineWidth="currentLineWidth"
+            @whiteboardOption="whiteboardOption"
+            :isFullScreenStatus="false"
+            @closeWinCard="closeWinCard"
+        />
     </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, nextTick, onMounted, provide, ref} from "vue";
-import CardList from "./CardList.vue";
-import PreviewSection from "./previewSection.vue";
+import {computed, defineComponent, nextTick, onMounted, provide, ref} from "vue";
 import NavBar from "./NavBar.vue";
 import Tools from "@/views/preparation/intelligenceClassroom/components/preview/tools.vue";
 import {set, STORAGE_TYPES} from "@/utils/storage";
-import useWindowInfo, {windowInfoKey} from "@/hooks/useWindowInfo";
+import WinPreview from "@/views/preparation/intelligenceClassroom/preview/index.vue";
+import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
+import {getOssUrl} from "@/utils/oss";
+import {Slide} from "wincard";
+import {dealAnimationData} from "@/utils/dataParse";
+import useHome from "@/hooks/useHome";
+import useMinimizeWindow from "@/hooks/useMinimizeWindow";
+import {store} from "@/store";
 
 export default defineComponent({
     components: {
-        CardList,
-        PreviewSection,
+        WinPreview,
         NavBar,
         Tools,
     },
     setup() {
+        const {transformPageDetail} = useHome();
+        const index = ref(0);
+        const lVisit = ref(true);
+        const rVisit = ref(false);
+        const previewRef = ref();
+        const previewMode = ref(true);
         const isCanUndo = ref(false);
         const isCanRedo = ref(false);
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+        const eraserLineWidth = ref(30);
         // 默认开启缓存
         set(STORAGE_TYPES.SET_ISCACHE, true);
         const isFullScreen = ref(false);
-        const isShowCardList = ref(true);
         const cardListComponents = ref();
         const winActiveId = ref("");
         const WindowName = ref("");
-        const previewOptions = ref({});
-        provide("isShowCardList", isShowCardList);
-        const windowInfo = useWindowInfo(false);
-        console.log('windowInfo', windowInfo)
-        provide(windowInfoKey, windowInfo);
-        const {cardList} = windowInfo;
+        const cardList = ref<CardProps[]>([]);
         const appjson = ref<{
             cards?: any;
             pages?: any;
@@ -87,12 +92,15 @@ export default defineComponent({
             windowName?: string;
         }>({});
         provide("appjson", appjson);
-        const updatePageList = (card: any) => {
-            previewOptions.value = card;
-        };
+        const pages = computed(() => {
+            let allPages: PageProps[] = [];
+            cardList.value.forEach((item: any) => {
+                allPages = allPages.concat(...item.PageList);
+            });
+            return allPages;
+        });
 
-        const changeWinSize = () => {
-        };
+        const currentSlide = computed(() => pages.value.filter(item => item.State)[index.value]?.Json);
 
         const lastPage = () => {
             cardListComponents.value.changeReducePage();
@@ -106,39 +114,73 @@ export default defineComponent({
         };
 
         const fullScreen = () => {
-            isFullScreen.value = true;
-            isShowCardList.value = false;
-            previewSectionRef.value && previewSectionRef.value.fullScreen();
+            lVisit.value = false;
+            rVisit.value = false;
         };
         const clockFullScreen = () => {
-            isFullScreen.value = false;
-            isShowCardList.value = true;
-            previewSectionRef.value &&
-            previewSectionRef.value.clockFullScreen();
+            lVisit.value = true;
+            rVisit.value = false;
         };
 
         const toggleRemark = () => {
-            previewSectionRef.value && previewSectionRef.value.toggleRemark();
+            rVisit.value = !rVisit.value;
+            if (Number(store.state.common.resourceIntoType) === 1) {
+                store.state.common.currentBeikeResource = rVisit.value;
+            } else {
+                store.state.common.currentKebiaoResource = rVisit.value;
+            }
         };
 
         const prevStep = () => {
-            previewSectionRef.value && previewSectionRef.value.prevStep();
+            previewRef.value.previewHandle({
+                type: 7
+            });
         };
 
         const nextStep = () => {
-            previewSectionRef.value && previewSectionRef.value.nextStep();
+            previewRef.value.previewHandle({
+                type: 6
+            });
         };
 
-        const showWriteBoard = () => {
-            previewSectionRef.value && previewSectionRef.value.showWriteBoard();
-        };
-
+        // 工具栏-形状
         const openShape = (event: MouseEvent) => {
-            previewSectionRef.value && previewSectionRef.value.openShape(event);
+            previewRef.value.previewHandle({
+                type: 1,
+                e: event
+            });
         };
 
-        const hideWriteBoard = () => {
-            previewSectionRef.value && previewSectionRef.value.hideWriteBoard();
+        // 工具栏-画笔
+        const openPaintTool = (event: MouseEvent, type: string) => {
+            previewRef.value.previewHandle({
+                type: 2,
+                e: event,
+                option: type
+            });
+        };
+
+        // 工具栏 画笔配置
+        const whiteboardOption = (option: string, value?: number) => {
+            previewRef.value.previewHandle({
+                type: 3,
+                option,
+                value
+            });
+        };
+
+        // 退回
+        const redo = () => {
+            previewRef.value.previewHandle({
+                type: 4
+            });
+        };
+
+        // 撤回
+        const undo = () => {
+            previewRef.value.previewHandle({
+                type: 5
+            });
         };
 
         onMounted(async () => {
@@ -156,61 +198,61 @@ export default defineComponent({
                         (p: any) => p.State
                     );
                 });
-
-                cardList.value = appjson.value.cards;
                 document.title = WindowName.value;
-                await nextTick(() => {
-                    cardListComponents.value.handleClick(0, cardList.value[0]);
-                });
+                // cardList.value
+                const cards = appjson.value.cards;
+                let index = 1;
+                for (let i = 0; i < cards.length; i++) {
+                    const item = cards[i];
+                    item.Fold = true;
+
+                    for (let j = 0; j < item.PageList.length; j++) {
+                        const page = item.PageList[j];
+                        const json = JSON.parse(page.Json || "{}");
+                        let url = page.Url || "";
+                        if (!url && (page.Type === 20 || page.Type === 16)) {
+                            const file = json?.ToolFileModel?.File;
+                            const key = `${file?.FilePath}/${file?.FileMD5}.${file?.FileExtention || file?.Extention}`;
+                            url = json?.ToolFileModel ? await getOssUrl(key, "axsfile") : "";
+                        }
+                        const slide: Slide = await transformPageDetail({ID: page.ID, Type: page.Type}, json);
+                        page.Url = url;
+
+                        page.Json = dealAnimationData(slide);
+                        if (page.State) {
+                            page.Index = index;
+                            index++;
+                        }
+                    }
+                }
+                cardList.value = cards;
+                console.log('cardList', cardList.value)
+                // await nextTick(() => {
+                //     cardListComponents.value.handleClick(0, cardList.value[0]);
+                // });
             }
         });
 
         const closeWinCard = () => {
             window.electron.remote.getCurrentWindow().close();
         };
-        //工具栏-画笔
-        const openPaintTool = (event: MouseEvent, type: string) => {
-            // console.log("previewSection.value", event, type);
-            previewSectionRef.value &&
-            previewSectionRef.value.openPaintTool(event, type);
-        };
-        const currentDrawColor = ref("#f60000");
-        const currentLineWidth = ref(2);
 
-        // 工具栏 画笔配置
-        const whiteboardOption = (option: string, value?: number) => {
-            previewSectionRef.value && previewSectionRef.value.whiteboardOption(option, value);
-        };
-        // 退回
-        const redo = () => {
-            previewSectionRef.value && previewSectionRef.value.redo();
-        };
-        // 撤回
-        const undo = () => {
-            previewSectionRef.value && previewSectionRef.value.undo();
-        };
 
         return {
             lastPage,
             firstPage,
             previewSectionRef,
             updateFlag,
-            updatePageList,
-            changeWinSize,
             isFullScreen,
             fullScreen,
-            isShowCardList,
             clockFullScreen,
             toggleRemark,
             closeWinCard,
             prevStep,
             nextStep,
-            showWriteBoard,
             openShape,
-            hideWriteBoard,
             cardListComponents,
             cardList,
-            previewOptions,
             winActiveId,
             WindowName,
             isCanUndo,
@@ -218,9 +260,19 @@ export default defineComponent({
             openPaintTool,
             currentDrawColor,
             currentLineWidth,
+            eraserLineWidth,
             whiteboardOption,
             redo,
-            undo
+            undo,
+            appjson,
+            pages,
+            currentSlide,
+            index,
+            lVisit,
+            rVisit,
+            previewMode,
+            previewRef,
+            useMinimizeWindow
         };
     },
 });

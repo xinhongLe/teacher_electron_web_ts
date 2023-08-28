@@ -102,6 +102,7 @@
 
 <script lang="ts">
 import {defineComponent, onMounted, ref} from "vue";
+import {Setting} from "@element-plus/icons-vue";
 
 export default defineComponent({
     name: "shape-pool",
@@ -118,6 +119,7 @@ export default defineComponent({
         "update:isShowPen",
         "setEraserSize"
     ],
+    components: {Setting},
     props: {
         penLeft: {
             type: Number,
