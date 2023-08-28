@@ -326,6 +326,10 @@ export default defineComponent({
         },
         currentSlide: {
             type: Object
+        },
+        isOutLine: {
+            type: Boolean,
+            default: false
         }
     },
     emits: [
@@ -576,12 +580,15 @@ export default defineComponent({
         getLocalNextType();
 
         const closeWinCard = () => {
-            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
-                id: props.id,
-                openMore: true
-            });
-            window.electron.ipcRenderer.invoke("closeCourse");
-            emit("closeWinCard");
+            if (props.isOutLine) {
+                emit("closeWinCard");
+            } else {
+                store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
+                    id: props.id,
+                    openMore: true
+                });
+                window.electron.ipcRenderer.invoke("closeCourse");
+            }
         };
         // 更多设置时 改变固定定位位置
         const moreSet = (e: any) => {

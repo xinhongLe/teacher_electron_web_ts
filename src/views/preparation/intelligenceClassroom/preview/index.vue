@@ -54,6 +54,7 @@
         </div>
         <div class="center" :style="{width:centerW}">
             <screen-view
+                v-if="currentSlide"
                 :inline="true"
                 ref="screenRef"
                 :isInit="isInit"
@@ -186,13 +187,15 @@ export default defineComponent({
         });
         const currentSlide = computed(() => {
             const page = props.pages?.filter(item => item.State)[props.index];
+            if (!page) return null;
+            page.Json = typeof page.Json === "string" ? JSON.parse(page.Json) : page.Json;
             const json = page ? page.Json : {};
-            json.design = page.DesignIntent;
-            json.remark = page.Remark || page.AcademicPresupposition;
+            json.design = page?.DesignIntent;
+            json.remark = page?.Remark || page?.AcademicPresupposition;
             return json;
         });
         watch(() => currentSlide.value, (val, oldVal) => {
-            const elements = screenRef.value.whiteboard.getElements();
+            const elements = screenRef.value?.whiteboard.getElements();
             oldVal && canvasDataMap.set(oldVal.id, elements);
         }, {deep: true});
 
@@ -597,6 +600,6 @@ export default defineComponent({
 }
 
 ::v-deep(.slide-list) {
-    background-color: #F6F7F8;
+    background-color: #F6F7F8 !important;
 }
 </style>
