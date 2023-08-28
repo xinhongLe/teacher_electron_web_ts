@@ -49,11 +49,12 @@
                 </div>
             </div>
             <div class="pagination">
-                当前页{{ index }}/{{ pages.length }}
+                当前页{{ index + 1 }}/{{ pages.length }}
             </div>
         </div>
         <div class="center" :style="{width:centerW}">
             <screen-view
+                v-if="currentSlide"
                 :inline="true"
                 ref="screenRef"
                 :isInit="isInit"
@@ -85,20 +86,20 @@
 </template>
 
 <script lang=ts>
-import {store} from "@/store";
-import {cloneDeep} from "lodash";
-import {pageType} from "@/config";
-import {ElMessage} from "element-plus";
-import {IViewResourceData} from "@/types/store";
+import { store } from "@/store";
+import { cloneDeep } from "lodash";
+import { pageType } from "@/config";
+import { ElMessage } from "element-plus";
+import { IViewResourceData } from "@/types/store";
 import Remark from "../components/preview/remark.vue";
 import OpenCardViewDialog from "../components/edit/openCardViewDialog.vue";
-import {computed, defineComponent, onMounted, PropType, ref, watch} from "vue";
-import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
-import {setShowModel} from "@/api/home";
+import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import { setShowModel } from "@/api/home";
 
 export default defineComponent({
     name: "WinPreview",
-    components: {OpenCardViewDialog, Remark},
+    components: { OpenCardViewDialog, Remark },
     props: {
         cards: {
             type: Array as PropType<CardProps[]>,
@@ -140,7 +141,7 @@ export default defineComponent({
         "update:currentDrawColor",
         "update:currentLineWidth"
     ],
-    setup(props, {emit}) {
+    setup(props, { emit }) {
         const currentLineWidth = ref(2);
         const eraserLineWidth = ref(30);
         const windowCards = ref<CardProps[]>([]);
@@ -174,7 +175,7 @@ export default defineComponent({
                 list[i].PageList = pages.filter(item => item.State);
             }
             windowCards.value = list;
-        }, {immediate: true, deep: true});
+        }, { immediate: true, deep: true });
 
         const canvasDataMap = new Map();
         const canvasData = computed(() => {
@@ -189,12 +190,13 @@ export default defineComponent({
             const json = page ? page.Json : {};
             json.design = page.DesignIntent;
             json.remark = page.Remark || page.AcademicPresupposition;
+            console.log(json);
             return json;
         });
         watch(() => currentSlide.value, (val, oldVal) => {
             const elements = screenRef.value.whiteboard.getElements();
             oldVal && canvasDataMap.set(oldVal.id, elements);
-        }, {deep: true});
+        }, { deep: true });
 
         const page = computed(() => {
             return props.pages?.filter(item => item.State)[props.index];

@@ -8,7 +8,7 @@ const drag = {
         // 获取容器宽高
         const containerId = binding.value || null;
         let containerWidth = window.innerWidth - getScrollWidth();
-        console.log('containerWidth', containerWidth, containerId)
+
         let containerHeight = window.innerHeight;
         // 存在父级容器
         if (containerId) {

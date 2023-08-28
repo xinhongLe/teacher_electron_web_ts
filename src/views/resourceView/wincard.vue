@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, onMounted, ref} from "vue";
-import {MutationTypes, useStore} from "@/store";
+import { computed, onMounted, ref } from "vue";
+import { MutationTypes, useStore } from "@/store";
 import IntelligenceClassroom from "@/views/preparation/intelligenceClassroom/index.vue";
 import isElectron from "is-electron";
 
@@ -29,17 +29,16 @@ const setMinimize = async (data: any) => {
         url
     };
     couresData.value = params;
-    isMinimized.value = true
+    isMinimized.value = true;
     if (isElectron()) {
         window.electron.ipcRenderer.invoke("courseMinimize", JSON.stringify(params));
     }
-
 };
 
 const resource = computed(() => store.state.common.showResourceFullScreen[props.index]?.resource);
 onMounted(() => {
     window.electron.ipcRenderer.on("setCourseMaximize", (e, data) => {
-        if (!couresData.value) return
+        if (!couresData.value) return;
         if (data && couresData.value) {
             isMinimized.value = false;
         }
@@ -48,16 +47,16 @@ onMounted(() => {
         }
 
         window.electron.ipcRenderer.invoke("closeBallTool", "COURSE_CLOSE");
-    })
+    });
     window.electron.ipcRenderer.on("closeCourse", (e, data) => {
         store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
             id: couresData.value?.id || data?.id,
             openMore: true
         });
-        isMinimized.value = true
+        isMinimized.value = true;
 
         window.electron.ipcRenderer.invoke("closeBallTool", "COURSE_CLOSE");
-    })
+    });
 
 });
 
