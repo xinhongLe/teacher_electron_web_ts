@@ -738,12 +738,18 @@ export const dealAnimationData = (slide: Slide) => {
 const getAnimations = (actions: PPTElementAction[]) => {
     const animations: PPTAnimation[] = [];
     actions.forEach((item, index) => {
-        const type = item.inAni ? "in" : item.outAni ? "out" : "in";
+        let type: "in" | "out" | "attention" = item.inAni ? "in" : item.outAni ? "out" : "in";
+        if (item.type === "none" || item.type === "show" || item.type === "toggle") {
+            type = "in";
+        }
+        if (item.type === "none" || item.type === "hide") {
+            type = "out";
+        }
         animations.push({
             id: createRandomCode(),
             elId: item.target,
             ani: (type === "in" ? item.inAni : item.outAni) || "",
-            type: item.type === "hide" ? "out" : type,
+            type,
             path: type === "in" ? item.inPath : item.outPath,
             duration: item.duration || 0,
             aniDirection: (type === "in" ? item.inDuration : item.outDuration) || 0,
