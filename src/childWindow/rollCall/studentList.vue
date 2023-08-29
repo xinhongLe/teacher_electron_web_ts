@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="content">
+        <div class="content" :style="{filter: (showResult ? 'blur(30px)' : 'none')}">
             <div
                 class="select-student-list"
                 :class="isPackUp && 'pack-up'"
@@ -39,14 +39,12 @@
                 >
                     <div
                         class="student-item"
-                        v-for="(student, i) in unselectedStudent"
+                        v-for="(student, i) in form.allStudentList.slice(0, 25)"
                         :key="i"
                         :style="{
                             transform: `translateX(-102px) rotateY(${
                                 (360 / unselectedStudent.length) * i
-                            }deg) translateZ(2000px) scale(${
-                                !isStart && currentIndex === i ? 2 : 1
-                            })`,
+                            }deg) translateZ(2000px)`
                         }"
                     >
                         <Avatar
@@ -59,6 +57,13 @@
                     </div>
                 </div>
             </div>
+            <div class="check-count">
+                <span>点名人数：</span>
+                <div>
+                    <el-input-number v-model="checkCount" :min="1" :max="5"/>
+                </div>
+            </div>
+            <div @click="openSetting" class="setting-btn-box"><Setting class="setting-btn"/></div>
             <el-button
                 v-show="!isPackUp"
                 type="default"
@@ -92,7 +97,7 @@
                 关闭
             </el-button>
             <div class="cotrol-btn" v-show="!isPackUp">
-                <div class="custom-reset-btn" :class="isStart && 'disabled'">
+                <div class="custom-reset-btn" :class="isStart && 'disabled'" v-if="form.isRepeat == 1">
                     <el-button type="primary" @click="reset" :disabled="isStart">重置</el-button>
                 </div>
                 <div class="custom-start-btn" :class="isStart && 'disabled'">
@@ -100,7 +105,28 @@
                 </div>
             </div>
         </div>
+        <div class="check-student-box" v-if="showResult">
+            <div>
+                <div
+                    class="student-item"
+                    v-for="(student, i) in thisSelectStudent"
+                    :key="i"
+                    :style="{transform: 'scale('+ (1.1 - thisSelectStudent.length * 0.07) +')',paddingTop: (105 + thisSelectStudent.length * 5) + 'px'}"
+                >
+                    <Avatar
+                        :file="student?.HeadPortrait"
+                        :size="20"
+                        :alt="student.Name"
+                    />
+                    <div class="student-name">{{ student.Name }}</div>
+                </div>
+            </div>
+            <div class="custom-reset-btn" style="height: 200px">
+                <el-button type="primary" @click="showResult = false">重新开始</el-button>
+            </div>
+        </div>
         <!-- <audio controls  src="@/assets/audio.mp3" ref="startAudioRef"></audio> -->
+        <SettingC ref="settingRef" @updateForm="updateForm"></SettingC>
     </div>
 </template>
 
@@ -108,41 +134,35 @@
 import {Student} from "@/types/labelManage";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {
-    computed,
+    reactive,
     defineComponent,
     onMounted,
     PropType,
     ref,
-    watch,
+    nextTick
 } from "vue";
 import Avatar from "../../components/avatar/index.vue";
-import {DoubleLeft, Drag, DoubleRight} from "@icon-park/vue-next";
+import {DoubleLeft, Drag, DoubleRight, Setting} from "@icon-park/vue-next";
 import {startAudio} from "./startaudio";
 import {UserInfoState} from "@/types/store";
 import {get, STORAGE_TYPES} from "@/utils/storage";
 import {exportExcel, IExcel} from "mexcel";
 import {getCurrentSemesterRollCallLog, rollCallLog} from "@/api";
-
+import SettingC from "./setting.vue"
 export default defineComponent({
     components: {
         Drag,
         Avatar,
         DoubleRight,
         DoubleLeft,
+        Setting,
+        SettingC
     },
-    props: {
-        studentList: {
-            type: Array as PropType<Student[]>,
-            default: () => [],
-        },
-    },
-    setup(props) {
-        const storeStudent = ref<Student[]>([...props.studentList]);
+    setup() {
         const unselectedStudent = ref<Student[]>([]);
-        const currentIndex = ref(-1);
-        const currentStudent = ref<Student>();
         const isStart = ref<boolean>(false);
         const selectStudent = ref<Student[]>([]);
+        const thisSelectStudent = ref<Student[]>([]);
         const duration = 2 * 1000;
         const animationTime = ref(1500);
         const rotateX = ref(-90);
@@ -150,7 +170,17 @@ export default defineComponent({
         const currentAudio = startAudio; //音效标签
         const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
         const schoolTerm = get(STORAGE_TYPES.SCHOOL_TERM);
-
+        const checkCount = ref(1)
+        const settingRef = ref();
+        const showResult = ref(false)
+        const allStudents = get(STORAGE_TYPES.STUDENT_LIST) || [];
+        let form = reactive({
+            classId: get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId,
+            studentRange: 0,
+            isRepeat: 0,
+            storeStudentList: allStudents.filter((v: any) => get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId === v.ClassID),
+            allStudentList: allStudents.filter((v: any) => get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId === v.ClassID)
+        })
         // 播放点名动画时的音效
         const playAudio = (src: any) => {
             const audio = new Audio();
@@ -164,76 +194,81 @@ export default defineComponent({
             };
         };
         const start = () => {
-            if (unselectedStudent.value.length === 0) return;
-            if (unselectedStudent.value.length === 1) {
+            if (checkCount.value > form.allStudentList.length) {
                 return ElMessageBox.alert(
-                    unselectedStudent.value[0]?.Name,
-                    "最后一位学生"
-                );
+                    "点名人数不能大于已选择学生列表"
+                ); 
             }
-            isStart.value = true;
+            isStart.value = true; 
             playAudio(currentAudio);
 
-            if (selectStudent.value.length > 0) {
-                unselectedStudent.value.splice(currentIndex.value, 1);
-                if (storeStudent.value.length > 0) {
-                    const student = randomStudent();
-                    unselectedStudent.value.push(student);
-                }
-            }
-
-            const len = unselectedStudent.value.length;
-            currentIndex.value = Math.floor(Math.random() * len);
             animationTime.value = 0;
             randomDeg.value = 0;
             setTimeout(() => {
                 animationTime.value = duration;
-                randomDeg.value = -(360 / unselectedStudent.value.length) * currentIndex.value + 360 * 5;
+                randomDeg.value = 360 * 5;
                 setTimeout(() => {
-                    const student = unselectedStudent.value[currentIndex.value];
-                    selectStudent.value.unshift(student);
+                    const checkStudentTemp:Student[] = [];   
+                    if (unselectedStudent.value.length >= checkCount.value) {
+                        for (var i = 0 ; i < checkCount.value; i++) {
+                            const len = unselectedStudent.value.length;
+                            const randomIndex = Math.floor(Math.random() * len);
+                            const student = unselectedStudent.value[randomIndex];
+                            checkStudentTemp.unshift(student);
+                            unselectedStudent.value.splice(randomIndex, 1);
+                        }
+                        if(form.isRepeat == 0) {
+                            unselectedStudent.value = [...form.allStudentList]
+                        }
+                    }else{
+                        checkStudentTemp.unshift(...unselectedStudent.value);
+                        unselectedStudent.value = []
+                        form.allStudentList.map((v: Student) => {
+                            let has = false
+                            checkStudentTemp.map(val => {
+                                if(v.StudentID == val.StudentID) has = true
+                            })
+                            if(!has) {
+                                unselectedStudent.value.push(v)
+                            }
+                        })
+                        for(var i = 0;i< checkCount.value - checkStudentTemp.length;i++) {
+                            const len = unselectedStudent.value.length;
+                            const randomIndex = Math.floor(Math.random() * len);
+                            const student = unselectedStudent.value[randomIndex];
+                            checkStudentTemp.unshift(student);
+                            unselectedStudent.value.splice(randomIndex, 1);
+                        }
+                    }   
+                    thisSelectStudent.value = checkStudentTemp
+                    selectStudent.value.unshift(...checkStudentTemp)
                     if (!schoolTerm || !schoolTerm.code) {
                         ElMessage.warning("学年学期不存在");
                     } else {
-                        rollCallLog({
-                            SchoolId: currentUserInfo.schoolId,
-                            TermCode: schoolTerm.code,
-                            StudentId: student.StudentID,
-                            ClassId: student.ClassID,
-                            TeacherId: currentUserInfo.userCenterUserID
-                        });
+                        checkStudentTemp.map(v => {
+                            rollCallLog({
+                                SchoolId: currentUserInfo.schoolId,
+                                TermCode: schoolTerm.code,
+                                StudentId: v.StudentID,
+                                ClassId: form.classId,
+                                TeacherId: currentUserInfo.userCenterUserID
+                            });
+                        })
                     }
                     isStart.value = false;
+                    showResult.value = true
                 }, duration);
             }, 100);
-        };
-
-        const randomStudent = () => {
-            const len = storeStudent.value.length;
-            const index = Math.floor(Math.random() * len);
-            return storeStudent.value.splice(index, 1)[0];
-        };
-
-        const randomStudents = (len: number) => {
-            const randomArray: Student[] = [];
-            if (storeStudent.value.length < len) {
-                return storeStudent.value;
-            }
-            for (let i = 0; i < len; i++) {
-                const student = randomStudent();
-                randomArray.push(student);
-            }
-            return randomArray;
-        };
+        }; 
 
         const reset = () => {
             animationTime.value = 0;
             randomDeg.value = 360;
             rotateX.value = -363;
-            selectStudent.value = [];
-            storeStudent.value = [...props.studentList];
-            unselectedStudent.value = randomStudents(25);
-            currentIndex.value = -1;
+            if(form.isRepeat == 1) {
+                selectStudent.value = [];
+            }
+            unselectedStudent.value = [...form.allStudentList]
             setTimeout(() => {
                 animationTime.value = 1500;
                 rotateX.value = -3;
@@ -241,8 +276,18 @@ export default defineComponent({
             }, 200);
         };
 
-        reset();
+        nextTick(() => {
+            reset();
+        })
 
+        const updateForm = (value:any) => {
+            form.isRepeat = value.isRepeat;
+            form.classId = value.classId;
+            form.studentRange = value.studentRange;
+            form.allStudentList = [...value.storeStudentList];
+            selectStudent.value = [];
+            reset();
+        }
         const close = () => {
             window.electron.destroyWindow();
         };
@@ -308,7 +353,8 @@ export default defineComponent({
                     if (canceled) return;
                     getCurrentSemesterRollCallLog({
                         TermCode: schoolTerm.code,
-                        TeacherId: currentUserInfo.userCenterUserID
+                        TeacherId: currentUserInfo.userCenterUserID,
+                        ClassId: form.classId
                     }).then((res) => {
                         const data = res.result;
 
@@ -420,13 +466,15 @@ export default defineComponent({
                 });
         }
 
+        const openSetting = () => {
+            settingRef.value.dialogVisible = true
+        }
         return {
             start,
             isStart,
             unselectedStudent,
             reset,
             selectStudent,
-            currentIndex,
             randomDeg,
             animationTime,
             rotateX,
@@ -437,7 +485,14 @@ export default defineComponent({
             expand,
             hideWindow,
             showWindow,
-            download
+            download,
+            checkCount,
+            settingRef,
+            showResult,
+            openSetting,
+            thisSelectStudent,
+            form,
+            updateForm
         };
     },
 });
@@ -457,6 +512,8 @@ export default defineComponent({
 
     .content {
         -webkit-app-region: no-drag;
+        width: 100%;
+        height: 100%;
 
         .select-student-list {
             position: absolute;
@@ -560,6 +617,64 @@ export default defineComponent({
             -webkit-app-region: no-drag;
         }
     }
+    .check-student-box {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        margin: auto; 
+        .custom-reset-btn {
+            margin: auto;
+            width: 382px;
+            background-image: url(~@/assets/images/suspension/btn_bg@2x.png) !important;
+        }
+        >div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            
+            .student-item {
+                width: 300px;
+                height: 390px;
+                position: relative;
+                display: flex;
+                align-items: center;
+                margin-top: 120px;
+                padding-top: 100px;
+                // justify-content: center;
+                flex-direction: column;
+                background: url(~@/assets/images/suspension/card_bg1@2x.png) no-repeat;
+                background-position: center;
+                background-size: 100%;
+                border-radius: 5px;
+                transition: all 1s;
+                margin-left: 30px;
+
+                :deep(.el-avatar) {
+                    transform: scale(4.5);
+                    margin-bottom: 80px;
+                }
+
+                .student-name {
+                    transform: scale(3.5);
+                    color: #fff;
+                    width: 5vw;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: pre-wrap;
+                    line-height: 12px;
+                    text-align: center;
+                }
+            }
+            .student-item:nth-of-type(1) {
+                margin-left: 0;
+            }
+        }
+    }
 }
 
 .student-list-content {
@@ -592,7 +707,7 @@ export default defineComponent({
     }
 }
 
-.student-item {
+.student-list-content .student-item {
     position: absolute;
     top: 25%;
     left: 30%;
@@ -698,5 +813,41 @@ export default defineComponent({
     right: 20px;
     bottom: 98px;
     -webkit-app-region: no-drag;
+}
+.setting-btn-box {
+    position: absolute;
+    right: 210px;
+    bottom: 104px;
+    -webkit-app-region: no-drag;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+}
+.setting-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+}
+.check-count {
+    position: absolute;
+    bottom: 222px;
+    left: 50%;
+    z-index: 1;
+    transform: translateX(-50%);
+    display: flex;
+    -webkit-app-region: no-drag;
+    align-items: center;
+    >span:nth-of-type(1) {
+        font-size: 18px;
+        font-family: HarmonyOS_Sans_SC_Medium;
+        color: #242B3A;
+    }
+    >div {
+        width: 178px;
+    }
 }
 </style>
