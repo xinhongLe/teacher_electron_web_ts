@@ -111,9 +111,10 @@ defineExpose({
 .transfer-box {
     display: flex;
     align-items: center;
+    height: 100%;
     > div {
         flex: 1;
-        height: 408px;
+        height: 100%;
         border-radius: 4px;
         border: 1px solid #E0E2E7;
         display: flex;

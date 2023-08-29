@@ -1,9 +1,9 @@
 <template>
-    <el-dialog v-model="dialogVisible" center :title="type === 1 ? '小组比拼设置' : '选择学生'" width="650" @close="close" :close-on-click-modal="false" :destroy-on-close="true">
+    <el-dialog v-model="dialogVisible" center :title="type === 1 ? '小组比拼设置' : '选择学生'" width="650" @close="close" :close-on-click-modal="false">
        <div class="content" v-if="type === 1">
            <div class="content-top">
                <div class="text">当前班级：</div>
-               <el-radio-group v-model="checkClassId">
+               <el-radio-group v-model="checkClassId" @change="changeClass">
                    <el-radio v-for="item in classList" :key="item.ClassUserCenterId" :label="item.ClassUserCenterId">
                        {{item.ClassName}}
                    </el-radio>
@@ -127,6 +127,11 @@ const save = () => {
         console.log(noSelectList, "noSelectList----");
         console.log(state.currentClassStudents, "state.currentClassStudents----");
     }
+};
+
+const changeClass = () => {
+    emits("delStudents", [], true);
+    state.currentClassStudents = state.allStudents.filter((v: any) => state.checkClassId === v.ClassID);
 };
 
 const close = () => {

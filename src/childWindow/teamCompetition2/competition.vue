@@ -134,9 +134,9 @@ export default defineComponent({
             teamArr.value[index].studentList = list;
         };
 
-        const delStudents = (ids:string[]) => {
+        const delStudents = (ids:string[], flag = false) => {
             teamArr.value = teamArr.value.map((item:teamItem) => {
-                item.studentList = item.studentList.filter(j => (!(ids.includes(j.StudentID))));
+                item.studentList = flag ? [] : item.studentList.filter(j => (!(ids.includes(j.StudentID))));
                 return item;
             });
         };
