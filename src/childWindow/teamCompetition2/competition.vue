@@ -4,44 +4,44 @@
             <span v-if="isExpand">小组比拼</span>
             <span v-if="!isExpand" class="expand-btn" @click="expand()">展开</span>
         </div>
-        <div class="star-list" ref="starBox" :class="isExpand && 'expand'">
-            <div
-                class="team-item"
-                v-for="(item, index) in teamArr"
-                :key="index"
-                @click="addStar(item, index)"
-            >
-                <img class="team-award-img" v-if="awardTeam.indexOf(index) > -1" src="./images/pic_metal@2x.png" alt="" srcset="">
-                <div class="star-box">
-                    <div class="star" v-for="(star, i) in item" :key="i">
-                        <img
-                            :style="{ width: isExpand ? starHeight + 'px' : '24px' }"
-                            :class="
-                                actionAnimationStar === `${index}_${i}` &&
-                                'star-animation'
-                            "
-                            :src="starImages[index]"
-                            alt=""
-                        />
-                    </div>
-                    <div class="star" v-if="item.length === 0">
-                        <img :style="{ width: isExpand ? starHeight + 'px' : '24px' }" :src="emptyStarImages[index]" alt="" srcset="">
-                    </div>
-                </div>
-            </div>
+        <div class="star-list" ref="starBox" :class="!isExpand && 'expand'">
+           <div class="item-row" v-for="(item, index) in teamArr" :key="index">
+               <div class="item-row-left">
+<!--                   <img class="team-award-img" v-if="awardTeam.indexOf(index) > -1" src="./images/pic_metal@2x.png" alt="" srcset="">-->
+                   <img @click="addTeam(index)" src="./images/icon_add@2x.png" alt="">
+                   <span class="text">{{item.name}}</span>
+               </div>
+               <div class="team-item" @click="addStar(item.starList, index)">
+                   <div class="star-box">
+                       <div class="star" v-for="(star, i) in item.starList" :key="i">
+                           <img :style="{ width: isExpand ? starHeight + 'px' : '24px' }"
+                                :class=" actionAnimationStar === `${index}_${i}` && 'star-animation'"
+                                :src="starImages[index]"
+                                alt=""
+                           />
+                       </div>
+                       <div class="star" v-if="item.starList.length === 0">
+                           <img :style="{ width: isExpand ? starHeight + 'px' : '24px' }" :src="emptyStarImages[index]" alt="" srcset="">
+                       </div>
+                   </div>
+               </div>
+               <div class="del-img">
+                   <img v-if="item.starList.length === 0" src="./images/icon_jian_disabled.png" alt="">
+                   <img @click="delStar(item.starList, index)" v-else style="cursor: pointer" src="./images/icon_jian.png" alt="">
+               </div>
+           </div>
         </div>
-        <div class="open" v-if="isHide" @click.stop="showWindow">
-            <DoubleLeft />
-        </div>
+<!--        <div class="open" v-if="isHide" @click.stop="showWindow">-->
+<!--            <DoubleLeft />-->
+<!--        </div>-->
         <div class="star-footer" v-if="isExpand">
-            <el-button class="star-btn" type="danger" @click="close()"
-                >结束比拼</el-button
-            >
+            <el-button type="text" class="star-btn" @click="setBtn">
+                <el-icon class="set-icon"><Setting/></el-icon>
+                <span>小组比拼设置</span>
+            </el-button>
             <el-button class="star-btn" @click="minimize()">最小化</el-button>
-            <el-popover
-                :width="224"
-                trigger="click"
-            >
+            <el-button class="star-btn" type="danger" @click="close()">结束比拼</el-button>
+            <el-popover :width="224" trigger="click">
                 <div class="award-team-list">
                     <div
                         class="award-team-item"
@@ -67,17 +67,31 @@
         <div class="award-team-text">第 {{awardTeamShow + 1}} 小组</div>
         <Fireworks v-if="awardShow" @click="awardShow = false" />
     </div>
+
+    <competition-set
+        v-if="visible"
+        v-model="visible"
+        @addTeam="addTeam"
+        @delTeam="delTeam"
+        @addStudents="addStudents"
+        @delStudents="delStudents"
+        :teamArr="teamArr">
+    </competition-set>
     <!-- <audio controls src="../../assets/teamCompetition/award.mp3" ref="audioRef"></audio> -->
 </template>
 
-<script lang="ts">
+<script lang="ts" >
 import { nextTick } from "process";
 import { computed, defineComponent, watch, ref } from "vue";
 import { animationData } from "./animation/data";
 import lottie, { AnimationItem } from "lottie-web";
 import { awardAudio } from "./award";
-import { DoubleLeft, DoubleRight } from "@icon-park/vue-next";
+// import { DoubleLeft, DoubleRight } from "@icon-park/vue-next";
 import Fireworks from "./fireworks.vue";
+import CompetitionSet from "./competitionSet.vue";
+import { ICurrentSelectClass } from "@/types/store";
+import { teamItem } from "./types";
+import { Student } from "@/types/labelManage";
 
 export default defineComponent({
     props: {
@@ -86,7 +100,7 @@ export default defineComponent({
             default: 4
         }
     },
-    components: { DoubleLeft, DoubleRight, Fireworks },
+    components: { CompetitionSet, Fireworks },
     emits: ["expand"],
     setup(props, { emit }) {
         const win = window.electron.remote.getCurrentWindow();
@@ -95,12 +109,37 @@ export default defineComponent({
         const starBox = ref();
 
         const teamNum = computed(() => props.teamNum);
-        const teamArr = ref(
-            Array.from(new Array(teamNum.value)).map((item) => [])
-        );
+        // const teamArr = ref(
+        //     Array.from(new Array(teamNum.value)).map((item) => [])
+        // );
+        const teamArr = ref<teamItem[]>([
+            { name: "小组1", starList: [], studentList: [] },
+            { name: "小组2", starList: [], studentList: [] },
+            { name: "小组3", starList: [], studentList: [] },
+            { name: "小组4", starList: [], studentList: [] }
+        ]);
         const awardTeam = ref<number[]>([]);
-        const isExpand = ref(false);
+        const isExpand = ref(true);
         const actionAnimationStar = ref("");
+
+        const addTeam = (index:number) => {
+            teamArr.value.splice(index + 1, 0, { name: "", starList: [], studentList: [] });
+        };
+
+        const delTeam = (index:number) => {
+            teamArr.value.splice(index, 1);
+        };
+
+        const addStudents = (index:number, list: Student[]) => {
+            teamArr.value[index].studentList = list;
+        };
+
+        const delStudents = (ids:string[]) => {
+            teamArr.value = teamArr.value.map((item:teamItem) => {
+                item.studentList = item.studentList.filter(j => (!(ids.includes(j.StudentID))));
+                return item;
+            });
+        };
 
         const addStar = (arr: number[], m: number) => {
             playAudio(addStarAudio);
@@ -115,6 +154,10 @@ export default defineComponent({
             }
         };
 
+        const delStar = (arr: number[], m: number) => {
+            arr.splice(0, 1);
+        };
+
         const close = () => {
             window.electron.destroyWindow();
         };
@@ -122,9 +165,9 @@ export default defineComponent({
         const minimize = (updateHeight?: boolean) => {
             isExpand.value = false;
             const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
-            let height = 80 + teamArr.value.length * 34;
+            let height = 60 + teamArr.value.length * 34;
             teamArr.value.forEach(item => {
-                height += Math.floor(item.length / 10) * 24;
+                height += Math.floor(item.starList.length / 10) * 24;
             });
             window.electron.setContentSize(320, height);
             const top = size.height - 100 - height - 260;
@@ -136,7 +179,7 @@ export default defineComponent({
             if (window.electron.isMac()) win.setHasShadow(false);
         };
 
-        minimize();
+        // minimize();
 
         const expand = () => {
             isExpand.value = true;
@@ -200,7 +243,7 @@ export default defineComponent({
             playAudio(addAwardAudio);
             // audioRef.value.play();
             // setTimeout(() => {
-                // awardShow.value = false;
+            // awardShow.value = false;
             if (awardTeam.value.indexOf(i) === -1) {
                 awardTeam.value.push(i);
             }
@@ -215,9 +258,8 @@ export default defineComponent({
                 audio.play();
             };
             audio.onended = () => {
-               audio.remove();
-            }
-
+                audio.remove();
+            };
         };
 
         const teamColors = [
@@ -233,27 +275,39 @@ export default defineComponent({
             "#3E5384"
         ];
 
-        const isHide = ref(false);
-        const hideWindow = () => {
-            isHide.value = true;
-            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
-            const position = window.electron.getPositionWin();
-            window.electron.setPositionWin(size.width - 30, position[1]);
+        const visible = ref(false);
+        const setBtn = () => {
+            visible.value = true;
         };
 
-        const showWindow = () => {
-            isHide.value = false;
-            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
-            const position = window.electron.getPositionWin();
-            window.electron.setPositionWin(size.width - 20 - 300, position[1]);
-        };
+        // const isHide = ref(false);
+        // const hideWindow = () => {
+        //     isHide.value = true;
+        //     const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+        //     const position = window.electron.getPositionWin();
+        //     window.electron.setPositionWin(size.width - 30, position[1]);
+        // };
+
+        // const showWindow = () => {
+        //     isHide.value = false;
+        //     const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+        //     const position = window.electron.getPositionWin();
+        //     window.electron.setPositionWin(size.width - 20 - 300, position[1]);
+        // };
 
         return {
+            visible,
             teamArr,
-            teamNum,
+            // teamNum,
             actionAnimationStar,
             isExpand,
+            setBtn,
+            addTeam,
+            delTeam,
+            addStudents,
+            delStudents,
             addStar,
+            delStar,
             close,
             minimize,
             expand,
@@ -265,9 +319,9 @@ export default defineComponent({
             awardTeam,
             awardTeamShow,
             audioRef,
-            isHide,
-            hideWindow,
-            showWindow,
+            // isHide,
+            // hideWindow,
+            // showWindow,
             emptyStarImages,
             starBox,
             starHeight
@@ -276,7 +330,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .star-container {
     display: flex;
     flex-direction: column;
@@ -337,10 +391,35 @@ export default defineComponent({
 }
 
 .star-list {
-    padding: 12px 28px;
+    padding: 12px 28px 40px;
     min-height: 0;
     overflow-y: auto;
     flex: 1;
+}
+.item-row{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 40px 10px 20px;
+    border: 1px solid #F5F6FA;
+    margin-bottom: 10px;
+    .item-row-left {
+        display: flex;
+        align-items: center;
+       img{
+           width: 16px;
+           height: 16px;
+           margin-right: 10px;
+           cursor: pointer;
+       }
+        .text{
+            font-size: 14px;
+            font-family: HarmonyOS_Sans_SC_Bold;
+            color: #19203D;
+            font-weight: bold;
+        }
+    }
 }
 
 .star-list::-webkit-scrollbar {
@@ -350,6 +429,8 @@ export default defineComponent({
 .team-item {
     display: flex;
     align-items: flex-start;
+    flex: 1;
+    min-width: 0;
     width: 100%;
     font-size: 14px;
     position: relative;
@@ -357,24 +438,22 @@ export default defineComponent({
     transform: rotateY(180deg);
 }
 
-.expand.star-list {
-    padding: 26px 40px 0;
-    margin-bottom: 80px;
-}
-
-.team-name {
-    position: relative;
-    font-size: 12px;
-    top: 4px;
-    width: 54px;
+.expand {
+    padding: 0px 0 0 22px;
+    .item-row {
+        padding: 0px 28px 0px 0px ;
+        border: none;
+        margin-bottom: 0px;
+    }
+    .del-img{
+        bottom: 9px;
+    }
 }
 
 .star-box {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    flex: 1;
-    min-width: 0;
     margin-left: 12px;
 }
 
@@ -392,6 +471,16 @@ export default defineComponent({
     opacity: 1;
 }
 
+.del-img{
+    position: absolute;
+    right: 20px;
+    bottom: 24px;
+   img{
+       width: 16px;
+       height: 16px;
+   }
+}
+
 .expand .star img {
     /* width: 40px; */
 }
@@ -402,6 +491,8 @@ export default defineComponent({
 }
 
 .star-footer {
+    display: flex;
+    justify-content: flex-end;
     padding: 24px;
     position: relative;
 }
@@ -410,10 +501,20 @@ export default defineComponent({
     width: 100px;
 }
 
+.set-icon{
+    font-size: 12px;
+    margin-right: 2px;
+    margin-top: 2px;
+    .icon {
+        width:16px;
+        height:16px;
+    }
+}
+
 .award-btn {
     position: absolute;
-    right: 24px;
-    bottom: 24px;
+    left: 24px;
+    bottom: 10px;
     color: #ef9900;
     font-size: 18px;
     text-align: center;

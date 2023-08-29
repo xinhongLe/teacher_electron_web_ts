@@ -1095,10 +1095,10 @@ function createTeamCompetition() {
 
 function createTeamCompetition2() {
     teamCompetitionWin2 = createWindow(localTeamURL2, {
-        width: 360,
+        width: 800,
         frame: false, // 要创建无边框窗口
         resizable: false, // 是否允许窗口大小缩放
-        height: 250,
+        height: 600,
         alwaysOnTop: true,
         useContentSize: true,
         maximizable: false,
