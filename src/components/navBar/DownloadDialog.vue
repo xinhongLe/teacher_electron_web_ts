@@ -24,11 +24,14 @@
                     placement="bottom-end"
                     trigger="click"
                 >
-                    <el-icon><MoreFilled /></el-icon>
+                    <el-icon>
+                        <MoreFilled/>
+                    </el-icon>
                     <template #dropdown>
                         <el-dropdown-menu>
                             <el-dropdown-item @click="clearHisory"
-                                >清除下载历史</el-dropdown-item
+                            >清除下载历史
+                            </el-dropdown-item
                             >
                         </el-dropdown-menu>
                     </template>
@@ -40,7 +43,7 @@
                     class="download-no-content"
                     v-show="downloadList.length === 0 && keywards.length === 0"
                 >
-                    <img src="@/assets/images/other/pic_none.png" alt="" />
+                    <img src="@/assets/images/other/pic_none.png" alt=""/>
                     <div>暂无下载内容</div>
                 </div>
 
@@ -48,7 +51,7 @@
                     class="download-no-content"
                     v-show="downloadList.length === 0 && keywards.length > 0"
                 >
-                    <img src="@/assets/images/other/pic_noresult.png" alt="" />
+                    <img src="@/assets/images/other/pic_noresult.png" alt=""/>
                     <div>暂无搜索结果</div>
                 </div>
 
@@ -66,7 +69,9 @@
                         v-for="file in item.list"
                         :key="file.id + file.timestamp"
                     >
-                        <el-icon class="download-log-close" @click="closeDownload(file)"><Close /></el-icon>
+                        <el-icon class="download-log-close" @click="closeDownload(file)">
+                            <Close/>
+                        </el-icon>
 
                         <div class="file-icon">
                             <img
@@ -143,17 +148,17 @@
 </template>
 
 <script lang="ts" setup>
-import { MutationTypes, store } from "@/store";
-import { IDownloading } from "@/types/store";
-import emitter, { EmitterEvents } from "@/utils/emitter";
+import {MutationTypes, store} from "@/store";
+import {IDownloading} from "@/types/store";
+import emitter, {EmitterEvents} from "@/utils/emitter";
 import LocalCache from "@/utils/localcache";
-import { getOssUrl } from "@/utils/oss";
-import { STORAGE_TYPES, get, remove, set } from "@/utils/storage";
-import { Search } from "@element-plus/icons-vue";
-import { ElMessage, ElMessageBox } from "element-plus";
+import {getOssUrl} from "@/utils/oss";
+import {STORAGE_TYPES, get, remove, set} from "@/utils/storage";
+import {Search} from "@element-plus/icons-vue";
+import {ElMessage, ElMessageBox} from "element-plus";
 import moment from "moment";
-import { ref, watch } from "vue";
-import { CancelTokenSource } from "axios";
+import {ref, watch} from "vue";
+import {CancelTokenSource} from "axios";
 
 const emit = defineEmits(["update:visible"]);
 const props = defineProps({
@@ -293,12 +298,13 @@ const cancelDownload = (file: IDownloading) => {
                     downLoadingProgress.value[index].source?.cancel();
                     downloadingList.value.splice(index, 1);
                     downLoadingProgress.value.splice(index, 1);
-                } 
-                
-                store.commit(MutationTypes.MOVE_DOWNLOADING, { id: file.id, status: 3, timestamp: file.timestamp });
+                }
+
+                store.commit(MutationTypes.MOVE_DOWNLOADING, {id: file.id, status: 3, timestamp: file.timestamp});
             }
         }
-    ).catch(() => {});
+    ).catch(() => {
+    });
 };
 
 const downloadNext = (id: string, status: number) => {
@@ -306,7 +312,7 @@ const downloadNext = (id: string, status: number) => {
     const timestamp = downloadingList.value[index].timestamp;
     downloadingList.value.splice(index, 1);
     downLoadingProgress.value.splice(index, 1);
-    store.commit(MutationTypes.MOVE_DOWNLOADING, { id, status, timestamp });
+    store.commit(MutationTypes.MOVE_DOWNLOADING, {id, status, timestamp});
 };
 
 const initHistory = async () => {
@@ -429,7 +435,8 @@ const clearHisory = () => {
                 downloadList.value = [];
             }
         }
-    ).catch(() => {});
+    ).catch(() => {
+    });
 };
 
 const searchHistory = () => {
@@ -472,7 +479,8 @@ const closeDownload = (file: IDownloading) => {
                 searchHistory();
             }
         }
-    ).catch(() => {});
+    ).catch(() => {
+    });
 };
 </script>
 
@@ -481,6 +489,7 @@ const closeDownload = (file: IDownloading) => {
     height: 70vh;
     display: flex;
     flex-direction: column;
+
     .el-dialog__body {
         flex: 1;
         min-height: 0;
@@ -493,6 +502,7 @@ const closeDownload = (file: IDownloading) => {
     display: flex;
     flex-direction: column;
     height: 100%;
+
     .download-log-header {
         display: flex;
         align-items: center;
@@ -511,10 +521,12 @@ const closeDownload = (file: IDownloading) => {
         min-height: 0;
         position: relative;
         overflow-y: auto;
+
         &::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
+
         .download-no-content {
             position: absolute;
             top: 50%;
@@ -524,6 +536,7 @@ const closeDownload = (file: IDownloading) => {
             flex-direction: column;
             justify-content: center;
             align-items: center;
+
             img {
                 margin-bottom: -20px;
             }
@@ -534,6 +547,7 @@ const closeDownload = (file: IDownloading) => {
 .download-search-input {
     flex: 1;
     margin-right: 20px;
+
     .el-input__wrapper {
         background-color: #f0f2f6;
         border-radius: 16px;
@@ -543,9 +557,11 @@ const closeDownload = (file: IDownloading) => {
 
 .download-log-date {
     margin-top: 20px;
+
     &:first-child {
         margin-top: 0;
     }
+
     .date-title {
         font-weight: 600;
         font-size: 12px;
@@ -568,16 +584,20 @@ const closeDownload = (file: IDownloading) => {
         display: flex;
         align-items: center;
         position: relative;
+
         .file-icon {
             margin-right: 25px;
+
             img {
                 display: block;
             }
         }
+
         .file-content {
             flex: 1;
             min-width: 0;
         }
+
         .file-name {
             font-size: 12px;
             color: #4b71ee;
@@ -585,6 +605,7 @@ const closeDownload = (file: IDownloading) => {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+
             &.file-cancel {
                 color: #888;
                 text-decoration: line-through;

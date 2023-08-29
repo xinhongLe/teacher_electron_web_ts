@@ -1,10 +1,10 @@
 import {CommonState, IDownloading, IShowResourceFullScreen, RootState} from "@/types/store";
 import {Module, MutationTree} from "vuex";
 import {MutationTypes} from "..";
-import { IResourceItem } from "@/api/resource";
-import { STORAGE_TYPES, get, set } from "@/utils/storage";
-import emitter, { EmitterEvents } from "@/utils/emitter";
-import { ElMessage } from "element-plus";
+import {IResourceItem} from "@/api/resource";
+import {STORAGE_TYPES, get, set} from "@/utils/storage";
+import emitter, {EmitterEvents} from "@/utils/emitter";
+import {ElMessage} from "element-plus";
 //文件不支持的特殊符号进行去除
 import sanitize from "sanitize-filename";
 
@@ -82,7 +82,8 @@ const mutations: MutationTree<CommonState> = {
     [MutationTypes.SET_BEIKE_RESOURCE_INTO](state, type) {
         state.currentBeikeResource = type;
     },
-    [MutationTypes.SET_DOWNLOAD_LIST](state, { type, data } : { type: string, data: IResourceItem }) {
+    [MutationTypes.SET_DOWNLOAD_LIST](state, {type, data}: { type: string, data: IResourceItem }) {
+        console.log('data---', data)
         const downloadObj = {
             id: data.ResourceId,
             name: type === "wincard" ? `${sanitize(data.Name)}.lyxpkg` : `${data.Name}.${data.File.FileExtention}`,
@@ -109,7 +110,11 @@ const mutations: MutationTree<CommonState> = {
     [MutationTypes.INIT_DOWNLOADING](state, downloading: IDownloading[]) {
         state.downloading = downloading;
     },
-    [MutationTypes.MOVE_DOWNLOADING](state, { id, status, timestamp } : { id: string; status: number; timestamp: number; }) {
+    [MutationTypes.MOVE_DOWNLOADING](state, {
+        id,
+        status,
+        timestamp
+    }: { id: string; status: number; timestamp: number; }) {
         const index = state.downloading.findIndex(item => item.id === id && item.timestamp === timestamp);
         state.downloading.splice(index, 1);
 

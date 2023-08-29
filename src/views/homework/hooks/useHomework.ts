@@ -76,7 +76,7 @@ export default () => {
 
     const classList: any = computed(() => store.state.userInfo.classList);
 
-    const initData = async () => {
+    const initData = async (type?: number) => {
         const userInfo = get(STORAGE_TYPES.USER_INFO);
         const subData = await GetMySubjectByOrgId();
         if (subData.success && subData.resultCode === 200) {
@@ -100,8 +100,9 @@ export default () => {
         }
     }, {deep: true});
     watch(() => store.state.userInfo.currentSelectClass, (val: any) => {
-        if (!val.ClassId) return;
-        initData()
+        if (!val.ClassAixueshiId) return;
+        selectClassId.value = val.ClassAixueshiId
+        // initData(0)
     }, {deep: true})
 
     onActivated(() => {

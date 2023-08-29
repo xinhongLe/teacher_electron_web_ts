@@ -1,4 +1,4 @@
-import { nextTick } from "vue";
+import {nextTick} from "vue";
 
 const drag = {
     mounted(el: HTMLElement, binding: any) {
@@ -8,11 +8,12 @@ const drag = {
         // 获取容器宽高
         const containerId = binding.value || null;
         let containerWidth = window.innerWidth - getScrollWidth();
+
         let containerHeight = window.innerHeight;
         // 存在父级容器
         if (containerId) {
             const containerEle: any = document.getElementById(containerId);
-            let { width, height } = containerEle.getBoundingClientRect();
+            let {width, height} = containerEle.getBoundingClientRect();
             containerWidth = width;
             containerHeight = height;
             if (
@@ -30,7 +31,7 @@ const drag = {
             "mousedown",
             (e) => {
                 e.preventDefault();
-                let { width, height } = el.getBoundingClientRect();
+                let {width, height} = el.getBoundingClientRect();
                 // 当前目标元素的left与top
                 const left = el.offsetLeft;
                 const top = el.offsetTop;
@@ -73,7 +74,7 @@ const drag = {
                     document.onmouseup = null;
                 };
             },
-            { passive: false }
+            {passive: false}
         );
 
         //触摸屏 触摸按下
@@ -86,7 +87,7 @@ const drag = {
         let topLimit = 0;
         let bottomLimit = 0;
         el.addEventListener("touchstart", (e) => {
-            let { width, height } = el.getBoundingClientRect();
+            let {width, height} = el.getBoundingClientRect();
             // 当前目标元素的left与top
             left = el.offsetLeft;
             top = el.offsetTop;
@@ -123,12 +124,14 @@ const drag = {
         });
     },
 };
+
 // 获取元素的相关CSS
 function getStyle(el: any, attr: any) {
     return el.currentStyle
         ? el.currentStyle[attr]
         : window.getComputedStyle(el, "false")[attr];
 }
+
 // 返回滚动条的宽度, 没有则返回0
 function getScrollWidth() {
     let noScroll,
@@ -145,6 +148,7 @@ function getScrollWidth() {
         (window.innerHeight || document.documentElement.clientHeight);
     return isExsit ? noScroll - scroll : 0;
 }
+
 function isMobile() {
     let userAgentInfo = navigator.userAgent;
     let Agents = [
@@ -158,6 +162,7 @@ function isMobile() {
     let getArr = Agents.filter((i) => userAgentInfo.includes(i));
     return getArr.length ? true : false;
 }
+
 const directives = {
     install: function (app: any) {
         app.directive("drag", drag);

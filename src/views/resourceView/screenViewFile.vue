@@ -38,11 +38,25 @@
     <div class="me-tools" ref="metools" v-drag>
         <!-- 右边固定展开的按钮 -->
         <div class="me-tools-righttool">
+            <!-- 鼠标 -->
+            <div
+                class="me-tool-btn-new"
+                :class="toolType === 'mouse' && 'btn-active'"
+                @click="openPaintTool($event, 'mouse'),(toolType = 'mouse')"
+            >
+                <div class="icon-text">
+                    <img v-if="toolType !== 'mouse'"
+                         src="@/views/preparation/intelligenceClassroom/images/slices/icon_shubiao.png" alt=""/>
+                    <img v-if="toolType === 'mouse'"
+                         src="@/views/preparation/intelligenceClassroom/images/slices/icon_shubiao_white.png" alt=""/>
+                    <span class="text">鼠标</span>
+                </div>
+            </div>
             <!-- 画笔 -->
             <div
                 class="me-tool-btn-new"
                 :class="toolType === 'pen' && 'btn-active'"
-                @click="openPaintTool($event),(toolType = 'pen')"
+                @click="openPaintTool($event,'paint'),(toolType = 'pen')"
             >
                 <div class="icon-text">
                     <img v-if="toolType !== 'pen'"
@@ -195,13 +209,18 @@ export default defineComponent({
         const currentLineWidth = ref(2);
         const eraserLineWidth = ref(30);
         // 工具栏
-        const openPaintTool = (event: MouseEvent) => {
+        const openPaintTool = (event: MouseEvent, type: string) => {
+
             const target = event.target as HTMLDivElement;
-            const {left, top} = target.getBoundingClientRect();
-            drawingShow.value = true;
-            isShowPen.value = true;
-            penLeft.value = left;
-            penTop.value = top;
+            if (type === "paint") {
+                const {left, top} = target.getBoundingClientRect();
+                drawingShow.value = true;
+                isShowPen.value = true;
+                penLeft.value = left;
+                penTop.value = top;
+            } else {
+                drawingShow.value = false;
+            }
         };
         // 撤销
         const undo = () => {
@@ -427,7 +446,7 @@ export default defineComponent({
     .me-tools-righttool {
         display: flex;
         align-items: center;
-        width: 130px;
+        width: 178px;
         padding: 0px 5px;
         justify-content: space-around;
 

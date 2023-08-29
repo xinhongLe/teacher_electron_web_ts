@@ -1,8 +1,8 @@
 <template>
     <div class="main">
-        <Setting v-if="!isStart" v-model="teamNum" @start="onStart" />
+<!--        <Setting v-if="!isStart" v-model="teamNum" @start="onStart" />-->
 
-        <Competition :teamNum="teamNum" @expand="openCompetitionExpand" v-else />
+        <Competition :teamNum="teamNum" @expand="openCompetitionExpand" />
     </div>
 </template>
 
@@ -23,9 +23,10 @@ export default defineComponent({
 
         const openCompetitionExpand = () => {
             const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
-            // const width = size.width > 800 ? 800 : size.width;
-            // const height = size.height > 600 ? 600 : size.height;
-            window.electron.setContentSize(size.width - 100, size.height - 100);
+            const width = size.width > 800 ? 800 : size.width;
+            const height = size.height > 600 ? 600 : size.height;
+            // window.electron.setContentSize(size.width - 100, size.height - 100);
+            window.electron.setContentSize(width, height);
             window.electron.setCenter();
         };
 

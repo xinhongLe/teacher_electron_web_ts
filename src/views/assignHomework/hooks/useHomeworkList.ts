@@ -5,8 +5,8 @@ import {
     SystemHomework,
     TeachHomework,
 } from "@/types/assignHomework";
-import { cloneDeep } from "lodash";
-import { ref } from "vue";
+import {cloneDeep} from "lodash";
+import {ref} from "vue";
 
 export default () => {
     const classList = ref<ClassData[]>([]);
@@ -17,10 +17,8 @@ export default () => {
 
     const updateClassList = (list: ClassData[]) => {
         classList.value = list;
-        console.log("list", list);
-
         studentList.value = [];
-        list.forEach(({ Students, ClassId }) => {
+        list.forEach(({Students, ClassId}) => {
             studentList.value.push(
                 ...Students.map((item) => ({
                     ...item,

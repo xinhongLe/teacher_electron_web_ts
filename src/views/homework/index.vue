@@ -43,18 +43,18 @@
             </div>
         </header>
         <div class="row-line"/>
-        <div class="class-list">
-            <p
-                v-for="(item, index) in classList"
-                :key="index"
-                :class="selectClassId === item.ClassAixueshiId ? 'active' : ''"
-                @click="changeSelectClass(item)"
-            >
-                {{
-                    item.ClassName
-                }}<span>({{ homeworkListMap[item.ClassAixueshiId]?.length || 0 }})</span>
-            </p>
-        </div>
+        <!--        <div class="class-list">-->
+        <!--            <p-->
+        <!--                v-for="(item, index) in classList"-->
+        <!--                :key="index"-->
+        <!--                :class="selectClassId === item.ClassAixueshiId ? 'active' : ''"-->
+        <!--                @click="changeSelectClass(item)"-->
+        <!--            >-->
+        <!--                {{-->
+        <!--                    item.ClassName-->
+        <!--                }}<span>({{ homeworkListMap[item.ClassAixueshiId]?.length || 0 }})</span>-->
+        <!--            </p>-->
+        <!--        </div>-->
         <div class="homework-content">
             <div v-if="subjectList.length > 0" class="table-list">
                 <template v-if="Object.keys(homeworkListMap).length !== 0">

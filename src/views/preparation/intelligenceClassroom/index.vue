@@ -102,7 +102,11 @@ export default defineComponent({
             });
             return allPages;
         });
-        const currentSlide = computed(() => pages.value.filter(item => item.State)[index.value].Json);
+        const currentSlide = computed(() => {
+            const page = pages.value.filter(item => item.State)[index.value];
+
+            return page ? page.Json : {};
+        });
 
         const { transformPageDetail } = useHome();
 
@@ -200,7 +204,7 @@ export default defineComponent({
         };
 
         function getWinCardData() {
-            const OriginType = (props.resource.isSystem as number) === 1 ? 0 : 1;
+            const OriginType = (props.resource.isSystem as number) == 1 ? 0 : 1;
             getWindowStruct({ WindowID: props.resource.id, OriginType }).then(async res => {
                 if (res.resultCode !== 200) return;
                 previewMode.value = !res.result.ShowType;

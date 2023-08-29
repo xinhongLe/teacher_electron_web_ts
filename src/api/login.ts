@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import { AI_XUE_SHI_API, systemId, YUN_API } from "@/config";
+import {AI_XUE_SHI_API, systemId, YUN_API} from "@/config";
 import {
     IBasicTagResponse,
     IGradeClassTreeResponse,
@@ -10,7 +10,7 @@ import {
     ISendMsgData,
     IYunInfo, IGetTeacherClassListRes
 } from "@/types/login";
-import { IResponse, RequestFun } from "@/types/response";
+import {IResponse, RequestFun} from "@/types/response";
 
 export function Login(data: ILoginData, isPassWordLogin = true): Promise<ILoginResponse> {
     return request({

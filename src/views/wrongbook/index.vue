@@ -1,55 +1,55 @@
 <template>
     <div class="wrongbook-wrapper" v-show="state.isShowContent == 1">
         <header class="wrongbook-header">
-            <div class="header-left-con" style="max-width: 30%">
-                <div
-                    style="padding-right: 10px; cursor: pointer"
-                    @click="fnPrev()"
-                    v-if="isShowIcon"
-                >
-                    <img
-                        src="~@/assets/images/wrongbook/icon_left.png"
-                        alt=""
-                    />
-                </div>
-                <div class="fixedBox" ref="fixedBoxRef">
-                    <div
-                        v-if="fourClassList.length"
-                        class="header-left"
-                        :style="
-                            classList.length > 4
-                                ? `width${
-                                      signleWidth * fourClassList.length
-                                  }px;transform:translate(${scrollResultWidth}px,0);transition:1s;`
-                                : ''
-                        "
-                    >
-                        <el-button
-                            @click="switchClass(item)"
-                            :key="item.ClassAixueshiId"
-                            :class="
-                                item.ClassAixueshiId == state.currentClassId
-                                    ? 'isActive'
-                                    : ''
-                            "
-                            v-for="item in fourClassList"
-                        >{{ item.ClassName }}
-                        </el-button
-                        >
-                    </div>
-                </div>
-                <div
-                    style="padding-left: 10px; cursor: pointer"
-                    @click="fnNext()"
-                    v-if="isShowIcon"
-                >
-                    <!-- v-if="isShowIcon && noScrollRight"  -->
-                    <img
-                        src="~@/assets/images/wrongbook/icon_right_qiehuan.png"
-                        alt=""
-                    />
-                </div>
-            </div>
+<!--            <div class="header-left-con" style="max-width: 30%">-->
+<!--                <div-->
+<!--                    style="padding-right: 10px; cursor: pointer"-->
+<!--                    @click="fnPrev()"-->
+<!--                    v-if="isShowIcon"-->
+<!--                >-->
+<!--                    <img-->
+<!--                        src="~@/assets/images/wrongbook/icon_left.png"-->
+<!--                        alt=""-->
+<!--                    />-->
+<!--                </div>-->
+<!--                <div class="fixedBox" ref="fixedBoxRef">-->
+<!--                    <div-->
+<!--                        v-if="fourClassList.length"-->
+<!--                        class="header-left"-->
+<!--                        :style="-->
+<!--                            classList.length > 4-->
+<!--                                ? `width${-->
+<!--                                      signleWidth * fourClassList.length-->
+<!--                                  }px;transform:translate(${scrollResultWidth}px,0);transition:1s;`-->
+<!--                                : ''-->
+<!--                        "-->
+<!--                    >-->
+<!--                        <el-button-->
+<!--                            @click="switchClass(item)"-->
+<!--                            :key="item.ClassAixueshiId"-->
+<!--                            :class="-->
+<!--                                item.ClassAixueshiId == state.currentClassId-->
+<!--                                    ? 'isActive'-->
+<!--                                    : ''-->
+<!--                            "-->
+<!--                            v-for="item in fourClassList"-->
+<!--                        >{{ item.ClassName }}-->
+<!--                        </el-button-->
+<!--                        >-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div-->
+<!--                    style="padding-left: 10px; cursor: pointer"-->
+<!--                    @click="fnNext()"-->
+<!--                    v-if="isShowIcon"-->
+<!--                >-->
+<!--                    &lt;!&ndash; v-if="isShowIcon && noScrollRight"  &ndash;&gt;-->
+<!--                    <img-->
+<!--                        src="~@/assets/images/wrongbook/icon_right_qiehuan.png"-->
+<!--                        alt=""-->
+<!--                    />-->
+<!--                </div>-->
+<!--            </div>-->
 
             <div class="header-right">
                 <!-- 题型 -->
@@ -528,7 +528,7 @@ const state = reactive({
             value: 2,
         },
     ],
-    gradeName: currentClass.value?.GradeId ? currentClass.value.GradeId : classList.value.length ? classList.value[0]?.GradeName : "",
+    gradeName: currentClass.value?.GradeId ? currentClass.value.GradeName : classList.value.length ? classList.value[0]?.GradeName : "",
     exerciseData: [],
 });
 //分层筛选
@@ -556,7 +556,6 @@ const sortDataName = ref({
     //当前选择的排序字段
     currentSortConName: "平均错误率",
 });
-console.log("错题本页面.......");
 const fixedBoxRef = ref();
 const fourClassList: any = ref([]);
 const isShowIcon = ref(false);
@@ -570,7 +569,6 @@ const initgoRightArrow = () => {
 watch(
     () => state.currentHomeworkBookId,
     (val) => {
-        console.log("currentHomeworkBookId", val);
     },
     {deep: true}
 );
@@ -639,7 +637,6 @@ const changeTagType = (value: any) => {
 };
 //选择科目查学生
 const selectSubject = (subject: any) => {
-    // console.log("subjectid", subject);
     if (subject) {
         allClassStudents.value = [];
         queryClassStudents(subject);
@@ -651,8 +648,6 @@ const queryClassStudents = async (subjectId: any) => {
     });
 
     if (res.resultCode === 200) {
-        console.log("fetchGradeClassStudents", res);
-
         res.result.forEach((item: any) => {
             item.ClassData.forEach((data: any) => {
                 allClassStudents.value.push(data);
@@ -683,11 +678,9 @@ const filterClassStudent = (val: any) => {
             TagName: stu.TagName ? stu.TagName : "未标记",
         };
     });
-    console.log("currentClassStudents", state.currentClassStudents);
 };
 //生成练习
 const basketGenerateExercise = async (type: number) => {
-    console.log("生成练习", type);
     state.preContent = type;
     // state.exerciseData = store.state.wrongbook.questionBasket as any;
 };
@@ -718,7 +711,7 @@ const fnPrev = () => {
 };
 //点击右滑
 const fnNext = () => {
-    fourClassList.value = classList;
+    fourClassList.value = classList.value;
     const currentScrollWidth = fixedBoxRef.value.clientWidth;
     const canNumber = Math.floor(currentScrollWidth / signleWidth.value); //可以放下的个数
     //如果最后一个流程图标已经展示出来，则停止滚动
@@ -748,7 +741,6 @@ const fnScrollWidth = (type: string) => {
 //顶部的昨日，今日，本周时间过滤
 const toFormatDate = (type: number) => {
     const data: any = getFormatDate(type);
-    console.log(data);
     if (data) {
         state.dateRange = data;
     }
@@ -761,7 +753,6 @@ const searchForm = ref({
 });
 //切换顶部选中的班级
 const switchClass = (value: any) => {
-    console.log("选中的班级", value);
     state.currentClassId = value.ClassAixueshiId;
     searchForm.value.ClassId = value.ClassAixueshiId;
     filterClassStudent(allClassStudents.value);

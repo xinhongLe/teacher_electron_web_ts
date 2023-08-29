@@ -30,6 +30,8 @@ export interface Student {
     }[],
     StudentSubjects?: string
     TagName: string
+    cloneName: string
+    ifSelectTeam?: boolean
 }
 
 export interface TagStudentsData {

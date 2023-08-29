@@ -147,7 +147,9 @@
                                     </div>
                                     <div class="right-con">
                                         <div class="top-con">
-                                            <div v-html="question.Content" style="word-break: break-all;"></div>
+                                            <!--                                            <div v-html="" style="word-break: break-all;"></div>-->
+                                            <MathJax :text="question.Content"></MathJax>
+
                                         </div>
                                     </div>
                                 </div>
@@ -179,6 +181,7 @@ import {convertToLetters} from "@/utils/common";
 import useDesignTemplate from "@/views/preparation/learnPlanDesign/useDesignTemplate";
 import {ElMessage} from "element-plus";
 import {downloadPDF} from "@/utils/html2pdf.ts";
+import MathJax from '@/components/MathJax/index.vue'
 
 export default defineComponent({
     name: "TemplateOne",
@@ -196,6 +199,7 @@ export default defineComponent({
             default: () => []
         }
     },
+    components: {MathJax},
     emits: ["update:isReview", "addQuestionItem", "saveTemplateContent", "close"],
     setup(props, {emit}) {
         const {

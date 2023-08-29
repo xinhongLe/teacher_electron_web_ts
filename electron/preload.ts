@@ -3,11 +3,11 @@ import crypto from "crypto";
 import AdmZip from "adm-zip";
 import ffmpeg from "fluent-ffmpeg";
 import logger from "@/utils/logger";
-import { v4 as uuidv4 } from "uuid";
-import path, { join, resolve } from "path";
-import { checkWindowSupportNet } from "./util";
-import { exportWord, IFileData } from "./exportWord";
-import { isExistFile, mkdirs, store } from "./downloadFile";
+import {v4 as uuidv4} from "uuid";
+import path, {join, resolve} from "path";
+import {checkWindowSupportNet} from "./util";
+import {exportWord, IFileData} from "./exportWord";
+import {isExistFile, mkdirs, store} from "./downloadFile";
 import {
     app,
     dialog,
@@ -17,7 +17,7 @@ import {
     desktopCapturer,
     screen
 } from "@electron/remote";
-import { execFile as execFileFromAsar, spawn } from "child_process";
+import {execFile as execFileFromAsar, spawn} from "child_process";
 import {
     access,
     copyFile,
@@ -39,8 +39,8 @@ import {
     shell
 } from "electron";
 import * as https from "https";
-import { get, set, STORAGE_TYPES } from "@/utils/storage";
-import Axios, { CancelTokenSource } from "axios";
+import {get, set, STORAGE_TYPES} from "@/utils/storage";
+import Axios, {CancelTokenSource} from "axios";
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 const PATH_WhiteBoard = join(
@@ -72,7 +72,9 @@ window.electron = {
     shell,
     path,
     getFileName: (path: string, fileName: string, i: number) => {
-        const name = (i === 0 ? fileName : fileName.replace(/([^.]+).([^.]+)/gi, `$1(${i}).$2`));
+        // const name = (i === 0 ? fileName : fileName.replace(/([^.]+).([^.]+)/gi, `$1(${i}).$2`));
+        const result = fileName.replace(/^.*\./, "");
+        const name = (i === 0 ? fileName : fileName.replace(/\.[^.]*$/, `(${i}).${result}`));
         if (window.electron.isExistFile(path + "/" + name)) return window.electron.getFileName(path, fileName, i + 1);
         return name;
     },
@@ -103,7 +105,8 @@ window.electron = {
                 } else {
                     resolve(false);
                 }
-            }).catch(() => {});
+            }).catch(() => {
+            });
         });
     },
     exit: () => {
@@ -413,7 +416,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, { recursive: true })
+                        mkdir(dirname, {recursive: true})
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );
@@ -488,7 +491,7 @@ window.electron = {
             console.error("报错--", e);
             return "";
         } finally {
-            await rm(filePath, { recursive: true, force: true });
+            await rm(filePath, {recursive: true, force: true});
         }
     },
     unpackCacheFile: async (zipFileName, newpath = "") => {
@@ -497,7 +500,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, { recursive: true })
+                        mkdir(dirname, {recursive: true})
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );
@@ -658,9 +661,9 @@ window.electron = {
                 downloadedBytes += chunk.length;
                 // 更新下载进度
                 onProgress &&
-                    onProgress(
-                        Math.round((downloadedBytes / totalBytes) * 100)
-                    );
+                onProgress(
+                    Math.round((downloadedBytes / totalBytes) * 100)
+                );
             });
             response.pipe(fileStream, fileName);
             fileStream.on("finish", () => {

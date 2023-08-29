@@ -2,21 +2,17 @@
     <div>
         <div class="quick-detail">
             <div class="content">
-                <div class="header">
-                    <span>班级：</span>
-                    <el-select v-model="currentClass" placeholder="请选择">
-                        <el-option
-                            v-for="item in classList"
-                            :key="item.ClassUserCenterId"
-                            :label="item.ClassName"
-                            :value="item.ClassUserCenterId"
-                        />
-                        <!--                        <el-option-->
-                        <!--                            :label="classList.ClassName"-->
-                        <!--                            :value="classList.ClassUserCenterId"-->
-                        <!--                        />-->
-                    </el-select>
-                </div>
+                <!--                <div class="header">-->
+                <!--                    <span>班级：</span>-->
+                <!--                    <el-select v-model="currentClass" placeholder="请选择">-->
+                <!--                        <el-option-->
+                <!--                            v-for="item in classList"-->
+                <!--                            :key="item.ClassUserCenterId"-->
+                <!--                            :label="item.ClassName"-->
+                <!--                            :value="item.ClassUserCenterId"-->
+                <!--                        />-->
+                <!--                    </el-select>-->
+                <!--                </div>-->
                 <div class="process">
                     <div class="title">
                         {{

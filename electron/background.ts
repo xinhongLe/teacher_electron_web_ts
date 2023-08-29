@@ -9,15 +9,6 @@ import {createWinCardWindow} from "./wincard";
 import {initialize, enable} from "@electron/remote/main";
 import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
 import {app, protocol, BrowserWindow, ipcMain, Menu, screen} from "electron";
-
-if (process.defaultApp) {
-    if (process.argv.length >= 2) {
-        app.setAsDefaultProtocolClient("lyxteacher", process.execPath, [path.resolve(process.argv[1])])
-    }
-} else {
-    app.setAsDefaultProtocolClient("lyxteacher")
-}
-
 import {
     registerVirtualKeyBoard,
     closeKeyBoard,
@@ -29,8 +20,24 @@ import {
     registerEvent,
     unfoldSuspensionWinSendMessage,
     courseShow,
-    courseHide
+    courseHide,
 } from "./suspension";
+
+import {
+    registerPblWinCardEvent,
+    registerPblWinCardLessonEvent,
+    registerPreviewFileEvent,
+} from "./pblWincard";
+
+if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+        app.setAsDefaultProtocolClient("lyxteacher", process.execPath, [
+            path.resolve(process.argv[1]),
+        ]);
+    }
+} else {
+    app.setAsDefaultProtocolClient("lyxteacher");
+}
 
 const editWinList = new Map<number, any>();
 const isDevelopment = process.env.NODE_ENV !== "production";
@@ -54,13 +61,16 @@ let isCreateWindow = false;
 let singalr: SingalRHelper | null;
 let mainWindow: BrowserWindow | null;
 let loginWindow: BrowserWindow | null;
- 
+
 if (!process.env.WEBPACK_DEV_SERVER_URL) {
     const menu = Menu.buildFromTemplate([]);
     Menu.setApplicationMenu(menu);
 }
 
 registerVirtualKeyBoard();
+registerPblWinCardEvent();
+registerPblWinCardLessonEvent();
+registerPreviewFileEvent();
 
 async function createLoginWindow() {
     ElectronLog.info("进入登录界面");
@@ -312,27 +322,26 @@ const onReady = () => {
         closeKeyBoard();
     });
 
-    ipcMain.on('updateSelectClass', (e, v) => {
-        mainWindow!.webContents.send('updateSelectClass', v)
-    })
-    ipcMain.on('closeCourse', (e, v) => {
-        mainWindow!.webContents.send('closeCourse', v)
-    })
+    ipcMain.on("updateSelectClass", (e, v) => {
+        mainWindow!.webContents.send("updateSelectClass", v);
+    });
+    ipcMain.on("closeCourse", (e, v) => {
+        mainWindow!.webContents.send("closeCourse", v);
+    });
     ipcMain.handle("closeCourse", () => {
         courseHide();
         mainWindow!.webContents.send("closeCourse");
     });
 
-    ipcMain.on('setCourseMaximize', (v) => {
+    ipcMain.on("setCourseMaximize", (v) => {
         mainWindow!.show();
-        mainWindow!.webContents.send('setCourseMaximize', v)
-    })
+        mainWindow!.webContents.send("setCourseMaximize", v);
+    });
     ipcMain.handle("setCourseMaximize", (v, data) => {
         mainWindow!.show();
         mainWindow!.webContents.send("setCourseMaximize", JSON.parse(data));
-        courseShow()
+        courseShow();
     });
-
 };
 
 app.on("window-all-closed", () => {
@@ -419,12 +428,13 @@ app.on("ready", async () => {
     }
 
     createLoginWindow();
-    // createLocalPreview(["/Users/moneyinto/Desktop/第一课时.lyxpkg"])
+    // createLocalPreview(["/Users/admin/Desktop/3《雨的四季》.lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
     ElectronLog.error(
-        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${details.reason
+        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${
+            details.reason
         }, exitCode: ${details.exitCode}`
     );
 });

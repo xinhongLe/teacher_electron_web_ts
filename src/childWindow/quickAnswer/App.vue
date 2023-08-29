@@ -5,10 +5,10 @@
             <div class="quickAnswer" v-if="isAnswer">
                 <!--                <select-class v-if="showSelectClass" :yunInfo="yunInfo" :currentUserInfo="currentUserInfo"-->
                 <!--                              @openQuickAnswer="openQuickAnswer"></select-class>-->
-                <SelectAttendClass v-model:classVisible="showSelectClass" v-model:currentClassList="currentClassList"
-                                   v-if="showSelectClass"
-                                   @close="close" @confirm="openQuickAnswer">
-                </SelectAttendClass>
+                <!--                <SelectAttendClass v-model:classVisible="showSelectClass" v-model:currentClassList="currentClassList"-->
+                <!--                                   v-if="showSelectClass"-->
+                <!--                                   @close="close" @confirm="openQuickAnswer">-->
+                <!--                </SelectAttendClass>-->
 
                 <quick-answer-detail v-if="showQuickAnswer" :classList="classList" :selectClass="selectClass"
                                      :currentUserInfo="currentUserInfo"></quick-answer-detail>
@@ -48,10 +48,10 @@ export default defineComponent({
         const state = reactive({
             isAnswer: true,
             showSelectClass: false,
-            showQuickAnswer: false,
+            showQuickAnswer: true,
             classList: get(STORAGE_TYPES.CLASS_LIST),
             currentClassList: get(STORAGE_TYPES.CURRENT_SELECT_CLASS),
-            selectClass: ""
+            selectClass: get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId || ""
         });
 
         const openQuickAnswer = (selectClass: string) => {
