@@ -739,11 +739,14 @@ const getAnimations = (actions: PPTElementAction[]) => {
     const animations: PPTAnimation[] = [];
     actions.forEach((item, index) => {
         let type: "in" | "out" | "attention" = item.inAni ? "in" : item.outAni ? "out" : "in";
-        if (item.type === "none" || item.type === "show" || item.type === "toggle") {
+        if (item.type === "show" || item.type === "toggle") {
             type = "in";
         }
-        if (item.type === "none" || item.type === "hide") {
+        if (item.type === "hide") {
             type = "out";
+        }
+        if (item.type === "none") {
+            type = "attention";
         }
         animations.push({
             id: createRandomCode(),
