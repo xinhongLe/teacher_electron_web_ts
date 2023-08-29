@@ -205,11 +205,14 @@ function createTimerWindow() {
 }
 
 function createRollcall(allStudentList: []) {
+    const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
+    const width = size.width > 1200 ? 1200 : size.width;
+    const height = size.height > 800 ? 800 : size.height;
     rollCallWin = createWindow(callURL, {
-        width: 800,
+        width: width,
         frame: false, // 要创建无边框窗口
         resizable: false, // 是否允许窗口大小缩放
-        height: 600,
+        height: height,
         alwaysOnTop: true,
         useContentSize: true,
         maximizable: false,
