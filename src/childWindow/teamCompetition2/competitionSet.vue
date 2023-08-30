@@ -176,7 +176,8 @@ onMounted(() => {
             align-items: center;
             margin-top: 10px;
             .el-input{
-                flex: 1;
+                //flex: 1;
+                width: 430px;
             }
             .el-button{
                 width: 90px;

@@ -6,7 +6,7 @@
         </div>
         <div class="star-list" ref="starBox" :class="!isExpand && 'expand'">
            <div :class="['item-row', awardTeamShow === index ? 'bg' : '' ]" v-for="(item, index) in teamArr" :key="index">
-               <div class="num">
+               <div v-if="isExpand" class="num">
                    {{index + 1}}
                </div>
                <div class="item-row-left">
@@ -466,11 +466,11 @@ export default defineComponent({
 .expand {
     padding: 0px 0 0 36px;
     .item-row {
-        padding: 0px 28px 0px 36px ;
+        padding: 0px 28px 0px 0px ;
         border: none;
         margin-bottom: 0px;
         .num{
-            top: 6px;
+            //top: 6px;
         }
     }
     .del-img{
