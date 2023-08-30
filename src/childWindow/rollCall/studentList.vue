@@ -121,8 +121,8 @@
                     <div class="student-name">{{ student.Name }}</div>
                 </div>
             </div>
-            <div class="custom-reset-btn" style="height: 200px">
-                <el-button type="primary" @click="showResult = false">重新开始</el-button>
+            <div class="custom-reset-btn" style="height: 200px" @click="showResult = false">
+                <el-button type="primary">重新开始</el-button>
             </div>
         </div>
         <!-- <audio controls  src="@/assets/audio.mp3" ref="startAudioRef"></audio> -->
@@ -201,45 +201,45 @@ export default defineComponent({
             }
             isStart.value = true; 
             playAudio(currentAudio);
-
+            const checkStudentTemp:Student[] = [];   
+            if (unselectedStudent.value.length >= checkCount.value) {
+                for (var i = 0 ; i < checkCount.value; i++) {
+                    const len = unselectedStudent.value.length;
+                    const randomIndex = Math.floor(Math.random() * len);
+                    const student = unselectedStudent.value[randomIndex];
+                    checkStudentTemp.unshift(student);
+                    unselectedStudent.value.splice(randomIndex, 1);
+                }
+                if(form.isRepeat == 0) {
+                    unselectedStudent.value = [...form.allStudentList]
+                }
+            }else{
+                checkStudentTemp.unshift(...unselectedStudent.value);
+                const diffCount = checkCount.value - unselectedStudent.value.length;
+                unselectedStudent.value = []
+                form.allStudentList.map((v: Student) => {
+                    let has = false
+                    checkStudentTemp.map(val => {
+                        if(v.StudentID == val.StudentID) has = true
+                    })
+                    if(!has) {
+                        unselectedStudent.value.push(v)
+                    }
+                })
+                for(var i = 0;i< diffCount; i++) {
+                    const len = unselectedStudent.value.length;
+                    const randomIndex = Math.floor(Math.random() * len);
+                    const student = unselectedStudent.value[randomIndex];
+                    checkStudentTemp.unshift(student);
+                    unselectedStudent.value.splice(randomIndex, 1);
+                }
+            } 
             animationTime.value = 0;
             randomDeg.value = 0;
             setTimeout(() => {
                 animationTime.value = duration;
                 randomDeg.value = 360 * 5;
-                setTimeout(() => {
-                    const checkStudentTemp:Student[] = [];   
-                    if (unselectedStudent.value.length >= checkCount.value) {
-                        for (var i = 0 ; i < checkCount.value; i++) {
-                            const len = unselectedStudent.value.length;
-                            const randomIndex = Math.floor(Math.random() * len);
-                            const student = unselectedStudent.value[randomIndex];
-                            checkStudentTemp.unshift(student);
-                            unselectedStudent.value.splice(randomIndex, 1);
-                        }
-                        if(form.isRepeat == 0) {
-                            unselectedStudent.value = [...form.allStudentList]
-                        }
-                    }else{
-                        checkStudentTemp.unshift(...unselectedStudent.value);
-                        unselectedStudent.value = []
-                        form.allStudentList.map((v: Student) => {
-                            let has = false
-                            checkStudentTemp.map(val => {
-                                if(v.StudentID == val.StudentID) has = true
-                            })
-                            if(!has) {
-                                unselectedStudent.value.push(v)
-                            }
-                        })
-                        for(var i = 0;i< checkCount.value - checkStudentTemp.length;i++) {
-                            const len = unselectedStudent.value.length;
-                            const randomIndex = Math.floor(Math.random() * len);
-                            const student = unselectedStudent.value[randomIndex];
-                            checkStudentTemp.unshift(student);
-                            unselectedStudent.value.splice(randomIndex, 1);
-                        }
-                    }   
+                setTimeout(() => {  
                     thisSelectStudent.value = checkStudentTemp
                     selectStudent.value.unshift(...checkStudentTemp)
                     if (!schoolTerm || !schoolTerm.code) {
