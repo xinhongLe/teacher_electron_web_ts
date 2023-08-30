@@ -9,11 +9,11 @@
         :destroy-on-close="true"
     >
         <el-form class="custom-form" :model="form" label-width="100px">
-            <el-form-item label="选择班级：">
+            <!-- <el-form-item label="选择班级：">
                 <el-radio-group v-model="form.classId">
                     <el-radio v-for="(item, index) in classList" :key="index" :label="item.ClassUserCenterId" size="large" @change="classChange">{{ item.ClassName }}</el-radio>
                 </el-radio-group>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="学生范围：">
                 <el-radio-group v-model="form.studentRange" @change="rangeChange">
                     <el-radio :label="0" size="large">全班学生</el-radio>

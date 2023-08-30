@@ -44,7 +44,7 @@
                         :style="{
                             transform: `translateX(-102px) rotateY(${
                                 (360 / unselectedStudent.length) * i
-                            }deg) translateZ(2000px)`
+                            }deg) translateZ(${circleWidth}px)`
                         }"
                     >
                         <Avatar
@@ -181,6 +181,8 @@ export default defineComponent({
             storeStudentList: allStudents.filter((v: any) => get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId === v.ClassID),
             allStudentList: allStudents.filter((v: any) => get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId === v.ClassID)
         })
+        const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
+        const circleWidth = size.width > 1200 ? 1120 : size.width - 80;
         // 播放点名动画时的音效
         const playAudio = (src: any) => {
             const audio = new Audio();
@@ -492,7 +494,8 @@ export default defineComponent({
             openSetting,
             thisSelectStudent,
             form,
-            updateForm
+            updateForm,
+            circleWidth
         };
     },
 });
