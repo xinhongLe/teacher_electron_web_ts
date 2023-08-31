@@ -116,7 +116,6 @@ export default defineComponent({
         };
 
         const handleChangeClass = () => {
-            // console.log('val', val);
             // state.gradeList.some((i: IGradeItem) => {
             //     const currentGrade = i.ClassList.find((j: IClassItem) => j.ClassId === item.ClassId);
             //     if (currentGrade) {
@@ -126,7 +125,6 @@ export default defineComponent({
             // });
         };
         const handleChangeRadioClass = (val: string) => {
-            console.log('val', val);
             const classData: any = classList.value.find((item: ICurrentSelectClass) => item.ClassUserCenterId === val);
             window.electron.ipcRenderer.send('updateSelectClass', JSON.stringify(classData));
         };

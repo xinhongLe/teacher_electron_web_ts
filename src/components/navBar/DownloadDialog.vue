@@ -1,92 +1,65 @@
 <template>
     <el-dialog
-        class="custom-dialog download-dialog"
-        v-model="showDialog"
         center
         title="下载"
         width="700px"
+        v-model="showDialog"
         :destroy-on-close="true"
         :before-close="handleClose"
+        class="custom-dialog download-dialog"
     >
         <div class="download-log-container">
             <div class="download-log-header">
                 <el-input
-                    class="download-search-input"
+                    clearable
                     v-model="keywards"
-                    placeholder="搜索下载内容"
                     :prefix-icon="Search"
                     @change="searchHistory"
-                    clearable
+                    placeholder="搜索下载内容"
+                    class="download-search-input"
                 />
 
-                <el-dropdown
-                    class="download-log-clear"
-                    placement="bottom-end"
-                    trigger="click"
-                >
+                <el-dropdown trigger="click" placement="bottom-end" class="download-log-clear">
                     <el-icon>
                         <MoreFilled/>
                     </el-icon>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="clearHisory"
-                            >清除下载历史
-                            </el-dropdown-item
-                            >
+                            <el-dropdown-item @click="clearHisory">清除下载历史</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
             </div>
 
             <div class="download-log-content">
-                <div
-                    class="download-no-content"
-                    v-show="downloadList.length === 0 && keywards.length === 0"
-                >
+                <div class="download-no-content" v-show="downloadList.length === 0 && keywards.length === 0">
                     <img src="@/assets/images/other/pic_none.png" alt=""/>
                     <div>暂无下载内容</div>
                 </div>
 
-                <div
-                    class="download-no-content"
-                    v-show="downloadList.length === 0 && keywards.length > 0"
-                >
+                <div class="download-no-content" v-show="downloadList.length === 0 && keywards.length > 0">
                     <img src="@/assets/images/other/pic_noresult.png" alt=""/>
                     <div>暂无搜索结果</div>
                 </div>
 
-                <div
-                    class="download-log-date"
-                    v-for="item in downloadList"
-                    :key="item.time"
-                >
+                <div class="download-log-date" v-for="item in downloadList" :key="item.time">
                     <div class="date-title">
                         {{ item.time === today ? "今天" : item.time }}
                     </div>
 
-                    <div
-                        class="file-item"
-                        v-for="file in item.list"
-                        :key="file.id + file.timestamp"
-                    >
+                    <div class="file-item" v-for="file in item.list" :key="file.id + file.timestamp">
                         <el-icon class="download-log-close" @click="closeDownload(file)">
                             <Close/>
                         </el-icon>
 
                         <div class="file-icon">
-                            <img
-                                src="@/assets/images/other/pic_download.png"
-                                alt=""
-                            />
+                            <img src="@/assets/images/other/pic_download.png" alt=""/>
                         </div>
                         <div class="file-content">
                             <div
                                 class="file-name"
-                                :class="
-                                    (file.status === 3 || file.status === 4) &&
-                                    'file-cancel'
-                                "
                                 @click="openFile(file)"
+                                :class="(file.status === 3 || file.status === 4) && 'file-cancel'"
                             >
                                 {{ file.name }}
                             </div>
@@ -96,46 +69,32 @@
                                 v-if="downloadingList.findIndex(v => v.id === file.id && v.timestamp === file.timestamp) > -1"
                             >
                                 <el-progress
-                                    :percentage="getProgress(file.id)"
-                                    :stroke-width="4"
                                     striped
                                     striped-flow
                                     :duration="10"
+                                    :stroke-width="4"
                                     :show-text="false"
+                                    :percentage="getProgress(file.id)"
                                 />
                             </div>
 
                             <div
-                                v-if="downloadingList.findIndex(v => v.id === file.id && v.timestamp === file.timestamp) === -1 && file.status === 0"
                                 class="download-log-wait"
+                                v-if="downloadingList.findIndex(v => v.id === file.id && v.timestamp === file.timestamp) === -1 && file.status === 0"
                             >
                                 等待中
                             </div>
 
-                            <div
-                                class="download-log-btns"
-                                v-if="file.status === 0 || file.status === 1"
-                            >
+                            <div class="download-log-btns" v-if="file.status === 0 || file.status === 1">
                                 <el-button size="small" @click="cancelDownload(file)">取消</el-button>
                             </div>
 
-                            <div
-                                class="download-log-finish"
-                                v-if="file.status === 2"
-                                @click="showInFolder(file)"
-                            >
+                            <div class="download-log-finish" v-if="file.status === 2" @click="showInFolder(file)">
                                 在文件夹中显示
                             </div>
 
-                            <div
-                                class="download-log-cancel"
-                                v-if="file.status === 3 || file.status === 4"
-                            >
-                                <el-button
-                                    type="primary"
-                                    size="small"
-                                    @click="resetDownload(file)"
-                                >
+                            <div class="download-log-cancel" v-if="file.status === 3 || file.status === 4">
+                                <el-button type="primary" size="small" @click="resetDownload(file)">
                                     重试
                                 </el-button>
                             </div>
@@ -148,24 +107,24 @@
 </template>
 
 <script lang="ts" setup>
-import {MutationTypes, store} from "@/store";
-import {IDownloading} from "@/types/store";
-import emitter, {EmitterEvents} from "@/utils/emitter";
+import { MutationTypes, store } from "@/store";
+import { IDownloading } from "@/types/store";
+import emitter, { EmitterEvents } from "@/utils/emitter";
 import LocalCache from "@/utils/localcache";
-import {getOssUrl} from "@/utils/oss";
-import {STORAGE_TYPES, get, remove, set} from "@/utils/storage";
-import {Search} from "@element-plus/icons-vue";
-import {ElMessage, ElMessageBox} from "element-plus";
+import { getOssUrl } from "@/utils/oss";
+import { STORAGE_TYPES, get, remove, set } from "@/utils/storage";
+import { Search } from "@element-plus/icons-vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 import moment from "moment";
-import {ref, watch} from "vue";
-import {CancelTokenSource} from "axios";
+import { ref, watch } from "vue";
+import { CancelTokenSource } from "axios";
 
 const emit = defineEmits(["update:visible"]);
 const props = defineProps({
     visible: {
         type: Boolean,
-        default: false,
-    },
+        default: false
+    }
 });
 
 const showDialog = ref(false);
@@ -220,17 +179,14 @@ const startDownload = async (item: IDownloading) => {
         const fileName = window.electron.getFileName(path, item.name, 0);
         updateHistoryFileName(item, fileName);
         const localCache = new LocalCache({
-            cachingStatus: (status) => {
-                // console.log(`status: ${status}`);
-                const index = downLoadingProgress.value.findIndex(
-                    (v) => v.id === item.id
-                );
+            cachingStatus: status => {
+                const index = downLoadingProgress.value.findIndex(v => v.id === item.id);
                 if (index > -1) downLoadingProgress.value[index].progress = status;
                 if (status === 100) {
                     ElMessage.success(`下载 ${fileName} 完成！`);
                     downloadNext(item.id, 2);
                 }
-            },
+            }
         });
         downLoadingProgress.value.push({
             id: item.id,
@@ -240,7 +196,7 @@ const startDownload = async (item: IDownloading) => {
         localCache.doCache(
             {
                 WindowID: item.data.OldResourceId,
-                OriginType: item.data.IsSysFile === 1 ? 0 : 1,
+                OriginType: item.data.IsSysFile === 1 ? 0 : 1
             },
             fileName,
             path,
@@ -289,22 +245,20 @@ const startDownload = async (item: IDownloading) => {
 };
 
 const cancelDownload = (file: IDownloading) => {
-    ElMessageBox.confirm("是否取消下载？", "提示").then(
-        (res) => {
-            if (res === "confirm") {
-                const index = downLoadingProgress.value.findIndex(item => item.id === file.id);
-                if (index !== -1) {
+    ElMessageBox.confirm("是否取消下载？", "提示").then(res => {
+        if (res === "confirm") {
+            const index = downLoadingProgress.value.findIndex(item => item.id === file.id);
+            if (index !== -1) {
                     downLoadingProgress.value[index].instance?.destory();
                     downLoadingProgress.value[index].source?.cancel();
                     downloadingList.value.splice(index, 1);
                     downLoadingProgress.value.splice(index, 1);
-                }
-
-                store.commit(MutationTypes.MOVE_DOWNLOADING, {id: file.id, status: 3, timestamp: file.timestamp});
             }
+
+            store.commit(MutationTypes.MOVE_DOWNLOADING, { id: file.id, status: 3, timestamp: file.timestamp });
         }
-    ).catch(() => {
-    });
+    }
+    );
 };
 
 const downloadNext = (id: string, status: number) => {
@@ -312,7 +266,7 @@ const downloadNext = (id: string, status: number) => {
     const timestamp = downloadingList.value[index].timestamp;
     downloadingList.value.splice(index, 1);
     downLoadingProgress.value.splice(index, 1);
-    store.commit(MutationTypes.MOVE_DOWNLOADING, {id, status, timestamp});
+    store.commit(MutationTypes.MOVE_DOWNLOADING, { id, status, timestamp });
 };
 
 const initHistory = async () => {
@@ -335,7 +289,7 @@ const initHistory = async () => {
         } else {
             list.push({
                 time,
-                list: [item],
+                list: [item]
             });
         }
     }
@@ -347,14 +301,11 @@ const initHistory = async () => {
 
 initHistory();
 
-emitter.on(EmitterEvents.DOWNLOAD_CHANGE, (downList: IDownloading[]) => {
+emitter.on(EmitterEvents.DOWNLOAD_CHANGE, () => {
     searchHistory();
 
     const storeDownloading = store.state.common.downloading;
-    if (
-        storeDownloading.length > downloadingList.value.length &&
-        downloadingList.value.length < 2
-    ) {
+    if (storeDownloading.length > downloadingList.value.length && downloadingList.value.length < 2) {
         for (const item of storeDownloading) {
             if (item.status === 0) {
                 item.status = 1;
@@ -369,7 +320,7 @@ emitter.on(EmitterEvents.DOWNLOAD_CHANGE, (downList: IDownloading[]) => {
 const showInFolder = async (file: IDownloading) => {
     const path = window.electron.getPath("downloads");
     const fileUrl = window.electron.path.join(path, file.name);
-    const isExist = await window.electron.isExistFile(fileUrl);
+    const isExist = window.electron.isExistFile(fileUrl);
     if (isExist) {
         window.electron.shell.showItemInFolder(fileUrl);
     } else {
@@ -380,12 +331,12 @@ const showInFolder = async (file: IDownloading) => {
 const openFile = async (file: IDownloading) => {
     const path = window.electron.getPath("downloads");
     const fileUrl = window.electron.path.join(path, file.name);
-    const isExist = await window.electron.isExistFile(fileUrl);
-    if (isExist) {
-        window.electron.shell.openPath(fileUrl);
-    } else {
+    const isExist = window.electron.isExistFile(fileUrl);
+    if (!isExist) {
         ElMessage.error("文件不存在！");
+        return;
     }
+    await window.electron.shell.openPath(fileUrl);
 };
 
 const resetDownload = (file: IDownloading) => {
@@ -395,11 +346,8 @@ const resetDownload = (file: IDownloading) => {
     }
 
     file.status = 0;
-    const history = (get(STORAGE_TYPES.DOWNLOAD_HISTORY) ||
-        []) as IDownloading[];
-    const index = history.findIndex(
-        (item) => item.id === file.id && item.timestamp === file.timestamp
-    );
+    const history = (get(STORAGE_TYPES.DOWNLOAD_HISTORY) || []) as IDownloading[];
+    const index = history.findIndex(item => item.id === file.id && item.timestamp === file.timestamp);
     history[index].status = 0;
     set(STORAGE_TYPES.DOWNLOAD_HISTORY, history);
 
@@ -428,20 +376,15 @@ const resetDownload = (file: IDownloading) => {
 const clearHisory = () => {
     const storeDownloading = store.state.common.downloading;
     if (storeDownloading.length > 0) return ElMessage.warning("存在正在下载的文件，请先取消");
-    ElMessageBox.confirm("是否确认清空下载历史记录？", "提示").then(
-        (res) => {
-            if (res === "confirm") {
-                remove(STORAGE_TYPES.DOWNLOAD_HISTORY);
-                downloadList.value = [];
-            }
-        }
-    ).catch(() => {
+    ElMessageBox.confirm("是否确认清空下载历史记录？", "提示").then(res => {
+        if (res !== "confirm") return;
+        remove(STORAGE_TYPES.DOWNLOAD_HISTORY);
+        downloadList.value = [];
     });
 };
 
-const searchHistory = () => {
-    const history = (get(STORAGE_TYPES.DOWNLOAD_HISTORY) ||
-        []) as IDownloading[];
+function searchHistory() {
+    const history = (get(STORAGE_TYPES.DOWNLOAD_HISTORY) || []) as IDownloading[];
 
     const list: IDownload[] = [];
     for (const item of history) {
@@ -451,16 +394,12 @@ const searchHistory = () => {
             if (list.length > 0 && list[list.length - 1].time === time) {
                 list[list.length - 1].list.push(item);
             } else {
-                list.push({
-                    time,
-                    list: [item],
-                });
+                list.push({ time, list: [item] });
             }
         }
     }
-
     downloadList.value = list;
-};
+}
 
 const closeDownload = (file: IDownloading) => {
     const index = downloadingList.value.findIndex(item => item.id === file.id && item.timestamp === file.timestamp);
@@ -468,18 +407,14 @@ const closeDownload = (file: IDownloading) => {
         return ElMessage.warning("请先取消下载");
     }
 
-    ElMessageBox.confirm("是否确认删除该历史记录？", "提示").then(
-        (res) => {
-            if (res === "confirm") {
-                const history = (get(STORAGE_TYPES.DOWNLOAD_HISTORY) || []) as IDownloading[];
-                const index = history.findIndex(item => item.id === file.id && item.timestamp === file.timestamp);
-                history.splice(index, 1);
-                set(STORAGE_TYPES.DOWNLOAD_HISTORY, history);
+    ElMessageBox.confirm("是否确认删除该历史记录？", "提示").then(res => {
+        if (res !== "confirm") return;
+        const history = (get(STORAGE_TYPES.DOWNLOAD_HISTORY) || []) as IDownloading[];
+        const index = history.findIndex(item => item.id === file.id && item.timestamp === file.timestamp);
+        history.splice(index, 1);
+        set(STORAGE_TYPES.DOWNLOAD_HISTORY, history);
 
-                searchHistory();
-            }
-        }
-    ).catch(() => {
+        searchHistory();
     });
 };
 </script>

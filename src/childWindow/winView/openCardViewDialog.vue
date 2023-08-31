@@ -1,20 +1,20 @@
 <template>
     <div class="card-dialog">
         <ScreenView ref="screenRef" :inline="true" :isInit="isInit" :writeBoardVisible="writeBoardVisible"
-            @pagePrev="execPrev" @pageNext="execNext" @closeWriteBoard="closeWriteBoard" :slide="slideView"
-            v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
-            v-model:currentLineWidth="currentLineWidth" :isShowPenTools="false" />
+                    @pagePrev="execPrev" @pageNext="execNext" @closeWriteBoard="closeWriteBoard" :slide="slideView"
+                    v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
+                    v-model:currentLineWidth="currentLineWidth" :isShowPenTools="false"/>
         <div class="cardLis-class">
             <div class="me-page-item" :class="selected === index && 'active'" v-for="(item, index) in cardList"
-                @click="checkPage(index)" :key="(item as any).ID">
+                 @click="checkPage(index)" :key="(item as any).ID">
                 {{ (item as any).Name }}
             </div>
         </div>
         <Tools @prevStep="prevCard" @nextStep="nextCard" @showWriteBoard="showWriteBoard" @hideWriteBoard="hideWriteBoard"
-            @close="close" :dialog="true" @openShape="openShape" :isShowFullscreen="false" :isShowRemarkBtn="false"
-            :isShowClose="true" :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" @openPaintTool="openPaintTool"
-            @whiteboardOption="whiteboardOption" @redo="redo" @undo="undo" :isFullScreenStatus="true"
-            :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth" />
+               @close="close" :dialog="true" @openShape="openShape" :isShowFullscreen="false" :isShowRemarkBtn="false"
+               :isShowClose="true" :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" @openPaintTool="openPaintTool"
+               @whiteboardOption="whiteboardOption" @redo="redo" @undo="undo" :isFullScreenStatus="true"
+               :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth"/>
         <!-- <Tools
             @prevStep="prevCard"
             @nextStep="nextCard"
@@ -33,17 +33,18 @@
 import { defineComponent, ref, onMounted, computed, inject } from "vue";
 import { ElMessage } from "element-plus";
 import Tools from "../../views/preparation/intelligenceClassroom/components/preview/tools.vue";
+
 export default defineComponent({
     name: "openCardViewDia",
     props: {
         dialogVisible: {
             type: Boolean,
-            require: true,
+            require: true
         },
         cardList: {
             type: Array,
-            default: () => [],
-        },
+            default: () => []
+        }
     },
     emits: ["closeOpenCard"],
     setup(props, { emit }) {
@@ -73,7 +74,7 @@ export default defineComponent({
             if (selected.value === cardList.value.length - 1) {
                 return ElMessage({
                     type: "warning",
-                    message: "已经是最后一页",
+                    message: "已经是最后一页"
                 });
             }
             selected.value++;
@@ -159,7 +160,7 @@ export default defineComponent({
             undo
         };
     },
-    components: { Tools },
+    components: { Tools }
 });
 </script>
 
