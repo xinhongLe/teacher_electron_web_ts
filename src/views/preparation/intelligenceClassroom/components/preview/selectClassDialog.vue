@@ -73,11 +73,11 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, onMounted, onUnmounted} from "vue";
-import {GetGradeClass, ITeachShare, QuestionShare} from "@/api/prepare";
-import {get, STORAGE_TYPES} from "@/utils/storage";
-import {store} from "@/store";
-import {ElMessage, ElMessageBox} from "element-plus";
+import { defineComponent, ref, onMounted, onUnmounted } from "vue";
+import { GetGradeClass, ITeachShare, QuestionShare } from "@/api/prepare";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { store } from "@/store";
+import { ElMessage, ElMessageBox } from "element-plus";
 
 export default defineComponent({
     props: {
@@ -86,7 +86,7 @@ export default defineComponent({
             default: false
         },
         currentSlide: {
-            type: Object,
+            type: Object
         },
         sendSuccess: {
             type: Boolean,
@@ -94,7 +94,7 @@ export default defineComponent({
         }
     },
     emits: ["selectedClassList", "update:classVisible", "update:sendSuccess"],
-    setup(props, {emit}) {
+    setup(props, { emit }) {
 
         const checkedClass = ref("");
         const checkedType = ref("");
@@ -140,26 +140,26 @@ export default defineComponent({
             checkedClass: "",//选择班级
             checkedType: "",//选择类型
             answerType: "",//答题方式
-            selectNum: null,//选项个数
+            selectNum: null//选项个数
         });
         const teachShareParams = ref<ITeachShare>({
-            timeStr: '',
-            ElementId: '',
-            QuestionId: '',
-            S3: '',
-            OssName: '',
-            Name: '',
+            timeStr: "",
+            ElementId: "",
+            QuestionId: "",
+            S3: "",
+            OssName: "",
+            Name: "",
             FileType: 10,
             ChooseType: 10,
-            OssExtention: 'zip',
-            OssPath: 'TeachingMiniToolFile',
-            OssBucket: 'axsfile',
-            ClassID: '',
+            OssExtention: "zip",
+            OssPath: "TeachingMiniToolFile",
+            OssBucket: "axsfile",
+            ClassID: "",
             DeleteFlag: 0,
             TeacherID: store.state.userInfo.userCenterUserID,
             IsEnd: false,
             Type: 2,
-            Topic: ''
+            Topic: ""
         });
         // const mqttParams = ref({
         //     ElementId: '',
@@ -211,8 +211,8 @@ export default defineComponent({
                 teachShareParams.value.timeStr = String(timeStr);
                 teachShareParams.value.ElementId = "element_" + timeStr;
                 teachShareParams.value.QuestionId = "question_" + timeStr;
-                console.log('teachShareParams', teachShareParams.value)
-                console.log('props.currentSlide', props.currentSlide)
+                console.log("teachShareParams", teachShareParams.value);
+                console.log("props.currentSlide", props.currentSlide);
 
 
                 teachShareParams.value.S3 = props.currentSlide?.teach.src;
@@ -220,8 +220,8 @@ export default defineComponent({
                 teachShareParams.value.Name = props.currentSlide?.teach.name;
                 teachShareParams.value.ClassID = form.value.checkedClass;
                 teachShareParams.value.Topic = "sharestudent_" + form.value.checkedClass;
-                console.log('teachShareParams', teachShareParams.value)
-                const res = await QuestionShare(teachShareParams.value)
+                console.log("teachShareParams", teachShareParams.value);
+                const res = await QuestionShare(teachShareParams.value);
                 if (res.success) {
                     ElMessage.success("发送成功");
                     emit("update:sendSuccess", true);
@@ -240,17 +240,17 @@ export default defineComponent({
                 }
             }
         };
-        const _getTeacherClassList = async () => {
+        const getTeacherClasses = async () => {
             const res = await GetGradeClass();
             res.result?.forEach((item) => {
                 item.ClassData.forEach((item2: any) => {
-                    classList.value.push(item2)
-                })
+                    classList.value.push(item2);
+                });
             });
         };
 
         onMounted(() => {
-            _getTeacherClassList();
+            getTeacherClasses();
         });
 
         return {
@@ -267,7 +267,7 @@ export default defineComponent({
             // mqttParams,
             close,
             send
-        }
+        };
     }
 });
 </script>

@@ -13,7 +13,7 @@
                     v-if="item.name !== '首页' && item.name !== '备课'"
                     @click.stop="closeTab(item)"
                 >
-                    <Close />
+                    <Close/>
                 </el-icon>
             </div>
         </div>
@@ -24,7 +24,7 @@
                 :num="downloadNum"
                 @click="downloadVisible = true"
             >
-                <img src="@/assets/images/other/icon_download_top.png" alt="" />
+                <img src="@/assets/images/other/icon_download_top.png" alt=""/>
             </div>
             <div class="class-set">
                 <div v-if="currentSelectClass">
@@ -45,24 +45,24 @@
                 <span v-else>暂无班级信息</span>
             </div>
             <div class="help-warp" @click="openHelp">
-                <img src="./img/icon_help.svg" class="help-icon" />
+                <img src="./img/icon_help.svg" class="help-icon" alt=""/>
                 <span>帮助中心</span>
             </div>
-            <UserInfo @download="download" />
+            <UserInfo @download="download"/>
             <span class="line"></span>
             <div class="header-window-control">
                 <div class="hwc-minimize" @click="useMinimizeWindow()"></div>
                 <div class="hwc-maximize" @click="useMaximizeWindow()"></div>
                 <div class="hwc-close" v-if="isElectron()" @click="close">
                     <el-icon>
-                        <CloseBold />
+                        <CloseBold/>
                     </el-icon>
                 </div>
             </div>
         </div>
-        <ExitDialog v-model:visible="visible" />
+        <ExitDialog v-model:visible="visible"/>
 
-        <DownloadDialog v-model:visible="downloadVisible" />
+        <DownloadDialog v-model:visible="downloadVisible"/>
     </div>
 </template>
 
@@ -82,7 +82,6 @@ import { useRoute, useRouter } from "vue-router";
 import useBreadList from "./hooks/useBreadList";
 import { Bread } from "./interface";
 import ExitDialog from "./ExitDialog.vue";
-import SelectAttendClass from "./selectAttendClass.vue";
 import UserInfo from "./userInfo.vue";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import { store } from "@/store";
@@ -96,12 +95,11 @@ export default defineComponent({
         UserInfo,
         CloseBold,
         Close,
-        SelectAttendClass,
         DownloadDialog
     },
     setup() {
         const classList: any = ref([]);
-        //当前选择的班级
+        // 当前选择的班级
         const currentSelectClass = ref("");
         const route = useRoute();
         const router = useRouter();
@@ -154,7 +152,7 @@ export default defineComponent({
             () => currentUserInfo.value,
             (val: any) => {
                 if (val) {
-                    _getTeacherClassList();
+                    getTeacherClasses();
                 }
             },
             { deep: true }
@@ -166,8 +164,8 @@ export default defineComponent({
             },
             { deep: true }
         );
-        //查询统一班级的接口
-        const _getTeacherClassList = () => {
+        // 查询统一班级的接口
+        const getTeacherClasses = () => {
             getMyClassByOrgId().then(async (res) => {
                 if (res.resultCode === 200) {
                     classList.value = res.result;
@@ -184,7 +182,7 @@ export default defineComponent({
                 }
             });
         };
-        //统一切换班级
+        // 统一切换班级
         const handleClassChange = (val: string) => {
             const classData = classList.value.find(
                 (item: any) => item.ClassAixueshiId === val
@@ -208,10 +206,10 @@ export default defineComponent({
             useMaximizeWindow,
             classList,
             currentSelectClass,
-            _getTeacherClassList,
-            handleClassChange,
+            getTeacherClasses,
+            handleClassChange
         };
-    },
+    }
 });
 </script>
 
@@ -242,9 +240,9 @@ export default defineComponent({
             cursor: pointer;
             position: relative;
             -webkit-app-region: no-drag;
+
             &:after {
                 content: attr(num);
-                display: block;
                 width: 16px;
                 height: 16px;
                 border-radius: 8px;
@@ -261,28 +259,9 @@ export default defineComponent({
         }
 
         :deep(.class-set) {
-            //cursor: pointer;
-            //height: 30px;
-            //border-radius: 4px;
-            //border: 1px solid rgba(224, 226, 231, 0.2);
-            //display: flex;
-            //align-items: center;
-            //justify-content: space-between;
-            //padding: 0 10px;
             margin-right: 40px;
             -webkit-app-region: no-drag;
 
-            //.text {
-            //    font-size: 14px;
-            //    font-family: PingFangSC-Regular, PingFang SC;
-            //    font-weight: 400;
-            //    color: #FFFFFF;
-            //    padding-right: 14px;
-            //}
-            //
-            //&:hover {
-            //    border-color: #409eff;
-            //}
             .el-select {
                 .el-input {
                     .el-input__wrapper {
@@ -336,7 +315,6 @@ export default defineComponent({
     font-size: 14px;
     align-items: center;
     justify-content: space-between;
-    align-items: center;
     height: 40px;
     min-width: 140px;
     border-top-left-radius: 10px;

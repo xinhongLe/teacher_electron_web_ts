@@ -92,7 +92,7 @@ export default defineComponent({
             });
         };
 
-        const _getTeacherClassList = () => {
+        const getTeacherClasses = () => {
             const data = {
                 Base_OrgId: props.currentUserInfo!.schoolId,
                 TeacherId: props.currentUserInfo!.userCenterUserID
@@ -110,7 +110,7 @@ export default defineComponent({
         };
 
         onMounted(() => {
-            _getTeacherClassList();
+            getTeacherClasses();
         });
 
         return {

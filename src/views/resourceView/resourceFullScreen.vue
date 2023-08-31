@@ -46,7 +46,6 @@ const viewComponents = {
 const store = useStore();
 const activeWindow = computed(() => store.state.common.activeWindow);
 const resourceList = computed(() => store.state.common.showResourceFullScreen);
-console.log('resourceList', resourceList)
 const videoResource = computed(() => store.state.common.singleResourceFullScreen.video);
 const questionResource = computed(() => store.state.common.singleResourceFullScreen.question);
 </script>

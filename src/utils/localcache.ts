@@ -194,13 +194,7 @@ export default class LocalCache {
         return slide;
     }
 
-    async getElementWinCards(
-        element: any,
-        originType: number,
-        winpages: Array<{ id: string; result: string }>,
-        slides: Array<Slide>,
-        fail: () => void
-    ) {
+    async getElementWinCards(element: any, originType: number, winpages: Array<{ id: string; result: string }>, slides: Array<Slide>, fail: () => void) {
         if (this.isEnd) return;
         if (element.wins) {
             for (let win of element.wins) {
@@ -314,17 +308,12 @@ export default class LocalCache {
         this.isEnd = true;
     }
 
-    async doCache(
-        winInfo: IGetWindowCards,
-        cacheFileName: string,
-        path: string,
-        fail: () => void
-    ) {
+    async doCache(winInfo: IGetWindowCards, cacheFileName: string, path: string, fail: () => void) {
         this.isFail = false;
         this.isEnd = false;
         this.cacheCallback?.cachingStatus(0);
         const eleRes = await GetWindowsElements(winInfo, true);
-        // return;
+        console.log(eleRes);
         if (this.isEnd) return;
         if (eleRes.success) {
             let cards = eleRes.result;

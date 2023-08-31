@@ -11,8 +11,15 @@
                     <el-checkbox :label="item.Id" v-for="item in classList">{{ item.Name }}</el-checkbox>
                 </el-checkbox-group> -->
                 <el-radio-group v-model="checkedClass">
-                    <el-radio style="margin-bottom: 10px;" :label="item.Id" v-for="item in classList" size="large"
-                              border>{{ item.Name }}
+                    <el-radio
+                        border
+                        size="large"
+                        :key="item.Id"
+                        :label="item.Id"
+                        v-for="item in classList"
+                        style="margin-bottom: 10px;"
+                    >
+                        {{ item.Name }}
                     </el-radio>
                 </el-radio-group>
             </div>
@@ -33,9 +40,8 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, onMounted} from "vue";
-import {GetCurrentCodeTeacherClass, ITeacherClassCodeOutDto} from "@/api/prepare";
-import {get, STORAGE_TYPES} from "@/utils/storage";
+import { defineComponent, ref, onMounted } from "vue";
+import { GetCurrentCodeTeacherClass, ITeacherClassCodeOutDto } from "@/api/prepare";
 
 export default defineComponent({
     props: {
@@ -45,7 +51,7 @@ export default defineComponent({
         }
     },
     emits: ["selectedClassList", "update:classVisible"],
-    setup(props, {emit}) {
+    setup(props, { emit }) {
         const checkedClass = ref("");
         const classList = ref<ITeacherClassCodeOutDto[]>([]);
         const close = () => {
@@ -58,23 +64,23 @@ export default defineComponent({
                 emit("update:classVisible", false);
             }
         };
-        const _getTeacherClassList = async () => {
+        const getTeacherClasses = async () => {
             const res = await GetCurrentCodeTeacherClass();
             if (res.success) {
                 classList.value = res.result || [];
             } else {
-                classList.value = []
+                classList.value = [];
             }
         };
         onMounted(() => {
-            _getTeacherClassList();
+            getTeacherClasses();
         });
         return {
             checkedClass,
             classList,
             close,
             sure
-        }
+        };
     }
 });
 </script>
