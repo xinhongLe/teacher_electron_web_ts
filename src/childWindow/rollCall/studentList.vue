@@ -39,11 +39,11 @@
                 >
                     <div
                         class="student-item"
-                        v-for="(student, i) in form.allStudentList.slice(0, 25)"
+                        v-for="(student, i) in form.allStudentList.slice(0, 20)"
                         :key="i"
                         :style="{
                             transform: `translateX(-102px) rotateY(${
-                                (360 / (form.allStudentList.length > 25 ? 25 : form.allStudentList.length)) * i
+                                (360 / (form.allStudentList.length > 20 ? 20 : form.allStudentList.length)) * i
                             }deg) translateZ(${circleWidth}px)`
                         }"
                     >
