@@ -612,6 +612,7 @@ export default defineComponent({
                         overflow: auto;
 
                         .top-con {
+                            overflow: auto;
                             min-height: 86px;
                             font-size: 14px;
 

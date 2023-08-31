@@ -277,7 +277,7 @@ function createBlackboardWindow() {
         show: false,
         useContentSize: true,
     });
-    blackboardWin.webContents.openDevTools(); // 打开黑板调试
+    // blackboardWin.webContents.openDevTools(); // 打开黑板调试
 
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();

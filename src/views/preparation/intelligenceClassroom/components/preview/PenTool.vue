@@ -27,7 +27,7 @@
                 }"></div>
 
                 <el-popover v-model="penSizeVisible" :persistent="false" :teleported="false" :width="140"
-                            placement="top" trigger="hover">
+                            placement="top" trigger="click">
                     <el-input-number
                         :min="2"
                         :max="999"
@@ -60,7 +60,7 @@
             </div>
 
             <el-popover v-model="eraserSizeVisible" :persistent="false" :teleported="false" :width="140"
-                        placement="top" trigger="hover">
+                        placement="top" trigger="click">
                 <el-input-number
                     :min="2"
                     :max="999"

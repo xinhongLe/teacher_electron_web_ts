@@ -11,7 +11,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, onMounted, reactive, ref, watch } from "vue";
+import {defineComponent, nextTick, onMounted, reactive, ref, watch} from "vue";
+
 const huabi = require("./../../assets/look/icon-huabi.cur");
 const rubber = require("./../../assets/look/icon-rubber2.cur");
 export default defineComponent({
@@ -52,7 +53,7 @@ export default defineComponent({
             });
         });
 
-        function selectPenMode () {
+        function selectPenMode() {
             fabCanvas.value!.freeDrawingBrush = new window.fabric.PencilBrush(fabCanvas.value!);
             fabCanvas.value!.isDrawingMode = true;
             fabCanvas.value!.freeDrawingBrush.color = props.colorName;
@@ -71,7 +72,7 @@ export default defineComponent({
         const mousemove = (e: MouseEvent) => {
             const x = e.x;
             const y = e.y;
-            const newPoint = { x: x, y: y };
+            const newPoint = {x: x, y: y};
             if (painting.value) {
                 const left = x - startPoint.x;
                 const top = y - startPoint.y;
@@ -143,6 +144,7 @@ export default defineComponent({
     z-index: 2;
     width: 100%;
 }
+
 // .xiangpica {
 //     cursor: url("./../../assets/look/icon-rubber.png"), pointer;
 // }

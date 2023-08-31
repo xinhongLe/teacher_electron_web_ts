@@ -149,14 +149,20 @@ export default defineComponent({
                             }
                         });
                     } else if (resource.ResourceShowType === 1) {
-                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                            component: "WinCard",
-                            resource: {
-                                id: resource.OldResourceId,
-                                isSystem: resource.IsSysFile === 1,
-                                openMore: true
-                            }
-                        });
+                        if (store.state.common.showResourceFullScreen.length) {
+                            window.electron.ipcRenderer.invoke("closeCourse");
+                        }
+                        setTimeout(() => {
+                            store.commit(MutationTypes.SET_RESOURCE_INTO, 2);
+                            store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                                component: "WinCard",
+                                resource: {
+                                    id: resource.OldResourceId,
+                                    isSystem: resource.IsSysFile === 1,
+                                    openMore: true
+                                }
+                            });
+                        }, 100)
                     } else if (resource.ResourceShowType === 0 || resource.ResourceShowType === 4) {
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                             component: "ScreenViewFile",
