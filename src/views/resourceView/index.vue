@@ -10,8 +10,3 @@ export default defineComponent({
     components: { ResourceViewList }
 });
 </script>
-
-<style lang="scss" scoped>
-
-
-</style>

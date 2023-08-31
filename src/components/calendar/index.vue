@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import useSchedules, {NewColData} from "@/hooks/useSchedules";
+import useSchedules, { NewColData } from "@/hooks/useSchedules";
 import useTime from "@/hooks/useTime";
 import moment from "moment";
 import selectClass from "@/components/selectClass/index.vue";
@@ -55,38 +55,40 @@ import {
 } from "vue";
 import Course from "./Course.vue";
 import usePageEvent from "@/hooks/usePageEvent";
-import {EVENT_TYPE} from "@/config/event";
-import {useRoute} from "vue-router";
+import { EVENT_TYPE } from "@/config/event";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
     name: "Calendar",
+    components: { Course, selectClass, hasLessonDialogTip, deleteLessonDialogTip },
     props: {
         days: {
             type: Array as PropType<string[]>,
-            required: true,
+            required: true
         },
         isShowText: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isDrop: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isShowDelete: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isShowDetailBtn: {
             type: Boolean,
-            default: false,
-        },
+            default: false
+        }
     },
-    setup(props, {expose, emit}) {
+    emits: ["openCourse", "reLoadLayout"],
+    setup(props, { expose, emit }) {
         const proxy = getCurrentInstance();
-        //首页上课区域点击埋点
-        const {createBuryingPointFn} = usePageEvent("首页");
-        const {weekNext, weekPre, initDays, formTime, formWeek} = useTime();
+        // 首页上课区域点击埋点
+        const { createBuryingPointFn } = usePageEvent("首页");
+        const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
         initDays();
         const days = computed(() => props.days);
         const classVisible = ref(false);// 选择班级弹框
@@ -97,7 +99,7 @@ export default defineComponent({
             newSchedules,
             updateSchedules,
             updateClassSchedule,
-            initSchedules,
+            initSchedules
         } = useSchedules(days);
         const isCurrentDay = (day: string) => {
             return moment().isSame(day, "d");
@@ -108,7 +110,7 @@ export default defineComponent({
         const openCourse = (data: NewColData) => {
             emit("openCourse", data);
         };
-        //创建首页上课区域埋点事件
+        // 创建首页上课区域埋点事件
         const createHomePoint = (data: NewColData) => {
             // createBuryingPointFn(
             //     EVENT_TYPE.PageClick,
@@ -147,9 +149,9 @@ export default defineComponent({
             if (val) {
                 nextTick(() => {
                     emit("reLoadLayout");
-                })
+                });
             }
-        })
+        });
         const route = useRoute();
         nextTick(() => {
             if (route.path === "/home") {
@@ -162,7 +164,7 @@ export default defineComponent({
         //     window.removeEventListener("resize", resize);
         // });
 
-        expose({initSchedules, resize, updateClassSchedule});
+        expose({ initSchedules, resize, updateClassSchedule });
 
         const scale = ref(1);
         const height = ref(0);
@@ -179,8 +181,8 @@ export default defineComponent({
             // } : {};
 
             return route.path === "/home" ? {
-                height: `100%`,
-                width: `100%`,
+                height: "100%",
+                width: "100%"
             } : {};
         });
         const currentCourseId = ref("");
@@ -199,28 +201,28 @@ export default defineComponent({
         const openDeleteDialogTip = (val: any) => {
             currentCourseId.value = val.id;
             deleteLessonVisible.value = true;
-            currentPackageList.value = val.packageList
+            currentPackageList.value = val.packageList;
         };
         // 选择好班级后
         const selectedClassList = (val: string) => {
             nextTick(() => {
-                const courseRef: any = proxy?.refs['courseRef' + currentCourseId.value];
-                courseRef[0] && courseRef[0].selectedClassList(val)
-            })
+                const courseRef: any = proxy?.refs["courseRef" + currentCourseId.value];
+                courseRef[0] && courseRef[0].selectedClassList(val);
+            });
         };
         // 替换还是添加备课包
         const replaceOrAddPackage = (type: number) => {
             nextTick(() => {
-                const courseRef: any = proxy?.refs['courseRef' + currentCourseId.value];
-                courseRef[0] && courseRef[0].replaceOrAddPackage(type)
-            })
+                const courseRef: any = proxy?.refs["courseRef" + currentCourseId.value];
+                courseRef[0] && courseRef[0].replaceOrAddPackage(type);
+            });
         };
-        //选择好要删除的课包
+        // 选择好要删除的课包
         const sureDeletePackage = (val: string[]) => {
             nextTick(() => {
-                const courseRef: any = proxy?.refs['courseRef' + currentCourseId.value];
-                courseRef[0] && courseRef[0].sureDeletePackage(val)
-            })
+                const courseRef: any = proxy?.refs["courseRef" + currentCourseId.value];
+                courseRef[0] && courseRef[0].sureDeletePackage(val);
+            });
         };
         return {
             weekNext,
@@ -252,9 +254,7 @@ export default defineComponent({
             currentCourseId,
             currentPackageList
         };
-    },
-
-    components: {Course, selectClass, hasLessonDialogTip, deleteLessonDialogTip}
+    }
 });
 </script>
 
@@ -332,7 +332,6 @@ export default defineComponent({
 
     .col {
         min-height: 30px;
-        //min-height: 35px;
         display: flex;
         align-items: center;
         flex-shrink: 0;
@@ -452,6 +451,4 @@ export default defineComponent({
         }
     }
 }
-
-
 </style>

@@ -428,7 +428,7 @@ app.on("ready", async () => {
     }
 
     createLoginWindow();
-    // createLocalPreview(["/Users/admin/Desktop/3《雨的四季》.lyxpkg"])
+    // createLocalPreview(["D://Desktop/1《古诗二首》第一课时.lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {

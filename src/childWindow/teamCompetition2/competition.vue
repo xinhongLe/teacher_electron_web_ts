@@ -5,7 +5,10 @@
             <span v-if="!isExpand" class="expand-btn" @click="expand()">展开</span>
         </div>
         <div class="star-list" ref="starBox" :class="!isExpand && 'expand'">
-           <div class="item-row" v-for="(item, index) in teamArr" :key="index">
+           <div :class="['item-row', awardTeamShow === index ? 'bg' : '' ]" v-for="(item, index) in teamArr" :key="index">
+               <div v-if="isExpand" class="num">
+                   {{index + 1}}
+               </div>
                <div class="item-row-left">
 <!--                   <img class="team-award-img" v-if="awardTeam.indexOf(index) > -1" src="./images/pic_metal@2x.png" alt="" srcset="">-->
                    <img @click="addTeam(index)" src="./images/icon_add@2x.png" alt="">
@@ -92,6 +95,7 @@ import CompetitionSet from "./competitionSet.vue";
 import { ICurrentSelectClass } from "@/types/store";
 import { teamItem } from "./types";
 import { Student } from "@/types/labelManage";
+import { ElMessage } from "element-plus";
 
 export default defineComponent({
     props: {
@@ -123,6 +127,9 @@ export default defineComponent({
         const actionAnimationStar = ref("");
 
         const addTeam = (index:number) => {
+            if (teamArr.value.length === 10) {
+                return ElMessage.warning("请等待学员加载后答题！");
+            }
             teamArr.value.splice(index + 1, 0, { name: "", starList: [], studentList: [] });
         };
 
@@ -134,9 +141,9 @@ export default defineComponent({
             teamArr.value[index].studentList = list;
         };
 
-        const delStudents = (ids:string[], flag = false) => {
+        const delStudents = (ids:string[]) => {
             teamArr.value = teamArr.value.map((item:teamItem) => {
-                item.studentList = flag ? [] : item.studentList.filter(j => (!(ids.includes(j.StudentID))));
+                item.studentList = item.studentList.filter(j => (!(ids.includes(j.StudentID))));
                 return item;
             });
         };
@@ -233,7 +240,7 @@ export default defineComponent({
             });
         });
 
-        const awardTeamShow = ref(0);
+        const awardTeamShow = ref(-1);
         const audioRef = ref();
         const award = (i: number) => {
             awardShow.value = true;
@@ -404,6 +411,19 @@ export default defineComponent({
     padding: 10px 40px 10px 20px;
     border: 1px solid #F5F6FA;
     margin-bottom: 10px;
+    .num{
+        position: absolute;
+        left: 0;
+        top:0;
+        width: 24px;
+        height: 20px;
+        background: url(./images/tag_xuhao.png) no-repeat;
+        background-size: 100%;
+        font-size: 14px;
+        font-family: HarmonyOS_Sans_SC;
+        color: #5F626F;
+        text-align: center;
+    }
     .item-row-left {
         display: flex;
         align-items: center;
@@ -420,6 +440,11 @@ export default defineComponent({
             font-weight: bold;
         }
     }
+}
+
+.bg{
+    background: url(./images/bg_pic_metal.png) no-repeat;
+    background-size: auto 100%;
 }
 
 .star-list::-webkit-scrollbar {
@@ -439,11 +464,14 @@ export default defineComponent({
 }
 
 .expand {
-    padding: 0px 0 0 22px;
+    padding: 0px 0 0 36px;
     .item-row {
         padding: 0px 28px 0px 0px ;
         border: none;
         margin-bottom: 0px;
+        .num{
+            //top: 6px;
+        }
     }
     .del-img{
         bottom: 9px;

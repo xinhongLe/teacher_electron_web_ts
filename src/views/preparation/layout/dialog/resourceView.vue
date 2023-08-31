@@ -53,9 +53,7 @@ import {
     onMounted,
     onUnmounted,
     PropType,
-    provide,
-    ref,
-    watch,
+    ref
 } from "vue";
 import ResourceViewList from "@/views/resourceView/resourceViewList.vue";
 import ResourceItem from "../resourceItem.vue";
@@ -67,27 +65,28 @@ export default defineComponent({
     props: {
         target: {
             type: String,
-            default: "",
+            default: ""
         },
         resource: {
             type: Object as PropType<IResourceItem>,
+            default: () => ({})
         },
         visible: {
             type: Boolean,
-            default: false,
+            default: false
         },
         lessonId: {
             type: String,
-            default: "",
+            default: ""
         },
         name: {
             type: String,
-            default: "",
+            default: ""
         },
         data: {
             type: Object as PropType<IViewResourceData>,
-            required: true,
-        },
+            default: () => ({})
+        }
     },
     emits: ["eventEmit", "update:visible", "closeDetail"],
     setup(props, { emit }) {
@@ -143,9 +142,9 @@ export default defineComponent({
             isFullScreen,
             close,
             setFullScreen,
-            eventEmit,
+            eventEmit
         };
-    },
+    }
 });
 </script>
 
@@ -157,6 +156,7 @@ export default defineComponent({
         display: flex;
         flex-direction: column;
         min-height: 0;
+
         .el-dialog__body {
             background-color: #f5f6fa;
             flex: 1;
@@ -165,11 +165,13 @@ export default defineComponent({
             border-bottom-right-radius: 6px;
             padding: var(--el-dialog-padding-primary);
         }
+
         .el-dialog__headerbtn {
             right: -30px;
             top: 0;
             background: rgba(255, 255, 255, 0.3);
             border: 1px solid white;
+
             .el-dialog__close {
                 color: white;
             }
@@ -188,6 +190,7 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     position: relative;
+
     &.full-screen {
         position: fixed;
         top: 0;
@@ -196,6 +199,7 @@ export default defineComponent({
         right: 0;
         z-index: 1;
     }
+
     .full-screen-set {
         position: absolute;
         top: 10px;

@@ -1,22 +1,22 @@
 <template>
     <el-dialog v-model="dialogVisible" center :title="type === 1 ? '小组比拼设置' : '选择学生'" width="650" @close="close" :close-on-click-modal="false">
        <div class="content" v-if="type === 1">
-           <div class="content-top">
-               <div class="text">当前班级：</div>
-               <el-radio-group v-model="checkClassId" @change="changeClass">
-                   <el-radio v-for="item in classList" :key="item.ClassUserCenterId" :label="item.ClassUserCenterId">
-                       {{item.ClassName}}
-                   </el-radio>
-               </el-radio-group>
-           </div>
+<!--           <div class="content-top">-->
+<!--               <div class="text">当前班级：</div>-->
+<!--               <el-radio-group v-model="checkClassId" @change="changeClass">-->
+<!--                   <el-radio v-for="item in classList" :key="item.ClassUserCenterId" :label="item.ClassUserCenterId">-->
+<!--                       {{item.ClassName}}-->
+<!--                   </el-radio>-->
+<!--               </el-radio-group>-->
+<!--           </div>-->
 
            <div class="content-set">
                <div class="text">小组设置：</div>
                <div class="row" v-for="(item, index) in teamArr" :key="item.id">
                    <el-input v-model="item.name" />
                    <el-button type="primary" @click="checkStudent(item.studentList, index)" plain>{{item.studentList.length > 0 ? `已选${item.studentList.length}人` : "选择学生"}}</el-button>
-                   <img @click="emits('addTeam', index)" src="./images/icon_add@2x.png" alt="">
-                   <img  @click="emits('delTeam', index)" src="./images/icon_jian.png" alt="">
+                   <img  @click="emits('addTeam', index)" src="./images/icon_add@2x.png" alt="">
+                   <img v-show="index > 0" @click="emits('delTeam', index)" src="./images/icon_jian.png" alt="">
                </div>
            </div>
        </div>
@@ -67,13 +67,13 @@ const dialogVisible = computed(() => props.visible);
 const state = reactive({
     type: 1, // 1选择班级 2选择学生
     teamIndex: 0,
-    checkClassId: "",
-    classList: get(STORAGE_TYPES.CLASS_LIST) || [],
+    checkClassId: get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId,
+    // classList: get(STORAGE_TYPES.CLASS_LIST) || [],
     allStudents: get(STORAGE_TYPES.STUDENT_LIST) || [],
     currentClassStudents: []
 });
 
-const { type, checkClassId, classList } = toRefs(state);
+const { type } = toRefs(state);
 
 const studentListRef = ref();
 const checkStudent = (list: ICurrentSelectClass[], index:number) => {
@@ -129,17 +129,17 @@ const save = () => {
     }
 };
 
-const changeClass = () => {
-    emits("delStudents", [], true);
-    state.currentClassStudents = state.allStudents.filter((v: any) => state.checkClassId === v.ClassID);
-};
+// const changeClass = () => {
+//     emits("delStudents", [], true);
+//     state.currentClassStudents = state.allStudents.filter((v: any) => state.checkClassId === v.ClassID);
+// };
 
 const close = () => {
     state.type === 1 ? emits("update:modelValue", false) : (state.type = 1);
 };
 
 onMounted(() => {
-    state.checkClassId = state.classList[0]?.ClassUserCenterId;
+    // state.checkClassId = state.classList[0]?.ClassUserCenterId;
     state.currentClassStudents = state.allStudents.filter((v: any) => state.checkClassId === v.ClassID);
 });
 
@@ -176,7 +176,8 @@ onMounted(() => {
             align-items: center;
             margin-top: 10px;
             .el-input{
-                flex: 1;
+                //flex: 1;
+                width: 430px;
             }
             .el-button{
                 width: 90px;

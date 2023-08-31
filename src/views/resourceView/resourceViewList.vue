@@ -8,7 +8,7 @@
             <iframe v-if="type === 4" :src="url"></iframe>
             <iframe class="office-iframe" sandbox="allow-same-origin allow-scripts" v-if="isOffice" :src="url"></iframe>
             <div class="iframe-image" v-if="isImage">
-                <img :src="url"/>
+                <img :src="url" alt=""/>
             </div>
             <div class="iframe-audio" v-if="isAudio">
                 <audio :src="url" controls controlsList="nodownload"/>
@@ -76,10 +76,11 @@ export default defineComponent({
         },
         resource: {
             type: Object as PropType<IResourceItem | undefined>,
-            required: true
+            default: undefined
         },
         type: {
-            type: Number
+            type: Number,
+            default: 0
         },
         visible: {
             type: Boolean,
@@ -90,12 +91,12 @@ export default defineComponent({
             default: () => ({})
         },
         data: {
-            type: Object as PropType<IViewResourceData>,
-            required: true
+            type: Object as PropType<IViewResourceData | null>,
+            default: null
         },
         lessonId: {
             type: String,
-            required: true
+            default: ""
         },
         isFullScreen: {
             type: Boolean,
