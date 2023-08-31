@@ -211,6 +211,7 @@ export default defineComponent({
         background-color: rgba(0, 0, 0, 0.4);
 
         .enlarge-img-content-warp {
+            width: 60%;
             position: absolute;
             top: 50%;
             left: 50%;

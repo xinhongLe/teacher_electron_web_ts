@@ -268,7 +268,7 @@
                     <img src="./ico/icon_qiehuan.png" alt="" v-if="!isTzOrLine || isTzOrLine === 'TZ'"/>
                     <img src="./ico/icon_qiehuan_selected.png" alt="" v-else/>
                     <span class="text">{{
-                            (isTzOrLine === "TZ" || !isTzOrLine) ? "田字格" : "四线格"
+                            (isTzOrLine === "TZ" || !isTzOrLine) ? "四线格" : "田字格"
                         }}</span>
                 </div>
             </div>
@@ -312,6 +312,7 @@ import useUndoOrRecover from "./hooks/useUndoOrRecover";
 import useClear from "./hooks/useClear";
 import {ActiveType, PenColorMap} from "./enum";
 import {enterFullscreen, exitFullscreen, isFullscreen} from "@/utils/fullscreen";
+import path from "path";
 
 export default defineComponent({
     setup() {
@@ -383,34 +384,73 @@ export default defineComponent({
         };
 
         // 切换田字格/四线格
-        const changeTianZiOrLineGrid = () => {
-            // isTzOrLine.value = !isTzOrLine.value ? "TZ" : isTzOrLine.value === "TZ" ? "LINE" : "TZ";
-
-            if (!isTzOrLine.value || isTzOrLine.value === "TZ") {
-                boxRef.value!.style.backgroundImage = "url(" + require("./ico/view.jpg") + ")";
-                isTzOrLine.value = "LINE"
-            } else {
-                boxRef.value!.style.backgroundImage = "url(" + require("./ico/line.jpg") + ")";
-                isTzOrLine.value = "TZ"
-
+        // const changeTianZiOrLineGrid = () => {
+        //     // isTzOrLine.value = !isTzOrLine.value ? "TZ" : isTzOrLine.value === "TZ" ? "LINE" : "TZ";
+        //
+        //     if (!isTzOrLine.value || isTzOrLine.value === "TZ") {
+        //         boxRef.value!.style.backgroundImage = "url(" + require("./ico/view.jpg") + ")";
+        //         isTzOrLine.value = "LINE"
+        //     } else {
+        //         boxRef.value!.style.backgroundImage = "url(" + require("./ico/line.jpg") + ")";
+        //         isTzOrLine.value = "TZ"
+        //
+        //     }
+        //     // fabCanvas.value.setBackgroundColor(
+        //     //     "transparent"
+        //     // );
+        //     fabCanvas.value.get("backgroundColor").set({erasable: false});
+        //     fabCanvas.value.renderAll();
+        //     penColor.value = PenColorMap.Black;
+        // }
+        const backgroundImageUrl = ref()
+        // 设置图片
+        const setBackImg = () => {
+            if (!isTzOrLine.value) return;
+            let width: any, height: any;
+            if (isTzOrLine.value === "TZ") {
+                backgroundImageUrl.value = require("./ico/view.jpg");
+                width = 1023;
+                height = 729
+            } else if (isTzOrLine.value === "LINE") {
+                backgroundImageUrl.value = require("./ico/line.jpg");
+                width = 768;
+                height = 832
             }
-            fabCanvas.value.setBackgroundColor(
-                "transparent"
-            );
-            fabCanvas.value.get("backgroundColor").set({erasable: false});
-            fabCanvas.value.renderAll();
+            const canvas = fabCanvas.value;
+            canvas.setBackgroundImage(backgroundImageUrl.value, canvas.renderAll.bind(canvas),
+                {
+                    scaleX: canvas.width / width,
+                    scaleY: canvas.height / height,
+                    originX: 'left',
+                    originY: 'top',
+                    objectCaching: false,
+                    backgroundImageStretch: true
+                });
+        }
+
+        // 切换田字格/四线格
+        const changeTianZiOrLineGrid = () => {
+            if (!isTzOrLine.value || isTzOrLine.value === "TZ") {
+                isTzOrLine.value = "LINE";
+                setBackImg();
+            } else {
+                isTzOrLine.value = "TZ";
+                setBackImg();
+            }
             penColor.value = PenColorMap.Black;
         }
 
         const changeBoard = () => {
             console.log('fabCanvas.value', fabCanvas.value)
+            backgroundImageUrl.value = null; // 将背景图片设置为null
+            fabCanvas.value.setBackgroundImage(backgroundImageUrl.value, fabCanvas.value.renderAll.bind(fabCanvas.value));
+            penColor.value = PenColorMap.White;
             fabCanvas.value.setBackgroundColor(
                 isBlack.value ? whiteColor : blackColor
             );
             fabCanvas.value.get("backgroundColor").set({erasable: false});
             fabCanvas.value.renderAll();
             isBlack.value = !isBlack.value;
-            console.log('isBlack.value', isBlack.value, penColor.value)
             if (!isBlack.value && penColor.value === PenColorMap.White) {
                 penColor.value = PenColorMap.Black;
             } else {
@@ -481,6 +521,8 @@ export default defineComponent({
                         width: boxRef.value?.offsetWidth,
                         height: boxRef.value?.offsetHeight,
                     })
+                    if (!backgroundImageUrl.value) return
+                    setBackImg();
                 })
             });
         });
@@ -547,7 +589,9 @@ export default defineComponent({
             enterFullscreen,
             exitFullscreen,
             changeTianZiOrLineGrid,
-            isTzOrLine
+            isTzOrLine,
+            setBackImg,
+            backgroundImageUrl
         };
     },
     components: {BoardList, BoardHistoryList, CloseDialog}
@@ -581,7 +625,7 @@ export default defineComponent({
         flex: 1;
         width: 100%;
         height: calc(100% - 60px);
-        background-image: url("~@/childWindow/blackboard/ico/view.jpg");
+        //background-image: url("~@/childWindow/blackboard/ico/view.jpg");
         //background-image: url("~@/childWindow/blackboard/ico/line.jpg");
 
 

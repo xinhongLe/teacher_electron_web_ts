@@ -6,7 +6,7 @@
             class="custom-dialog"
             v-model="questionVisible"
             title="添加题目"
-            width="80vw"
+            width="95vw"
             align-center
             center
             :destroy-on-close="true"
@@ -77,8 +77,7 @@ export default defineComponent({
 
         .el-dialog__body {
             background: #F5F6FA !important;
-            min-height: 70vh;
-            max-height: 80vh;
+            height: 84vh;
             overflow: auto;
             display: flex;
             padding: 0;
