@@ -43,7 +43,7 @@
                         :key="i"
                         :style="{
                             transform: `translateX(-102px) rotateY(${
-                                (360 / unselectedStudent.length) * i
+                                (360 / (form.allStudentList.length > 25 ? 25 : form.allStudentList.length)) * i
                             }deg) translateZ(${circleWidth}px)`
                         }"
                     >
