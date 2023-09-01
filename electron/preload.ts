@@ -3,11 +3,11 @@ import crypto from "crypto";
 import AdmZip from "adm-zip";
 import ffmpeg from "fluent-ffmpeg";
 import logger from "@/utils/logger";
-import {v4 as uuidv4} from "uuid";
-import path, {join, resolve} from "path";
-import {checkWindowSupportNet} from "./util";
-import {exportWord, IFileData} from "./exportWord";
-import {isExistFile, mkdirs, store} from "./downloadFile";
+import { v4 as uuidv4 } from "uuid";
+import path, { join, resolve } from "path";
+import { checkWindowSupportNet } from "./util";
+import { exportWord, IFileData } from "./exportWord";
+import { isExistFile, mkdirs, store } from "./downloadFile";
 import {
     app,
     dialog,
@@ -17,7 +17,7 @@ import {
     desktopCapturer,
     screen
 } from "@electron/remote";
-import {execFile as execFileFromAsar, spawn} from "child_process";
+import { execFile as execFileFromAsar, spawn } from "child_process";
 import {
     access,
     copyFile,
@@ -25,11 +25,11 @@ import {
     readFile,
     rm,
     stat,
-    writeFile,
+    writeFile
 } from "fs/promises";
 import {
     darwinGetScreenPermissionGranted,
-    darwinRequestScreenPermissionPopup,
+    darwinRequestScreenPermissionPopup
 } from "./darwin";
 import {
     ipcRenderer,
@@ -39,8 +39,8 @@ import {
     shell
 } from "electron";
 import * as https from "https";
-import {get, set, STORAGE_TYPES} from "@/utils/storage";
-import Axios, {CancelTokenSource} from "axios";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import Axios, { CancelTokenSource } from "axios";
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 const PATH_WhiteBoard = join(
@@ -66,7 +66,7 @@ window.electron = {
         dialog,
         getCurrentWindow,
         screen,
-        getCurrentWebContents,
+        getCurrentWebContents
     },
     ipcRenderer,
     shell,
@@ -83,7 +83,7 @@ window.electron = {
         path: string,
         callback: (progress: number) => void,
         cancelCallBack: (cancelToken: CancelTokenSource) => void
-    ): Promise<Boolean> => {
+    ): Promise<boolean> => {
         return new Promise((resolve) => {
             const CancelToken = Axios.CancelToken;
             const source = CancelToken.source();
@@ -389,26 +389,14 @@ window.electron = {
         });
     },
     packCacheFiles: async (cacheData, savePath: string) => {
-        const {
-            windowId,
-            windowName,
-            userId,
-            cards,
-            pages,
-            slides,
-            cacheFiles,
-        } = cacheData;
+        const { windowId, windowName, userId, cards, pages, cacheFiles } = cacheData;
         const filePath = resolve(app.getPath("userData"), "files", windowName);
         const guid = () => {
-            return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-                /[xy]/g,
-                function (c) {
-                    const r = (Math.random() * 16) | 0;
-                    // eslint-disable-next-line eqeqeq
-                    const v = c == "x" ? r : (r & 0x3) | 0x8;
-                    return v.toString(16);
-                }
-            );
+            return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+                const r = (Math.random() * 16) | 0;
+                const v = c === "x" ? r : (r & 0x3) | 0x8;
+                return v.toString(16);
+            });
         };
 
         const mkdirs = (dirname: string) => {
@@ -416,7 +404,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, {recursive: true})
+                        mkdir(dirname, { recursive: true })
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );
@@ -435,22 +423,10 @@ window.electron = {
             await mkdirs(filePath);
             const uuid = guid().replaceAll("-", "");
             const jsonFileName = filePath + `/${uuid}app.json`;
+            const data = JSON.stringify({ windowName, windowId, userId, pages, cards });
 
             // 生成JSON文件
-            await writeFile(
-                jsonFileName,
-                aesEncrypt(
-                    JSON.stringify({
-                        windowName,
-                        windowId,
-                        userId,
-                        cards,
-                        pages,
-                        slides,
-                    }),
-                    "lyxpkg"
-                )
-            );
+            await writeFile(jsonFileName, aesEncrypt(data, "lyxpkg"));
 
             for (let cacheFile of cacheFiles) {
                 cacheFile = cacheFile.replace("file:///", "");
@@ -488,10 +464,10 @@ window.electron = {
 
             return await customZipFolder([...cacheFiles, jsonFileName]);
         } catch (e) {
-            console.error("报错--", e);
+            window.electron.log.error("下载课件报错：", e);
             return "";
         } finally {
-            await rm(filePath, {recursive: true, force: true});
+            await rm(filePath, { recursive: true, force: true });
         }
     },
     unpackCacheFile: async (zipFileName, newpath = "") => {
@@ -500,7 +476,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, {recursive: true})
+                        mkdir(dirname, { recursive: true })
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );
@@ -564,7 +540,7 @@ window.electron = {
         try {
             await customUnZipFolder(zipFileName, newpath);
             let jsonFile = await readFile(newpath + `/${jsonFileName}`, {
-                encoding: "utf-8",
+                encoding: "utf-8"
             });
             jsonFile = aesDecrypt(jsonFile, "lyxpkg");
             return JSON.parse(jsonFile);
@@ -600,12 +576,12 @@ window.electron = {
         const currentVersion = window.electron.getVersion();
         const data = get(STORAGE_TYPES.USER_UPDATE_CHOICE) || {
             version: currentVersion,
-            value: "update",
+            value: "update"
         };
         if (currentVersion !== data.version) {
             return {
                 version: currentVersion,
-                value: "update",
+                value: "update"
             };
         } else {
             return data;
@@ -644,7 +620,7 @@ window.electron = {
             } else if (process.platform === "win32") {
                 spawn(path.resolve(filePath), ["/interactive"], {
                     detached: true,
-                    shell: true,
+                    shell: true
                 });
             } else if (process.platform === "linux") {
                 shell.openPath(filePath);
@@ -674,7 +650,7 @@ window.electron = {
                 } else if (process.platform === "win32") {
                     spawn(path.resolve(filePath), ["/interactive"], {
                         detached: true,
-                        shell: true,
+                        shell: true
                     });
                 } else if (process.platform === "linux") {
                     shell.openPath(filePath);
@@ -692,5 +668,5 @@ window.electron = {
             fileStream.destroy();
         });
         request.end();
-    },
+    }
 };

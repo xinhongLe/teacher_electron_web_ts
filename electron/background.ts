@@ -1,18 +1,18 @@
 import os from "os";
 import path from "path";
-import {exec} from "child_process";
+import { exec } from "child_process";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
-import downloadFile, {store} from "./downloadFile";
-import {STORAGE_TYPES} from "@/utils/storage";
-import {createWinCardWindow} from "./wincard";
-import {initialize, enable} from "@electron/remote/main";
-import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
-import {app, protocol, BrowserWindow, ipcMain, Menu, screen} from "electron";
+import downloadFile, { store } from "./downloadFile";
+import { STORAGE_TYPES } from "@/utils/storage";
+import { createWinCardWindow } from "./wincard";
+import { initialize, enable } from "@electron/remote/main";
+import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+import { app, protocol, BrowserWindow, ipcMain, Menu, screen } from "electron";
 import {
     registerVirtualKeyBoard,
     closeKeyBoard,
-    setInput,
+    setInput
 } from "./virtualKeyBoard";
 import {
     createSuspensionWindow,
@@ -20,19 +20,19 @@ import {
     registerEvent,
     unfoldSuspensionWinSendMessage,
     courseShow,
-    courseHide,
+    courseHide
 } from "./suspension";
 
 import {
     registerPblWinCardEvent,
     registerPblWinCardLessonEvent,
-    registerPreviewFileEvent,
+    registerPreviewFileEvent
 } from "./pblWincard";
 
 if (process.defaultApp) {
     if (process.argv.length >= 2) {
         app.setAsDefaultProtocolClient("lyxteacher", process.execPath, [
-            path.resolve(process.argv[1]),
+            path.resolve(process.argv[1])
         ]);
     }
 } else {
@@ -45,16 +45,16 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 initialize();
 
 protocol.registerSchemesAsPrivileged([
-    {scheme: "app", privileges: {secure: true, standard: true}},
+    { scheme: "app", privileges: { secure: true, standard: true } },
     {
         scheme: "http",
         privileges: {
             bypassCSP: true,
             secure: true,
             supportFetchAPI: true,
-            corsEnabled: true,
-        },
-    },
+            corsEnabled: true
+        }
+    }
 ]);
 
 let isCreateWindow = false;
@@ -94,8 +94,8 @@ async function createLoginWindow() {
             // enableRemoteModule: true,
             preload: path.join(__dirname, "preload.js"),
             devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
-            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-        },
+            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
+        }
     });
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -136,8 +136,8 @@ async function createWindow() {
             // enableRemoteModule: true,
             preload: path.join(__dirname, "preload.js"),
             devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
-            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
-        },
+            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
+        }
     });
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -427,8 +427,8 @@ app.on("ready", async () => {
         }
     }
 
-    createLoginWindow();
-    // createLocalPreview(["D://Desktop/1《古诗二首》第一课时.lyxpkg"])
+    // createLoginWindow();
+    createLocalPreview(["D://Desktop/1《古诗二首》第一课时.lyxpkg"]);
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
@@ -440,7 +440,7 @@ app.on("render-process-gone", (event, webContents, details) => {
 });
 
 app.on("child-process-gone", (event, details) => {
-    const {type, reason, exitCode, serviceName, name} = details;
+    const { type, reason, exitCode, serviceName, name } = details;
     ElectronLog.error(
         `child-process-gone, reason: ${reason}, exitCode: ${exitCode}, type:${type}, serviceName: ${serviceName}, name: ${name}`
     );

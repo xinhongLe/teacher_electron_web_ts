@@ -226,8 +226,6 @@
         </div>
 
         <ResourceDialog v-if="showResourceDialog" v-model="showResourceDialog"/>
-
-
     </div>
     <PenTool
         @undo="undo()"

@@ -10,8 +10,8 @@
             >
                 <div style="margin-right: 10px">{{ item.name }}</div>
                 <el-icon
-                    v-if="item.name !== '首页' && item.name !== '备课'"
                     @click.stop="closeTab(item)"
+                    v-if="item.name !== '首页' && item.name !== '备课'"
                 >
                     <Close/>
                 </el-icon>

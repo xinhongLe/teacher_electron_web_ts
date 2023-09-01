@@ -1,40 +1,18 @@
-import {
-    getCardDetail,
-    getPageDetailRes,
-    getVideoQuoteInfo,
-    getWindowCards,
-    GetWindowsElements,
-    IGetWindowCards,
-} from "@/api/home";
-import {pageType} from "@/config";
-import {store} from "@/store";
-import {IPageValue} from "@/types/home";
-import path from "path";
-import {PPTElement, Slide} from "wincard";
-import {dealOldData} from "./dataParse";
-import {
-    dealOldDataGame,
-    dealOldDataTeach,
-    dealOldDataVideo,
-    dealOldDataWord,
-} from "./dataParsePage";
-import {getOssUrl} from "./oss";
-// new LocalCache({
-//     cachingStatus: (status) => {
-//         console.log(`status: ${status}`);
-//     }
-// }).doCache({
-//     WindowID: "3A00ED0688D9418E8CDEC35BEA2DA116","3A00ED06A2F5D58C6F9148CB48417B4D", "3A041AB5F76B1A682DA21259D0EC17A7",
-//     OriginType: 0
-// }, "《守株待兔》第一课时");
-
-// console.time(`unpackCacheFile`);
-// await window.electron.unpackCacheFile("C:/Users/admin/AppData/Roaming/Aixueshi/files/39F782A0B5361BBD1775139E3D0BC5EA/《守株待兔》第一课时.lyxpkg")
-// console.timeEnd(`unpackCacheFile`);
+import { store } from "@/store";
+import { Slide } from "wincard";
+import { getOssUrl } from "./oss";
+import { pageType } from "@/config";
+import { dealAnimationData, dealOldData } from "./dataParse";
+import { getCardDetail, getVideoQuoteInfo, getWindowStruct, IGetWindowCards } from "@/api/home";
+import { dealOldDataGame, dealOldDataTeach, dealOldDataVideo, dealOldDataWord } from "./dataParsePage";
+import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import useHome from "@/hooks/useHome";
 
 export interface CacheCallback {
     cachingStatus(status: number): void;
 }
+
+const { transformPageDetail } = useHome();
 
 export default class LocalCache {
     private readonly cacheCallback: CacheCallback;
@@ -46,44 +24,12 @@ export default class LocalCache {
         this.cacheCallback = cacheCallback;
     }
 
-    private transformType(type: number | string) {
-        switch (type) {
-            case 11:
-            case "element":
-                return 0;
-            case 12:
-            case "listen":
-                return 1;
-            case 13:
-            case "follow":
-                return 2;
-            case 16:
-            case "teach":
-                return 3;
-            case 20:
-            case "game":
-                return 4;
-            default:
-                return -1;
-        }
-    }
-
-    // 此处只拉取线上数据, 不使用本地缓存数据
-    private async getPageDetail(page: IPageValue, originType: number) {
-        const data = {pageID: page.ID, OriginType: originType};
-        const type: number = this.transformType(page.Type);
-        if (type < 0) {
-            return null;
-        }
-        return await getPageDetailRes(data, type, () => {
-        }, false);
-    }
-
     private async cacheFile(src: string): Promise<string> {
         return new Promise((resolve) => {
             const fileName = src.replace(/(.*\/)*([^.]+)/i, "$2");
-            if (fileName === "ElementFile/" || fileName === "null")
+            if (fileName === "ElementFile/" || fileName === "null") {
                 return resolve("");
+            }
             return window.electron.isExistCacheFile(fileName).then((isExist) => {
                 if (isExist) {
                     resolve(window.electron.getFilePath(fileName));
@@ -101,7 +47,7 @@ export default class LocalCache {
     }
 
     private async cacheSlide(slide: Slide) {
-        let cacheFiles = [];
+        const cacheFiles = [];
         if (this.isEnd) return [];
         // 背景图片资源
         if (slide.background && slide.background.image) {
@@ -110,7 +56,7 @@ export default class LocalCache {
 
         // 元素中资源缓存
         if (slide.elements) {
-            for (let element of slide.elements) {
+            for (const element of slide.elements) {
                 if (element.type === "image" && element.src) {
                     cacheFiles.push(await this.cacheFile(element.src));
                 }
@@ -143,7 +89,7 @@ export default class LocalCache {
 
         // 听写页
         if (slide.listenWords) {
-            for (let word of slide.listenWords) {
+            for (const word of slide.listenWords) {
                 if (word.file) {
                     cacheFiles.push(await this.cacheFile(word.file));
                 }
@@ -173,7 +119,7 @@ export default class LocalCache {
             if (this.isEnd) break;
             if (element.type === "video" && element.fileID) {
                 const res = await getVideoQuoteInfo({
-                    FileIDs: [element.fileID],
+                    FileIDs: [element.fileID]
                 });
                 if (!res.success) this.isFail = true;
                 if (res.resultCode === 200 && res.result.length > 0) {
@@ -197,7 +143,7 @@ export default class LocalCache {
     async getElementWinCards(element: any, originType: number, winpages: Array<{ id: string; result: string }>, slides: Array<Slide>, fail: () => void) {
         if (this.isEnd) return;
         if (element.wins) {
-            for (let win of element.wins) {
+            for (const win of element.wins) {
                 const cards = win.cards;
                 let pages: Array<{ ID: string; Type: number; Name: string }> =
                     [];
@@ -208,19 +154,19 @@ export default class LocalCache {
                             return {
                                 ID: page.id,
                                 Type: page.type,
-                                Name: page.name,
+                                Name: page.name
                             };
                         })
                     );
                 });
                 const pageIDs = pages.map((page) => page.ID);
-                const res = await getCardDetail({pageIDs: pageIDs}, true);
+                const res = await getCardDetail({ pageIDs: pageIDs }, true);
                 if (
                     res.resultCode === 200 &&
                     res.result &&
                     res.result.length > 0
                 ) {
-                    for (let card of res.result) {
+                    for (const card of res.result) {
                         // 此处判断页是否已经缓存，缓存的跳过，避免出现死循环
                         if (!winpages.find((page) => page.id === card.ID)) {
                             await this.getPageSlide(
@@ -228,7 +174,7 @@ export default class LocalCache {
                                     ID: (card as any).ID,
                                     Type: pages.find(
                                         (p) => p.ID === (card as any).ID
-                                    )!.Type,
+                                    )!.Type
                                 },
                                 originType,
                                 winpages,
@@ -242,65 +188,38 @@ export default class LocalCache {
         }
     }
 
-    async getPageSlide(
-        page: any,
-        originType: number,
-        pages: Array<{ id: string; result: string }>,
-        slides: Array<Slide>,
-        fail: () => void
-    ) {
+    async getPageSlide(page: any, originType: number, pages: Array<{ id: string; result: string }>, slides: Array<Slide>, fail: () => void) {
         if (this.isEnd) return;
-        // let res = await this.getPageDetail(page, originType);
-        //
-        // if (!res) {
-        //     return;
-        // }
-        // if (res.resultCode && res.resultCode === 200) {
+
         pages.push({
             id: page.ID,
-            result: page.Json || "{}",
+            result: page.Json || "{}"
         });
         let slide: Slide | null = null;
         if (page.Type === pageType.element) {
             const slideString = page.Json || "{}";
             const oldSlide = JSON.parse(slideString);
-            slide = oldSlide.type
-                ? {
-                    ...(await this.dealPauseVideo(
-                        oldSlide as Slide,
-                        fail
-                    )),
-                    id: page.ID,
-                }
+            slide = oldSlide.type ? { ...(await this.dealPauseVideo(oldSlide as Slide, fail)), id: page.ID }
                 : await dealOldData(page.ID, page.originType, oldSlide);
-        } else if (page.Type === pageType.listen) {
+        }
+        if (page.Type === pageType.listen) {
             slide = dealOldDataWord(page.ID, page);
-        } else if (page.Type === pageType.follow) {
+        }
+        if (page.Type === pageType.follow) {
             slide = dealOldDataVideo(page.ID, page);
-        } else if (page.Type === pageType.teach) {
+        }
+        if (page.Type === pageType.teach) {
             slide = dealOldDataTeach(page.ID, page);
-        } else if (page.Type === pageType.game) {
+        }
+        if (page.Type === pageType.game) {
             slide = dealOldDataGame(page.ID, page);
         }
-
         if (slide !== null) {
             slides.push(slide);
-            // for (let element of slide.elements) {
-            //     await this.getElementWinCards(
-            //         element,
-            //         originType,
-            //         pages,
-            //         slides,
-            //         fail
-            //     );
-            // }
         }
-        // } else {
-        //     fail();
-        // }
     }
 
-    async cancel() {
+    cancel() {
         this.isEnd = true;
     }
 
@@ -312,93 +231,93 @@ export default class LocalCache {
         this.isFail = false;
         this.isEnd = false;
         this.cacheCallback?.cachingStatus(0);
-        const eleRes = await GetWindowsElements(winInfo, true);
-        console.log(eleRes);
+        const result = await getWindowStruct(winInfo, true);
         if (this.isEnd) return;
-        if (eleRes.success) {
-            let cards = eleRes.result;
-            let pages: Array<{ id: string; result: string }> = [];
-            let cacheFiles: string[] = [];
-            let slides: Array<Slide> = [];
+        if (result.resultCode !== 200) {
+            fail();
+            return;
+        }
 
-            let total = 0;
-            for (let card of cards) {
-                for (let {} of card.PageList) {
-                    total++;
+        const cards = result.result.CardData;
+        const windowCards = [];
+        const pages = [];
+        let cacheFiles: string[] = [];
+
+        let index = 1;
+        for (let i = 0; i < cards.length; i++) {
+            const item = cards[i];
+            const pageList: PageProps[] = [];
+
+            for (let j = 0; j < item.PageList.length; j++) {
+                const it = item.PageList[j];
+                if (!it) continue;
+
+                const json = JSON.parse(it.Json || "{}");
+                let url = it.Url || "";
+                if (!url && (it.Type === 20 || it.Type === 16)) {
+                    const file = json?.ToolFileModel?.File;
+                    const key = `${file?.FilePath}/${file?.FileMD5}.${file?.FileExtention || file?.Extention}`;
+                    url = json?.ToolFileModel ? await getOssUrl(key, "axsfile") : "";
                 }
-            }
 
-            let current = 0;
-            for (let card of cards) {
-                for (let page of card.PageList) {
-                    current++;
-                    await this.getPageSlide(
-                        page,
-                        winInfo.OriginType!,
-                        pages,
-                        slides,
-                        () => {
-                            fail();
-                            this.isFail = true;
-                        }
-                    );
-                    if (this.isFail) break;
-                    if (this.isEnd) break;
-                    this.cacheCallback?.cachingStatus(
-                        parseInt(((30 / total) * current).toFixed(0))
-                    );
-                }
-            }
+                const slide: Slide = await transformPageDetail(it, json);
 
-            if (this.isEnd) return;
-
-            if (this.isFail) return fail();
-
-            this.cacheCallback?.cachingStatus(30);
-
-            for (let i = 0; i < slides.length; i++) {
                 cacheFiles = [
                     ...cacheFiles,
-                    ...(await this.cacheSlide(slides[i])),
+                    ...(await this.cacheSlide(dealAnimationData(slide)))
                 ];
-                this.cacheCallback?.cachingStatus(
-                    30 + parseInt(((69 / slides.length) * (i + 1)).toFixed(0))
-                );
-                if (this.isEnd) break;
+
+                const obj = {
+                    ID: it.ID,
+                    TeachPageRelationID: it.TeachPageRelationID,
+                    Name: it.Name,
+                    Height: it.Height,
+                    Width: it.Width,
+                    Type: it.Type,
+                    Sort: it.Sort,
+                    State: it.State,
+                    AcademicPresupposition: it.AcademicPresupposition,
+                    DesignIntent: it.DesignIntent,
+                    Json: dealAnimationData(slide),
+                    Index: index,
+                    Url: url,
+                    ParentID: item.ID,
+                    Remark: ""
+                };
+                pages.push(obj);
+                if (it.State) {
+                    index++;
+                    pageList.push(obj);
+                }
             }
-
-            if (this.isEnd) return;
-
-            this.cacheCallback?.cachingStatus(99);
-
-            // 将json文件写入到指定文件夹，将缓存资源文件复制到指定文件夹，并对文件夹压缩后加密，形成离线包
-            const cacheData = {
-                // windowName: cacheFileName.replace(/(.*\/)*([^.]+).*/gi, "$2"),
-                // windowName: cacheFileName.replace(".lyxpkg", ""),
-                windowName: cacheFileName.replace(/\.[^.]*$/, ""),
-                windowId: winInfo.WindowID,
-                cards,
-                pages,
-                slides,
-                userId: store.state.userInfo.id,
-                cacheFiles,
-            };
-            let fileName = await window.electron.packCacheFiles(
-                cacheData,
-                path
-            );
-
-            if (this.isEnd) return;
-
-            this.cacheCallback?.cachingStatus(100);
-            // 清空数组
-            cacheData.cacheFiles = [];
-            cacheData.pages = [];
-            cacheData.cards = [];
-            cacheData.slides = [];
-            console.log("done", fileName);
-        } else {
-            fail();
+            windowCards.push({
+                ID: item.ID,
+                Fold: true,
+                Sort: item.Sort,
+                Name: item.Name,
+                PageList: pageList,
+                TeachPageRelationID: item.TeachPageRelationID
+            });
         }
+
+        if (this.isEnd) return;
+
+        if (this.isFail) return fail();
+        this.cacheCallback?.cachingStatus(30);
+
+        // 将json文件写入到指定文件夹，将缓存资源文件复制到指定文件夹，并对文件夹压缩后加密，形成离线包
+        const cacheData = {
+            pages,
+            cacheFiles,
+            cards: windowCards,
+            windowId: winInfo.WindowID,
+            userId: store.state.userInfo.id,
+            windowName: cacheFileName.replace(/\.[^.]*$/, "")
+        };
+        const fileName = await window.electron.packCacheFiles(cacheData, path);
+
+        if (this.isEnd) return;
+        this.cacheCallback?.cachingStatus(100);
+        window.electron.log.info(`课件下载：${fileName}`);
     }
 }

@@ -1,8 +1,6 @@
 <template>
     <div class="c-header">
-        <div class="tab-item">
-            {{ resourceName }}
-        </div>
+        <div class="tab-item">{{ resourceName }}</div>
         <div class="header-right">
             <div class="header-window-control">
                 <div class="hwc-minimize" @click="useMinimizeWindow()"></div>
@@ -18,10 +16,10 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from "vue";
+import { defineComponent } from "vue";
+import { CloseBold } from "@element-plus/icons-vue";
 import useMaximizeWindow from "@/hooks/useMaximizeWindow";
 import useMinimizeWindow from "@/hooks/useMinimizeWindow";
-import {CloseBold} from "@element-plus/icons-vue";
 
 export default defineComponent({
     name: "NavBar",
@@ -40,7 +38,7 @@ export default defineComponent({
             useMaximizeWindow
         };
     },
-    components: {CloseBold}
+    components: { CloseBold }
 });
 </script>
 
@@ -90,7 +88,6 @@ export default defineComponent({
     font-weight: 600;
     align-items: center;
     justify-content: space-between;
-    align-items: center;
     height: 48px;
     min-width: 140px;
     text-overflow: ellipsis;

@@ -90,16 +90,17 @@ import { store } from "@/store";
 import { cloneDeep } from "lodash";
 import { pageType } from "@/config";
 import { ElMessage } from "element-plus";
+import { setShowModel } from "@/api/home";
+import { ArrowLeft } from "@element-plus/icons-vue";
 import { IViewResourceData } from "@/types/store";
 import Remark from "../components/preview/remark.vue";
 import OpenCardViewDialog from "../components/edit/openCardViewDialog.vue";
 import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
-import { setShowModel } from "@/api/home";
 
 export default defineComponent({
     name: "WinPreview",
-    components: { OpenCardViewDialog, Remark },
+    components: { OpenCardViewDialog, Remark, ArrowLeft },
     props: {
         cards: {
             type: Array as PropType<CardProps[]>,
@@ -123,7 +124,7 @@ export default defineComponent({
         },
         resource: {
             type: Object as PropType<IViewResourceData>,
-            required: true
+            default: () => ({})
         },
         mode: {
             type: Boolean,

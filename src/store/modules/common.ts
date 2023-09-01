@@ -1,11 +1,11 @@
-import {CommonState, IDownloading, IShowResourceFullScreen, RootState} from "@/types/store";
-import {Module, MutationTree} from "vuex";
-import {MutationTypes} from "..";
-import {IResourceItem} from "@/api/resource";
-import {STORAGE_TYPES, get, set} from "@/utils/storage";
-import emitter, {EmitterEvents} from "@/utils/emitter";
-import {ElMessage} from "element-plus";
-//文件不支持的特殊符号进行去除
+import { CommonState, IDownloading, IShowResourceFullScreen, RootState } from "@/types/store";
+import { Module, MutationTree } from "vuex";
+import { MutationTypes } from "..";
+import { IResourceItem } from "@/api/resource";
+import { STORAGE_TYPES, get, set } from "@/utils/storage";
+import emitter, { EmitterEvents } from "@/utils/emitter";
+import { ElMessage } from "element-plus";
+// 文件不支持的特殊符号进行去除
 import sanitize from "sanitize-filename";
 
 const initState = (): CommonState => ({
@@ -32,7 +32,7 @@ const mutations: MutationTree<CommonState> = {
     [MutationTypes.COMMON_RESET_STATE](state) {
         Object.assign(state, initState());
     },
-    [MutationTypes.SET_IS_IFRAME](state, {flag}) {
+    [MutationTypes.SET_IS_IFRAME](state, { flag }) {
         state.isIframe = flag;
     },
     [MutationTypes.SET_FULLSCREEN_RESOURCE](state, data: IShowResourceFullScreen) {
@@ -82,8 +82,7 @@ const mutations: MutationTree<CommonState> = {
     [MutationTypes.SET_BEIKE_RESOURCE_INTO](state, type) {
         state.currentBeikeResource = type;
     },
-    [MutationTypes.SET_DOWNLOAD_LIST](state, {type, data}: { type: string, data: IResourceItem }) {
-        console.log('data---', data)
+    [MutationTypes.SET_DOWNLOAD_LIST](state, { type, data }: { type: string, data: IResourceItem }) {
         const downloadObj = {
             id: data.ResourceId,
             name: type === "wincard" ? `${sanitize(data.Name)}.lyxpkg` : `${data.Name}.${data.File.FileExtention}`,
@@ -91,7 +90,7 @@ const mutations: MutationTree<CommonState> = {
             data,
             timestamp: new Date().getTime(),
             status: 0
-        }
+        };
 
         if (state.downloading.findIndex(item => item.id === downloadObj.id) > -1) {
             ElMessage.warning("已在下载列表中");

@@ -1,18 +1,18 @@
 <template>
     <div class="intelligence">
-        <NavBar :resourceName="WindowName"/>
+        <NavBar :resourceName="windowName"/>
         <win-preview
-            style="height: calc(100% - 48px)"
-            :pages="pages"
             ref="previewRef"
+            :pages="pageList"
             :cards="cardList"
-            :resource="appjson"
+            :resource="{id:windowId}"
             v-model:index="index"
             v-model:r-visit="rVisit"
             v-model:l-visit="lVisit"
             v-model:mode="previewMode"
             v-model:isCanUndo="isCanUndo"
             v-model:isCanRedo="isCanRedo"
+            style="height: calc(100% - 48px)"
             v-model:eraserLineWidth="eraserLineWidth"
             v-model:currentDrawColor="currentDrawColor"
             v-model:currentLineWidth="currentLineWidth"
@@ -22,7 +22,7 @@
             @redo="redo"
             @undo="undo"
             :dialog="false"
-            :id="appjson.windowId"
+            :id="windowId"
             :showRemark="rVisit"
             @prevStep="prevStep"
             @nextStep="nextStep"
@@ -46,27 +46,19 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, nextTick, onMounted, provide, ref} from "vue";
+import { store } from "@/store";
 import NavBar from "./NavBar.vue";
-import Tools from "@/views/preparation/intelligenceClassroom/components/preview/tools.vue";
-import {set, STORAGE_TYPES} from "@/utils/storage";
-import WinPreview from "@/views/preparation/intelligenceClassroom/preview/index.vue";
-import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
-import {getOssUrl} from "@/utils/oss";
-import {Slide} from "wincard";
-import {dealAnimationData} from "@/utils/dataParse";
-import useHome from "@/hooks/useHome";
+import { ElMessage } from "element-plus";
+import { set, STORAGE_TYPES } from "@/utils/storage";
 import useMinimizeWindow from "@/hooks/useMinimizeWindow";
-import {store} from "@/store";
+import { computed, defineComponent, onMounted, ref } from "vue";
+import WinPreview from "@/views/preparation/intelligenceClassroom/preview/index.vue";
+import Tools from "@/views/preparation/intelligenceClassroom/components/preview/tools.vue";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
-    components: {
-        WinPreview,
-        NavBar,
-        Tools,
-    },
+    components: { WinPreview, NavBar, Tools },
     setup() {
-        const {transformPageDetail} = useHome();
         const index = ref(0);
         const lVisit = ref(true);
         const rVisit = ref(false);
@@ -81,26 +73,12 @@ export default defineComponent({
         set(STORAGE_TYPES.SET_ISCACHE, true);
         const isFullScreen = ref(false);
         const cardListComponents = ref();
-        const winActiveId = ref("");
-        const WindowName = ref("");
+        const windowId = ref("");
+        const windowName = ref("");
         const cardList = ref<CardProps[]>([]);
-        const appjson = ref<{
-            cards?: any;
-            pages?: any;
-            slides?: any;
-            windowId?: string;
-            windowName?: string;
-        }>({});
-        provide("appjson", appjson);
-        const pages = computed(() => {
-            let allPages: PageProps[] = [];
-            cardList.value.forEach((item: any) => {
-                allPages = allPages.concat(...item.PageList);
-            });
-            return allPages;
-        });
+        const pageList = ref<PageProps[]>([]);
 
-        const currentSlide = computed(() => pages.value.filter(item => item.State)[index.value]?.Json);
+        const currentSlide = computed(() => pageList.value.filter(item => item.State)[index.value]?.Json);
 
         const lastPage = () => {
             cardListComponents.value.changeReducePage();
@@ -183,60 +161,27 @@ export default defineComponent({
             });
         };
 
-        onMounted(async () => {
-            const urlSearchParams = new URLSearchParams(
-                window.location.search.replace(/\\&/g, "%26")
-            );
-            const params = Object.fromEntries(urlSearchParams.entries());
-            appjson.value = await window.electron.unpackCacheFile(params.file);
-            console.log(' appjson.value', appjson.value)
-            if (appjson) {
-                winActiveId.value = appjson.value.windowId!;
-                WindowName.value = appjson.value.windowName!;
-                appjson.value.cards.forEach((c: any) => {
-                    c.PageList = c.PageList.filter(
-                        (p: any) => p.State
-                    );
-                });
-                document.title = WindowName.value;
-                // cardList.value
-                const cards = appjson.value.cards;
-                let index = 1;
-                for (let i = 0; i < cards.length; i++) {
-                    const item = cards[i];
-                    item.Fold = true;
-
-                    for (let j = 0; j < item.PageList.length; j++) {
-                        const page = item.PageList[j];
-                        const json = JSON.parse(page.Json || "{}");
-                        let url = page.Url || "";
-                        if (!url && (page.Type === 20 || page.Type === 16)) {
-                            const file = json?.ToolFileModel?.File;
-                            const key = `${file?.FilePath}/${file?.FileMD5}.${file?.FileExtention || file?.Extention}`;
-                            url = json?.ToolFileModel ? await getOssUrl(key, "axsfile") : "";
-                        }
-                        const slide: Slide = await transformPageDetail({ID: page.ID, Type: page.Type}, json);
-                        page.Url = url;
-
-                        page.Json = dealAnimationData(slide);
-                        if (page.State) {
-                            page.Index = index;
-                            index++;
-                        }
-                    }
-                }
-                cardList.value = cards;
-                console.log('cardList', cardList.value)
-                // await nextTick(() => {
-                //     cardListComponents.value.handleClick(0, cardList.value[0]);
-                // });
-            }
-        });
-
         const closeWinCard = () => {
             window.electron.remote.getCurrentWindow().close();
         };
 
+        onMounted(async () => {
+            const urlSearchParams = new URLSearchParams(window.location.search.replace(/\\&/g, "%26"));
+            const params = Object.fromEntries(urlSearchParams.entries());
+            const json = await window.electron.unpackCacheFile(params.file);
+            if (!json) return;
+            if (json.slides) {
+                ElMessage.warning("请重新下载课件");
+                return;
+            }
+
+            windowId.value = json.windowId;
+            windowName.value = json.windowName;
+            document.title = json.windowName;
+            cardList.value = json.cards;
+            console.log(json.cards);
+            pageList.value = json.pages;
+        });
 
         return {
             lastPage,
@@ -253,8 +198,8 @@ export default defineComponent({
             openShape,
             cardListComponents,
             cardList,
-            winActiveId,
-            WindowName,
+            windowId,
+            windowName,
             isCanUndo,
             isCanRedo,
             openPaintTool,
@@ -264,8 +209,7 @@ export default defineComponent({
             whiteboardOption,
             redo,
             undo,
-            appjson,
-            pages,
+            pageList,
             currentSlide,
             index,
             lVisit,
@@ -274,7 +218,7 @@ export default defineComponent({
             previewRef,
             useMinimizeWindow
         };
-    },
+    }
 });
 </script>
 
@@ -335,9 +279,6 @@ $border-color: #f5f6fa;
             }
 
             .card-box-left {
-                // position: relative;
-                // height: 100%;
-                // overflow-y: auto;
                 width: 180px;
                 text-align: center;
                 padding: 20px 0 0 0;
@@ -351,14 +292,6 @@ $border-color: #f5f6fa;
                 position: relative;
                 border-right: 1px solid #eee;
 
-                // &.fullScreen {
-                //     background: #f5f6fa;
-                //     position: fixed;
-                //     left: 0;
-                //     top: 0;
-                //     height: calc(100% - 84px);
-                //     transition: width 0.3s;
-                // }
                 &.hidden {
                     width: 0;
                 }
@@ -373,7 +306,7 @@ $border-color: #f5f6fa;
                     right: 0;
                     height: 104px;
                     width: 18px;
-                    border-radius: 0px 8px 8px 0px;
+                    border-radius: 0 8px 8px 0;
                     background: #f5f6fa;
                     cursor: pointer;
                     z-index: 1;
@@ -389,7 +322,7 @@ $border-color: #f5f6fa;
             .card-box-lefts {
                 display: flex;
                 flex: 1;
-                min-width: 0px;
+                min-width: 0;
                 min-height: 0;
                 overflow-y: auto;
                 margin-bottom: 20px;
@@ -421,7 +354,6 @@ $border-color: #f5f6fa;
                     display: flex;
                     flex-wrap: nowrap;
                     padding: 15px;
-                    background-color: #fff;
                     border-top: 1px solid #ccc;
 
                     .me-page-item {
