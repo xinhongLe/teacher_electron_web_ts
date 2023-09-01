@@ -46,18 +46,18 @@
 </template>
 
 <script lang="ts">
-import { store } from "@/store";
+import {store} from "@/store";
 import NavBar from "./NavBar.vue";
-import { ElMessage } from "element-plus";
-import { set, STORAGE_TYPES } from "@/utils/storage";
+import {ElMessage} from "element-plus";
+import {set, STORAGE_TYPES} from "@/utils/storage";
 import useMinimizeWindow from "@/hooks/useMinimizeWindow";
-import { computed, defineComponent, onMounted, ref } from "vue";
+import {computed, defineComponent, onMounted, ref} from "vue";
 import WinPreview from "@/views/preparation/intelligenceClassroom/preview/index.vue";
 import Tools from "@/views/preparation/intelligenceClassroom/components/preview/tools.vue";
-import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
-    components: { WinPreview, NavBar, Tools },
+    components: {WinPreview, NavBar, Tools},
     setup() {
         const index = ref(0);
         const lVisit = ref(true);
@@ -179,8 +179,8 @@ export default defineComponent({
             windowName.value = json.windowName;
             document.title = json.windowName;
             cardList.value = json.cards;
-            console.log(json.cards);
-            pageList.value = json.pages;
+            console.log(json.pages);
+            pageList.value = json.pages.filter((item: any) => item.State);
         });
 
         return {
