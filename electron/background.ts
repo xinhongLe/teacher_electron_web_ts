@@ -427,8 +427,8 @@ app.on("ready", async () => {
         }
     }
 
-    // createLoginWindow();
-    createLocalPreview(["D://Desktop/1《古诗二首》第一课时.lyxpkg"]);
+    await createLoginWindow();
+    // createLocalPreview(["D://Desktop/1《古诗二首》第一课时.lyxpkg"]);
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
