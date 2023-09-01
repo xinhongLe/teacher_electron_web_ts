@@ -50,20 +50,15 @@ interface State {
 }
 
 const props = defineProps({
-    visible: {
-        type: Boolean,
-        default: () => false
-    },
     teamArr: {
         type: Array as PropType<teamItem[]>,
         default: () => []
     }
 });
 
-const emits = defineEmits(["update:modelValue", "delTeam", "addTeam", "addStudents", "delStudents"]);
+const emits = defineEmits(["delTeam", "addTeam", "addStudents", "delStudents"]);
 
-const dialogVisible = computed(() => props.visible);
-
+const dialogVisible = ref(false);
 const state = reactive({
     type: 1, // 1选择班级 2选择学生
     teamIndex: 0,
@@ -90,7 +85,7 @@ const checkStudent = (list: ICurrentSelectClass[], index:number) => {
 
 const save = () => {
     if (state.type === 1) {
-        emits("update:modelValue", false);
+        dialogVisible.value = false;
     } else {
         const checkedStudents = studentListRef.value.checkedStudents;
         const name = props.teamArr[state.teamIndex].name;
@@ -123,9 +118,6 @@ const save = () => {
         }
         emits("addStudents", state.teamIndex, selectList);
         state.type = 1;
-        console.log(selectList, "selectList----");
-        console.log(noSelectList, "noSelectList----");
-        console.log(state.currentClassStudents, "state.currentClassStudents----");
     }
 };
 
@@ -135,12 +127,19 @@ const save = () => {
 // };
 
 const close = () => {
-    state.type === 1 ? emits("update:modelValue", false) : (state.type = 1);
+    state.type === 1 ? (dialogVisible.value = false) : (state.type = 1);
+};
+
+const open = () => {
+    dialogVisible.value = true;
 };
 
 onMounted(() => {
-    // state.checkClassId = state.classList[0]?.ClassUserCenterId;
     state.currentClassStudents = state.allStudents.filter((v: any) => state.checkClassId === v.ClassID);
+});
+
+defineExpose({
+    open
 });
 
 </script>

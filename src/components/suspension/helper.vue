@@ -153,29 +153,29 @@
                             <img src="@/assets/images/suspension/pic_zhishitupu@2x.png" alt=""/>
                             <div class="blackboard-text">知识图谱</div>
                         </div>
+<!--                        <div-->
+<!--                            class="blackboard-box"-->
+<!--                            @click.stop="-->
+<!--                                clicKBuryPoint('小组比拼'), openTeamCompetition()-->
+<!--                            "-->
+<!--                        >-->
+<!--                            <img-->
+<!--                                src="@/assets/images/suspension/pic_xzbp@2x.png"-->
+<!--                                alt=""-->
+<!--                            />-->
+<!--                            <div class="blackboard-text">小组比拼</div>-->
+<!--                        </div>-->
                         <div
                             class="blackboard-box"
                             @click.stop="
-                                clicKBuryPoint('小组比拼'), openTeamCompetition()
-                            "
-                        >
-                            <img
-                                src="@/assets/images/suspension/pic_xzbp@2x.png"
-                                alt=""
-                            />
-                            <div class="blackboard-text">小组比拼</div>
-                        </div>
-                        <div
-                            class="blackboard-box"
-                            @click.stop="
-                                clicKBuryPoint('小组比拼2'), openTeamCompetition2()
+                                clicKBuryPoint('小组比拼'), openTeamCompetition2()
                             "
                         >
                             <img
                                 src="@/assets/images/suspension/pic_xzbp2@2x.png"
                                 alt=""
                             />
-                            <div class="blackboard-text">小组比拼2</div>
+                            <div class="blackboard-text">小组比拼</div>
                         </div>
                         <div
                             class="blackboard-box"

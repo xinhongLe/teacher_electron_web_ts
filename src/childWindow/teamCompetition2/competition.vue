@@ -72,8 +72,7 @@
     </div>
 
     <competition-set
-        v-if="visible"
-        v-model="visible"
+        ref="competitionSetRef"
         @addTeam="addTeam"
         @delTeam="delTeam"
         @addStudents="addStudents"
@@ -282,9 +281,9 @@ export default defineComponent({
             "#3E5384"
         ];
 
-        const visible = ref(false);
+        const competitionSetRef = ref();
         const setBtn = () => {
-            visible.value = true;
+            competitionSetRef.value.open();
         };
 
         // const isHide = ref(false);
@@ -303,7 +302,7 @@ export default defineComponent({
         // };
 
         return {
-            visible,
+            competitionSetRef,
             teamArr,
             // teamNum,
             actionAnimationStar,
