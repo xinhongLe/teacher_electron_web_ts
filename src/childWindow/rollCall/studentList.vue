@@ -136,8 +136,6 @@ import {ElMessage, ElMessageBox} from "element-plus";
 import {
     reactive,
     defineComponent,
-    onMounted,
-    PropType,
     ref,
     nextTick
 } from "vue";
@@ -145,7 +143,7 @@ import Avatar from "../../components/avatar/index.vue";
 import {DoubleLeft, Drag, DoubleRight, Setting} from "@icon-park/vue-next";
 import {startAudio} from "./startaudio";
 import {UserInfoState} from "@/types/store";
-import {get, STORAGE_TYPES} from "@/utils/storage";
+import {get, STORAGE_TYPES, storeChange} from "@/utils/storage";
 import {exportExcel, IExcel} from "mexcel";
 import {getCurrentSemesterRollCallLog, rollCallLog} from "@/api";
 import SettingC from "./setting.vue"
@@ -174,13 +172,25 @@ export default defineComponent({
         const settingRef = ref();
         const showResult = ref(false)
         const allStudents = get(STORAGE_TYPES.STUDENT_LIST) || [];
+        const studentList = allStudents.filter((v: any) => get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId === v.ClassID);
         let form = reactive({
             classId: get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId,
             studentRange: 0,
             isRepeat: 0,
-            storeStudentList: allStudents.filter((v: any) => get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId === v.ClassID),
-            allStudentList: allStudents.filter((v: any) => get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId === v.ClassID)
-        })
+            storeStudentList: JSON.parse(JSON.stringify(studentList)),
+            allStudentList: JSON.parse(JSON.stringify(studentList))
+        });
+
+        // 此处要监听班级切换
+        storeChange(STORAGE_TYPES.CURRENT_SELECT_CLASS, () => {
+            form.classId = get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId;
+            const changeStudentList = allStudents.filter((v: any) => form.classId  === v.ClassID);
+            form.storeStudentList = JSON.parse(JSON.stringify(changeStudentList));
+            form.allStudentList = JSON.parse(JSON.stringify(changeStudentList));
+
+            reset();
+        });
+
         const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
         const circleWidth = size.width > 1200 ? 1120 : size.width - 80;
         // 播放点名动画时的音效
@@ -273,7 +283,7 @@ export default defineComponent({
             unselectedStudent.value = [...form.allStudentList]
             setTimeout(() => {
                 animationTime.value = 1500;
-                rotateX.value = -3;
+                rotateX.value = -8;
                 randomDeg.value = 0;
             }, 200);
         };
@@ -286,7 +296,7 @@ export default defineComponent({
             form.isRepeat = value.isRepeat;
             form.classId = value.classId;
             form.studentRange = value.studentRange;
-            form.allStudentList = [...value.storeStudentList];
+            // form.allStudentList = [...value.storeStudentList];
             selectStudent.value = [];
             reset();
         }
