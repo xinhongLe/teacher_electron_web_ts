@@ -14,7 +14,6 @@
                         class="zh-class"
                         v-model.trim="form.account"
                         placeholder="请输入手机号码"
-                        maxlength="11"
                         @focus="focusInput(0)"
                     >
                         <template #prefix>
@@ -154,10 +153,10 @@ import {
     ref
 } from "vue";
 import useLogin from "@/hooks/useLogin";
-import {ILoginData} from "@/types/login";
-import {STORAGE_TYPES, get, set, clear} from "@/utils/storage";
+import { ILoginData } from "@/types/login";
+import { STORAGE_TYPES, get, set, clear } from "@/utils/storage";
 import isElectron from "is-electron";
-import {sendMsg} from "@/api/login";
+import { sendMsg } from "@/api/login";
 import "simple-keyboard/build/css/index.css"; // 导入simple-keyboard的CSS样式
 
 export default defineComponent({
@@ -177,10 +176,10 @@ export default defineComponent({
         recordAccountList.value =
             get(STORAGE_TYPES.RECORD_LOGIN_LIST, true) || [];
 
-        const {userLogin} = useLogin();
+        const { userLogin } = useLogin();
 
         const login = async () => {
-            const {account, password, code} = form;
+            const { account, password, code } = form;
             if (
                 (isPassWordLogin.value &&
                     (account.length === 0 || password.length === 0)) ||
