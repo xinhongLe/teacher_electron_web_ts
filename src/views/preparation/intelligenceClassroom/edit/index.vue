@@ -542,6 +542,7 @@ export default defineComponent({
                     return;
                 }
                 cardSource = await handlePPT.assembleCardData(list);
+                console.log(windowCards.value);
             });
         }
 
