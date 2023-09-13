@@ -10,9 +10,9 @@
                         <img
                             @mousewheel="handleMousewheelScreen"
                             @mousedown="onMove"
-                            @touchstart="touchStartListener"
+                            @touchstart="$event => touchStartListener($event, true)"
                             @touchend="touchEndListener"
-                            @touchmove="touchMoveListener"
+                            @touchmove="$event => touchMoveListener($event, true)"
                             ref="photoRef"
                             :style="{
                                 transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg)`
