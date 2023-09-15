@@ -1,11 +1,11 @@
-import {BrowserWindow, ipcMain, screen, app, powerMonitor} from "electron";
-import {createWindow} from "./createWindow";
+import { BrowserWindow, ipcMain, screen, app, powerMonitor } from "electron";
+import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
-import {checkWindowSupportNet} from "./util";
-import {spawn, exec, ChildProcessWithoutNullStreams} from "child_process";
-import path, {join} from "path";
+import { checkWindowSupportNet } from "./util";
+import { spawn, exec, ChildProcessWithoutNullStreams } from "child_process";
+import path, { join } from "path";
 import detect from "detect-port";
-import {Action, CallBack, SocketHelper} from "./socketHelper";
+import { Action, CallBack, SocketHelper } from "./socketHelper";
 
 const WIN_PATH_BALL = join(__dirname, "../extraResources/ball/");
 let suspensionWin: BrowserWindow | null;
@@ -768,15 +768,15 @@ function showSuspension() {
 }
 
 export function registerEvent() {
-    let winStartPosition = {x: 0, y: 0};
-    let mouseStartPosition = {x: 0, y: 0};
+    let winStartPosition = { x: 0, y: 0 };
+    let mouseStartPosition = { x: 0, y: 0 };
     let movingInterval: any = null;
     ipcMain.handle("window-move-open", (events, canMoving) => {
         if (canMoving) {
             if (!suspensionWin) return;
             // 读取原位置
             const winPosition = suspensionWin.getPosition();
-            winStartPosition = {x: winPosition[0], y: winPosition[1]};
+            winStartPosition = { x: winPosition[0], y: winPosition[1] };
             mouseStartPosition = screen.getCursorScreenPoint();
             // 清除
             if (movingInterval) {
