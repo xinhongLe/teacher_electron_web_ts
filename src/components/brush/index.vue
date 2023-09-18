@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, nextTick, onMounted, reactive, ref, watch} from "vue";
+import { defineComponent, nextTick, onMounted, reactive, ref, watch } from "vue";
 
 const huabi = require("./../../assets/look/icon-huabi.cur");
 const rubber = require("./../../assets/look/icon-rubber2.cur");
@@ -72,7 +72,7 @@ export default defineComponent({
         const mousemove = (e: MouseEvent) => {
             const x = e.x;
             const y = e.y;
-            const newPoint = {x: x, y: y};
+            const newPoint = { x: x, y: y };
             if (painting.value) {
                 const left = x - startPoint.x;
                 const top = y - startPoint.y;

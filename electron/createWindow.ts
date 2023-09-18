@@ -1,4 +1,4 @@
-import {BrowserWindow, BrowserWindowConstructorOptions} from "electron";
+import { BrowserWindow, BrowserWindowConstructorOptions } from "electron";
 
 const path = require("path");
 

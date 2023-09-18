@@ -1,6 +1,6 @@
-import {throttle} from "lodash";
-import {nextTick} from "process";
-import {reactive, ref, Ref} from "vue";
+import { throttle } from "lodash";
+import { nextTick } from "process";
+import { reactive, ref, Ref } from "vue";
 
 export default (contentRef: Ref<HTMLElement>) => {
     const transform = reactive({
@@ -25,13 +25,13 @@ export default (contentRef: Ref<HTMLElement>) => {
     };
 
     const onMove = (event: MouseEvent) => {
-        const {clientX, clientY} = event;
+        const { clientX, clientY } = event;
         dragPosition.x = clientX;
         dragPosition.y = clientY;
         isMove = true;
         document.onmousemove = (event) => {
             isShowResetBtn.value = true;
-            const {clientX, clientY} = event;
+            const { clientX, clientY } = event;
             const moveX = dragPosition.x - clientX;
             const moveY = dragPosition.y - clientY;
             dragPosition.x = clientX;
@@ -74,12 +74,12 @@ export default (contentRef: Ref<HTMLElement>) => {
     const getDomOffset = () => {
         const offsetX = contentRef.value.offsetLeft + transform.translateX;
         const offsetY = contentRef.value.offsetTop + transform.translateY + 60;
-        return {offsetX, offsetY};
+        return { offsetX, offsetY };
     };
 
     const getPointOffset = (point: { x: number, y: number }) => {
-        const {offsetX, offsetY} = getDomOffset();
-        return {offsetX: (point.x - offsetX) / transform.scale, offsetY: (point.y - offsetY) / transform.scale};
+        const { offsetX, offsetY } = getDomOffset();
+        return { offsetX: (point.x - offsetX) / transform.scale, offsetY: (point.y - offsetY) / transform.scale };
     };
 
     // 获取两指间距离
@@ -91,13 +91,13 @@ export default (contentRef: Ref<HTMLElement>) => {
     const getTouchesCenter = (touchList: TouchList) => {
         const pointOne = touchList[0];
         const pointTwo = touchList[1];
-        return {x: (pointOne.pageX + pointTwo.pageX) / 2, y: (pointOne.pageY + pointTwo.pageY) / 2};
+        return { x: (pointOne.pageX + pointTwo.pageX) / 2, y: (pointOne.pageY + pointTwo.pageY) / 2 };
     };
 
     const handleMousewheelScreen = (e: WheelEvent) => {
         if (!isMove) {
             e.preventDefault();
-            const offset = getPointOffset({x: e.pageX, y: e.pageY});
+            const offset = getPointOffset({ x: e.pageX, y: e.pageY });
             if (e.deltaY > 0) {
                 if (transform.scale <= 0.5) return;
                 // 缩小
@@ -148,10 +148,10 @@ export default (contentRef: Ref<HTMLElement>) => {
         if (touchInfo.value?.length === 2 && e.touches.length === 2) {
             isTouchScale.value = true;
             // 双指缩放
-            const zoom = getDistance({x: e.touches[0].pageX, y: e.touches[0].pageY}, {
+            const zoom = getDistance({ x: e.touches[0].pageX, y: e.touches[0].pageY }, {
                 x: e.touches[1].pageX,
                 y: e.touches[1].pageY
-            }) / getDistance({x: touchInfo.value[0].pageX, y: touchInfo.value[0].pageY}, {
+            }) / getDistance({ x: touchInfo.value[0].pageX, y: touchInfo.value[0].pageY }, {
                 x: touchInfo.value[1].pageX,
                 y: touchInfo.value[1].pageY
             });
