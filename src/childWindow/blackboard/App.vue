@@ -298,11 +298,11 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, nextTick, onMounted, ref, watch} from "vue";
+import { computed, defineComponent, nextTick, onMounted, ref, watch } from "vue";
 import BoardList from "./boardList.vue";
 import BoardHistoryList from "./boardHistoryList.vue";
 import useUploadFile from "@/hooks/useUploadFile";
-import {BlackboardFile, submitBlackboardHistory} from "./api";
+import { BlackboardFile, submitBlackboardHistory } from "./api";
 import CloseDialog from "./closeDialog.vue";
 import useMove from "./hooks/useMove";
 import usePen from "./hooks/usePen";
@@ -310,8 +310,8 @@ import useErase from "./hooks/useErase";
 import usePage from "./hooks/usePage";
 import useUndoOrRecover from "./hooks/useUndoOrRecover";
 import useClear from "./hooks/useClear";
-import {ActiveType, PenColorMap} from "./enum";
-import {enterFullscreen, exitFullscreen, isFullscreen} from "@/utils/fullscreen";
+import { ActiveType, PenColorMap } from "./enum";
+import { enterFullscreen, exitFullscreen, isFullscreen } from "@/utils/fullscreen";
 import path from "path";
 
 export default defineComponent({
@@ -327,10 +327,10 @@ export default defineComponent({
         const whiteColor = "#F5F6FA";
         const isTzOrLine = ref("");
         const isShowHistoryBroadList = ref(false);
-        const {uploadFile} = useUploadFile("TeacherBlackboardFile");
+        const { uploadFile } = useUploadFile("TeacherBlackboardFile");
         const isShowCloseDialog = ref(false);
-        const {clear, clearClick} = useClear(fabCanvas, blackColor);
-        const {mousedown, mousemove, mouseup, touchStart, touchMove} = useMove(fabCanvas);
+        const { clear, clearClick } = useClear(fabCanvas, blackColor);
+        const { mousedown, mousemove, mouseup, touchStart, touchMove } = useMove(fabCanvas);
         const {
             penColor,
             penSize,
@@ -339,7 +339,7 @@ export default defineComponent({
             changeLineWidth,
             changeStrokeStyle
         } = usePen(fabCanvas, activeType);
-        const {eraserClick} = useErase(fabCanvas, activeType);
+        const { eraserClick } = useErase(fabCanvas, activeType);
         const {
             prevPage,
             nextPage,
@@ -352,7 +352,7 @@ export default defineComponent({
             createBroad,
             deleteBoard
         } = usePage(fabCanvas, clear);
-        const {undoClick, recoverClick, isAction, deleteState, currentState} = useUndoOrRecover(fabCanvas, clear);
+        const { undoClick, recoverClick, isAction, deleteState, currentState } = useUndoOrRecover(fabCanvas, clear);
 
         function init() {
             fabCanvas.value = new window.fabric.Canvas(canvasRef.value, {
@@ -364,7 +364,7 @@ export default defineComponent({
             });
             console.log('fabCanvas.value', fabCanvas.value)
             // 禁止橡皮擦除背景色
-            fabCanvas.value.get("backgroundColor").set({erasable: false});
+            fabCanvas.value.get("backgroundColor").set({ erasable: false });
             fabCanvas.value.freeDrawingBrush.width = 2;
             selectPenMode();
         }
@@ -448,7 +448,7 @@ export default defineComponent({
             fabCanvas.value.setBackgroundColor(
                 isBlack.value ? whiteColor : blackColor
             );
-            fabCanvas.value.get("backgroundColor").set({erasable: false});
+            fabCanvas.value.get("backgroundColor").set({ erasable: false });
             fabCanvas.value.renderAll();
             isBlack.value = !isBlack.value;
             if (!isBlack.value && penColor.value === PenColorMap.White) {
@@ -471,7 +471,7 @@ export default defineComponent({
 
             const fileInfoList = await Promise.all(storageCanvasData.value.map((item, index) => {
                 const base64Data = item.img.replace(/^data:image\/\w+;base64,/, "");
-                return uploadFile({file: new File([Buffer.from(base64Data, "base64")], `${index}.png`)});
+                return uploadFile({ file: new File([Buffer.from(base64Data, "base64")], `${index}.png`) });
             }));
 
             const blackboardFiles = fileInfoList.map(file => ({
@@ -594,7 +594,7 @@ export default defineComponent({
             backgroundImageUrl
         };
     },
-    components: {BoardList, BoardHistoryList, CloseDialog}
+    components: { BoardList, BoardHistoryList, CloseDialog }
 });
 </script>
 

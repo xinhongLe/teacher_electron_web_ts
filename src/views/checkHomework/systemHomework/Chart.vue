@@ -1,24 +1,24 @@
 <template>
     <div>
         <div class="chart-once" :class="activeIndex == index ? 'active' : ''">
-            <div class="chart-row" v-if="item.TotalRight === 0 && item.TotalWrong === 0 && item.TotalNoSure === 0" >
+            <div class="chart-row" v-if="item.TotalRight === 0 && item.TotalWrong === 0 && item.TotalNoSure === 0">
                 <div>
                     <p>第{{ index + 1 }}题</p>
                     <P>无人作答</P>
                 </div>
-                <div class="no-chart" >
-                    <img src="" alt="" />
+                <div class="no-chart">
+                    <img src="" alt=""/>
                 </div>
             </div>
-           <div  class="chart-row"  v-else>
-               <div>
-                   <p>第{{ index + 1 }}题</p>
-                   <p> 正确率 <span>{{ probability }}%</span></p>
-               </div>
-               <div class="chart">
-                   <div :id="'main' + index" style="width: 50px; height: 50px" ref="chartRef"></div>
-               </div>
-           </div>
+            <div class="chart-row" v-else>
+                <div>
+                    <p>第{{ index + 1 }}题</p>
+                    <p> 正确率 <span>{{ probability }}%</span></p>
+                </div>
+                <div class="chart">
+                    <div :id="'main' + index" style="width: 50px; height: 50px" ref="chartRef"></div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -26,6 +26,7 @@
 <script lang="ts">
 import { defineComponent, watch, ref, nextTick } from "vue";
 import * as echarts from "echarts";
+
 export default defineComponent({
     props: {
         item: {
@@ -122,51 +123,57 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .chart-once {
-  display: flex;
-  justify-content:space-between;
-  align-items: center;
-  width: 100%;
-  height: 62px;
-  padding: 0px 20px;
-  cursor: pointer;
-  box-sizing: border-box;
-  border: 1px solid #fff;
-  border-radius: 4px;
-  margin-bottom:20px;
-  text-align: center;
-  background: #fff;
-    .chart-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 62px;
+    padding: 0px 20px;
+    cursor: pointer;
+    box-sizing: border-box;
+    border: 1px solid #fff;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    text-align: center;
+    background: #fff;
+
+    .chart-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         width: 100%;
     }
-  .chart {
-    width: 42px;
-    height: 42px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-  }
-  .no-chart {
-      width: 32px;
-      height: 32px;
-      border: 6px solid #A9ACB3;
-      border-radius: 50%;
-  }
-  p:nth-of-type(1) {
-    font-size: 14px;
-    font-weight: 600;
-    color: #19203D;
-    margin-bottom: 6px;
-  }
-  p:nth-of-type(2) {
-    font-size: 12px;
-      color: #5F626F;
-  }
+
+    .chart {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .no-chart {
+        width: 32px;
+        height: 32px;
+        border: 6px solid #A9ACB3;
+        border-radius: 50%;
+    }
+
+    p:nth-of-type(1) {
+        font-size: 14px;
+        font-weight: 600;
+        color: #19203D;
+        margin-bottom: 6px;
+    }
+
+    p:nth-of-type(2) {
+        font-size: 12px;
+        color: #5F626F;
+    }
 }
+
 .active {
-  border: 1px solid #98aef6;
-  background: #E6ECFF;
+    border: 1px solid #98aef6;
+    background: #E6ECFF;
 }
 </style>

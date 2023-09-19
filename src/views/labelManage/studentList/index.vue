@@ -10,8 +10,8 @@
                     src="./../../../assets/my-student/arrow_shouqi_blue.png"
                 />
                 <span @click="showAll = !showAll">{{
-                    showAll ? "收起" : "展开"
-                }}</span>
+                        showAll ? "收起" : "展开"
+                    }}</span>
             </p>
             <div v-show="showAll">
                 <el-row :gutter="20">
@@ -28,7 +28,7 @@
                                     : 'item'
                             "
                             :style="{ cursor: canEdit ? 'pointer' : '' }"
-                            @click="checkStudent(item1.ID)"
+                            @click.self="checkStudent(item1.ID)"
                         >
                             <div v-if="canEdit">
                                 <el-checkbox
@@ -58,6 +58,7 @@
 import { StudentTag } from "@/types/labelManage";
 import { defineComponent, PropType, ref, watch } from "vue";
 import Avatar from "@/components/avatar/index.vue";
+
 export default defineComponent({
     name: "studentList",
     props: {
@@ -88,6 +89,7 @@ export default defineComponent({
                 return;
             }
             const index = props.selectStudent.indexOf(studentId);
+            console.log('index', index)
             if (index === -1) {
                 selectStudentId.value.push(studentId);
             } else {
@@ -108,6 +110,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .student-box {
     margin-bottom: 16px;
+
     > div {
         padding: 24px;
         padding-bottom: 0;
@@ -115,9 +118,11 @@ export default defineComponent({
         border-radius: 4px;
         overflow: hidden;
         border: 1px solid #e8ebf5;
+
         > p {
             overflow: hidden;
             margin-bottom: 24px;
+
             span:nth-of-type(1) {
                 float: left;
                 font-size: 20px;
@@ -125,6 +130,7 @@ export default defineComponent({
                 color: #19203d;
                 line-height: 28px;
             }
+
             span:nth-of-type(2) {
                 float: left;
                 padding: 0 8px;
@@ -135,6 +141,7 @@ export default defineComponent({
                 border-radius: 26px;
                 margin: 5px 8px;
             }
+
             span:nth-of-type(3) {
                 float: right;
                 font-size: 14px;
@@ -143,6 +150,7 @@ export default defineComponent({
                 margin-top: 4px;
                 cursor: pointer;
             }
+
             img {
                 float: right;
                 width: 11px;
@@ -152,8 +160,10 @@ export default defineComponent({
                 cursor: pointer;
             }
         }
+
         > div {
             overflow: hidden;
+
             .item {
                 width: 100%;
                 border-radius: 4px;
@@ -167,15 +177,19 @@ export default defineComponent({
                 margin-right: 16px;
                 display: flex;
                 align-items: center;
+
                 :deep(.el-checkbox) {
                     margin-right: 20px;
                 }
+
                 > div {
                     margin-left: 16px;
+
                     &.content {
                         @include text-ellipsis;
                         flex: 1;
                     }
+
                     p:nth-of-type(1) {
                         height: 22px;
                         font-size: 16px;
@@ -185,6 +199,7 @@ export default defineComponent({
                         margin-bottom: 4px;
                         @include text-ellipsis;
                     }
+
                     p:nth-of-type(2),
                     p:nth-of-type(3) {
                         height: 17px;
@@ -197,14 +212,17 @@ export default defineComponent({
                     }
                 }
             }
+
             .item:nth-of-type(4n-1) {
                 margin-right: 16px;
             }
         }
     }
+
     .active {
         transform: rotate(180deg);
     }
+
     .item-active {
         background: #ebf4ff !important;
         border: 1px solid #a4c5ff !important;

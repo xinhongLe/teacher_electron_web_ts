@@ -11,10 +11,10 @@
 </template>
 
 <script lang="ts">
-import {LYXSocketInputDTO} from "@/types";
-import {getOssUrl} from "@/utils/oss";
+import { LYXSocketInputDTO } from "@/types";
+import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
-import {defineComponent, onUnmounted, ref} from "vue";
+import { defineComponent, onUnmounted, ref } from "vue";
 import ProjectionContent from "./ProjectionContent.vue";
 
 export default defineComponent({
@@ -24,10 +24,10 @@ export default defineComponent({
         const isShow = ref(false);
 
         const projection = async (_: any, data: LYXSocketInputDTO) => {
-            const {thisImageIndex, fileList} = data;
+            const { thisImageIndex, fileList } = data;
             currentIndex.value = thisImageIndex;
             const imgListPromise = fileList.map((file) => {
-                const {extention, fileName, filePath, bucket} = file;
+                const { extention, fileName, filePath, bucket } = file;
                 const key = `${filePath}/${fileName}.${extention}`;
                 return getOssUrl(key, bucket);
             });
@@ -54,7 +54,7 @@ export default defineComponent({
             currentIndex
         };
     },
-    components: {ProjectionContent}
+    components: { ProjectionContent }
 });
 </script>
 

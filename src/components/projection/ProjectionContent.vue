@@ -266,8 +266,8 @@
 
 <script lang="ts">
 import useTransform from "@/hooks/useTransform";
-import {nextTick} from "process";
-import {computed, defineComponent, PropType, ref, toRefs, watch} from "vue";
+import { nextTick } from "process";
+import { computed, defineComponent, PropType, ref, toRefs, watch } from "vue";
 import Brush from "../brush/index.vue";
 
 export default defineComponent({
@@ -282,7 +282,7 @@ export default defineComponent({
         }
     },
     setup(props) {
-        const isCanMove = ref(false);
+        const isCanMove = ref(true);
         const imgList = computed(() => props.list);
         const currentIndex = ref(props.index);
         const isBrush = ref(false);
@@ -488,7 +488,7 @@ export default defineComponent({
             ...toRefs(transform)
         };
     },
-    components: {Brush}
+    components: { Brush }
 });
 </script>
 
