@@ -9,6 +9,9 @@ import { cacheFile } from "@/utils/file";
 import Drag from "@/directive/drag";
 import "@/styles/index.scss";
 import DragLine from "@/directive/dragLine";
+import { initMathJax } from "@/utils/mathJax";
+
+initMathJax();
 
 const app = createApp(App);
 

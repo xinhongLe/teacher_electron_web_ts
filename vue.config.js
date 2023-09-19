@@ -1,8 +1,5 @@
 const {NormalModuleReplacementPlugin} = require("webpack");
-
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-
-const moment = require("moment");
+const CopyPlugin = require("copy-webpack-plugin");
 
 const extraResources =
     process.platform === "darwin"
@@ -208,7 +205,10 @@ module.exports = {
             new NormalModuleReplacementPlugin(
                 /element-plus[\\/\\]lib[\\/\\]locale[\\/\\]lang[\\/\\]en/,
                 "element-plus/lib/locale/lang/zh-cn"
-            )
+            ),
+            // new CopyPlugin([
+            //     { from: "node_modules/wincard/dist/img", to: "js/img" }
+            // ])
         ]
     },
     chainWebpack(config) {
@@ -303,7 +303,7 @@ module.exports = {
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },
-                asar: true,
+                asar: false,
                 files: ["**/*", "public/*"],
                 publish: [
                     {
@@ -342,7 +342,7 @@ module.exports = {
                     createDesktopShortcut: true, // 创建桌面图标
                     createStartMenuShortcut: true, // 创建开始菜单图标
                     shortcutName: process.env.VUE_APP_PRODUCT_NAME, // 图标名称
-                    // include: "installer.nsh"
+                    include: "installer.nsh"
                 },
                 win: {
                     // win相关配置

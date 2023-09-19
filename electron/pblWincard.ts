@@ -21,9 +21,6 @@ export function registerPblWinCardEvent() {
     ipcMain.handle("openWinCard", (_, data) => {
         createWinCardWindow(data, windowUrl);
     });
-    // ipcMain.handle("closeWinCard", () => {
-    //     console.log("sssss", 123123);
-    // });
 }
 
 export function registerPblWinCardLessonEvent() {

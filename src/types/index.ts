@@ -89,6 +89,7 @@ declare global {
         electron: Electron;
         fabric: any;
         localWincard: boolean;
+        MathJax: any
     }
 }
 

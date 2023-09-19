@@ -21,10 +21,13 @@ import "wincard/dist/wincard.css";
 import mitt from "mitt";
 import TrackService from "@/utils/common";
 import {cacheFile} from "./utils/file";
+import { initMathJax } from "./utils/mathJax";
 
 TrackService.useTrackPoint();
 
 const app = createApp(App);
+
+initMathJax();
 
 // @ts-ignore
 app.use(WinCard, process.env.VUE_APP_AI_XUE_SHI_API, "https://wincard.lyx-edu.com/swf2canvas.html", cacheFile)

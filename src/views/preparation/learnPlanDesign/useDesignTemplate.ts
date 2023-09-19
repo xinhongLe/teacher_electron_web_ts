@@ -243,10 +243,15 @@ export default (type: number) => {
         nextTick(() => {
             proxy.refs['editerRef' + currentAddItems.value.Id][0].innerHTML = currentAddItems.value.Content + questionString;
             nextTick(() => {
-                (window as any).MathJax?.Hub.Queue(['Typeset', (window as any).MathJax.Hub, proxy.refs['editerRef' + currentAddItems.value.Id][0], () => {
-                    // 渲染完成的回调函数
-                    // 可以在这里执行其他代码
-                }]);
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                MathJax.texReset();
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                MathJax.typesetClear();
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                MathJax.typesetPromise([proxy.refs['editerRef' + currentAddItems.value.Id][0]]);
             });
             const imgData = proxy.refs['editerRef' + currentAddItems.value.Id][0].querySelectorAll('img');
             imgData?.forEach((item: any) => {

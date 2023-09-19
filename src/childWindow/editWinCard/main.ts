@@ -21,6 +21,9 @@ import mitt from "mitt";
 
 import TrackService from "@/utils/common";
 import { cacheFile } from "@/utils/file";
+import { initMathJax } from "@/utils/mathJax";
+
+initMathJax();
 
 TrackService.useTrackPoint();
 
