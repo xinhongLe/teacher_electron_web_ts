@@ -1,9 +1,9 @@
 <template>
-    <div v-html="text" style="word-break: break-all;"></div>
+    <div ref="mathContainer" style="word-break: break-all;"></div>
 </template>
 
 <script setup lang="ts">
-import {watch, nextTick, toRefs} from 'vue'
+import { ref, watch, onMounted, defineProps } from 'vue'
 
 const props = defineProps({
     text: {
@@ -12,20 +12,29 @@ const props = defineProps({
     }
 })
 
-const {text} = toRefs(props)
+const mathContainer = ref<HTMLElement | any>(null)
 
-const renderMathJax = () => {
-    nextTick(() => {
-        ;(window as any).MathJax.Hub.Queue(['Typeset', (window as any).MathJax.Hub])
-    })
-}
-
-renderMathJax()
+onMounted(() => {
+    renderMathJax(props.text)
+})
 
 watch(
     () => props.text,
-    () => {
-        renderMathJax()
+    (newVal) => {
+        renderMathJax(newVal)
     }
 )
+
+const renderMathJax = (text: string) => {
+    if (typeof window.MathJax !== 'undefined') {
+        mathContainer.value.innerHTML = text;
+        const tableData = mathContainer.value.querySelectorAll('table');
+        tableData?.forEach((table: any) => {
+            table.style.width = "100%";
+        });
+        window.MathJax.typesetPromise([mathContainer.value]).catch((error: any) => {
+            console.error("MathJax 渲染出错:", error)
+        })
+    }
+}
 </script>

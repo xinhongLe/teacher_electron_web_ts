@@ -13,19 +13,19 @@
 </template>
 
 <script lang="ts">
-import {get, STORAGE_TYPES} from "@/utils/storage";
-import {defineComponent, onActivated, ref, onDeactivated, nextTick, onMounted, onUnmounted} from "vue";
-import {systemId, VUE_APP_GVC_WEB} from "@/config";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { defineComponent, onActivated, ref, onDeactivated, nextTick, onMounted, onUnmounted } from "vue";
+import { systemId, VUE_APP_GVC_WEB } from "@/config";
 import isElectron from "is-electron";
-import {IYunInfo} from "@/types/login";
-import {getPlatformByOrgId} from "@/api/home";
-import {UserInfoState} from "@/types/store";
+import { IYunInfo } from "@/types/login";
+import { getPlatformByOrgId } from "@/api/home";
+import { UserInfoState } from "@/types/store";
 
 // ts
 export default defineComponent({
     name: "QuestionIframe",
     emits: ["selectedQuestion"],
-    setup(props, {emit}) {
+    setup(props, { emit }) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const url = ref("");
@@ -60,7 +60,7 @@ export default defineComponent({
             // return getPlatformByOrgId([{id}]).then(res => {
             //     return res.result.length > 0 ? res.result[0].platformId : "";
             // });
-            const res = await getPlatformByOrgId([{id}]);
+            const res = await getPlatformByOrgId([{ id }]);
             return res.result.length > 0 ? res.result[0].platformId : "";
         };
 
@@ -76,7 +76,6 @@ export default defineComponent({
         })
 
         onUnmounted(() => {
-            console.log("onDeactivated");
             window.removeEventListener("message", selectedQuestion);
         });
         return {
