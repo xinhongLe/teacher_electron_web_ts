@@ -139,8 +139,6 @@ export default (type: number) => {
 
     // 监听页面布局改变
     const watchLayoutChange = () => {
-
-        console.log('监听布局改变', templatePageData.value);
         templatePageData.value.forEach((pageData: any, index: number) => {
             let allContentHeight = 0;
             const topHeight = pageData.Level === 1 ? currentPageLayout.basicTopHeight : 0;
@@ -242,6 +240,7 @@ export default (type: number) => {
         nextTick(() => {
                 proxy.refs['editerRef' + currentAddItems.value.Id][0].innerHTML = currentAddItems.value.Content + questionString;
                 nextTick(() => {
+                    console.log('window.MathJax', window.MathJax)
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     MathJax.texReset();

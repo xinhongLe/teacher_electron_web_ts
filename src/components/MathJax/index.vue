@@ -26,7 +26,7 @@ watch(
 )
 
 const renderMathJax = (text: string) => {
-    if (typeof window.MathJax !== 'undefined') {
+    if (typeof window.MathJax !== 'undefined' && text) {
         mathContainer.value.innerHTML = text;
         const tableData = mathContainer.value.querySelectorAll('table');
         tableData?.forEach((table: any) => {
