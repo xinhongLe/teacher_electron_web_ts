@@ -1,4 +1,4 @@
-import { FileInfo, Question } from "@/types/lookQuestion";
+import { FileInfo, Question, FlowText } from "@/types/lookQuestion";
 import emitter from "@/utils/mitt";
 import { getOssUrl } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
@@ -17,9 +17,10 @@ export default (
     questionId = "",
     emit: (event: string, ...args: any[]) => void,
     childRef: Ref<any>,
-    resource: any
+    resource: any,
 ) => {
     const imageUrl = ref<string[]>([]);
+    const questionEditList = ref<FlowText[]>([]);
     const voiceUrl = ref<string[]>([]);
     const voiceUrlMap = ref({
         question: "",
@@ -78,6 +79,11 @@ export default (
         voiceUrlMap.value[type === 1 ? "question" : "answer"] = voices[0];
     }
 
+    // 获取试题富文本
+    async function getQuestionEditList(data: any) {
+        questionEditList.value = [data];
+    }
+
     function playSounds(index: number) {
         if (audioRef.value) {
             audioRef.value.src =
@@ -127,15 +133,18 @@ export default (
         if (res.resultCode === 200) {
             const { result } = res;
             !isPureQuestion &&
-                pullAllBy(
-                    result,
-                    deleteQuestionIds.map((id: string) => ({ QuestionID: id })),
-                    "QuestionID"
-                );
+            pullAllBy(
+                result,
+                deleteQuestionIds.map((id: string) => ({ QuestionID: id })),
+                "QuestionID"
+            );
             sum.value = result.length;
             questionList.value = result;
             getFileList(questionList.value[0].QuestionFiles, 1);
             getFileList(questionList.value[0].AnswerFiles[0].Files, 2);
+            if (questionList.value[0]?.QuestionFlowText) {
+                getQuestionEditList(questionList.value[0].QuestionFlowText);
+            }
             nowQuestionID.value = questionList.value[0].QuestionID;
             isBlackboard.value = true;
             //错题本试题篮-当前同类题
@@ -153,11 +162,12 @@ export default (
     watchEffect(getDetail);
 
     const nextPage = () => {
+        console.log("nextPage", nextIndex.value, imageUrl.value, questionEditList.value)
         if (nextIndex.value < imageUrl.value.length) {
             playSounds(1);
             imageRef.value &&
-                (imageRef.value.src =
-                    imageUrl.value[imageUrl.value.length - 1]);
+            (imageRef.value.src =
+                imageUrl.value[imageUrl.value.length - 1]);
             nextIndex.value++;
             if (number.value === sum.value) {
                 isNextBtn.value = true;
@@ -172,6 +182,9 @@ export default (
 
                 getFileList(question.QuestionFiles, 1);
                 getFileList(question.AnswerFiles[0].Files, 2);
+                if (question?.QuestionFlowText) {
+                    getQuestionEditList(question.QuestionFlowText);
+                }
                 nowQuestionID.value = question.QuestionID;
             } else {
                 isNextBtn.value = true;
@@ -201,6 +214,9 @@ export default (
                     const question = questionList.value[number.value - 1];
                     getFileList(question.QuestionFiles, 1);
                     getFileList(question.AnswerFiles[0].Files, 2);
+                    if (question?.QuestionFlowText) {
+                        getQuestionEditList(question.QuestionFlowText);
+                    }
                     nowQuestionID.value = question.QuestionID;
                     //错题本试题篮-当前同类题
                     store.state.wrongbook.currentPureQuestion = isPureQuestion
@@ -257,7 +273,7 @@ export default (
                 const questionID =
                     type === 3
                         ? questionList.value[number.value - 1]
-                              .CoursebagQuestionID || ""
+                        .CoursebagQuestionID || ""
                         : nowQuestionID.value;
                 emitter.emit("deleteQuestion", {
                     courseBagId,
@@ -278,6 +294,9 @@ export default (
                 const { QuestionFiles, AnswerFiles, QuestionID } = question;
                 getFileList(QuestionFiles, 1);
                 getFileList(AnswerFiles[0].Files, 2);
+                if (question?.QuestionFlowText) {
+                    getQuestionEditList(question.QuestionFlowText);
+                }
                 nowQuestionID.value = QuestionID;
             })
             .catch();
@@ -287,6 +306,7 @@ export default (
 
     return {
         imageUrl,
+        questionEditList,
         voiceUrl,
         sum,
         isBlackboard,
@@ -306,5 +326,6 @@ export default (
         nextIndex,
         questionSwitchValue,
         questionList,
+        getQuestionEditList
     };
 };

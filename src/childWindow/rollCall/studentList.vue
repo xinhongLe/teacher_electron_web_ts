@@ -63,7 +63,9 @@
                     <el-input-number v-model="checkCount" :min="1" :max="5"/>
                 </div>
             </div>
-            <div @click="openSetting" class="setting-btn-box"><Setting class="setting-btn"/></div>
+            <div @click="openSetting" class="setting-btn-box">
+                <Setting class="setting-btn"/>
+            </div>
             <el-button
                 v-show="!isPackUp"
                 type="default"
@@ -131,8 +133,8 @@
 </template>
 
 <script lang="ts">
-import {Student} from "@/types/labelManage";
-import {ElMessage, ElMessageBox} from "element-plus";
+import { Student } from "@/types/labelManage";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
     reactive,
     defineComponent,
@@ -140,13 +142,14 @@ import {
     nextTick
 } from "vue";
 import Avatar from "../../components/avatar/index.vue";
-import {DoubleLeft, Drag, DoubleRight, Setting} from "@icon-park/vue-next";
-import {startAudio} from "./startaudio";
-import {UserInfoState} from "@/types/store";
-import {get, STORAGE_TYPES, storeChange} from "@/utils/storage";
-import {exportExcel, IExcel} from "mexcel";
-import {getCurrentSemesterRollCallLog, rollCallLog} from "@/api";
+import { DoubleLeft, Drag, DoubleRight, Setting } from "@icon-park/vue-next";
+import { startAudio } from "./startaudio";
+import { UserInfoState } from "@/types/store";
+import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
+import { exportExcel, IExcel } from "mexcel";
+import { getCurrentSemesterRollCallLog, rollCallLog } from "@/api";
 import SettingC from "./setting.vue"
+
 export default defineComponent({
     components: {
         Drag,
@@ -184,7 +187,7 @@ export default defineComponent({
         // 此处要监听班级切换
         storeChange(STORAGE_TYPES.CURRENT_SELECT_CLASS, () => {
             form.classId = get(STORAGE_TYPES.CURRENT_SELECT_CLASS)?.ClassUserCenterId;
-            const changeStudentList = allStudents.filter((v: any) => form.classId  === v.ClassID);
+            const changeStudentList = allStudents.filter((v: any) => form.classId === v.ClassID);
             form.storeStudentList = JSON.parse(JSON.stringify(changeStudentList));
             form.allStudentList = JSON.parse(JSON.stringify(changeStudentList));
 
@@ -209,49 +212,49 @@ export default defineComponent({
             if (checkCount.value > form.allStudentList.length) {
                 return ElMessageBox.alert(
                     "点名人数不能大于已选择学生列表"
-                ); 
+                );
             }
-            isStart.value = true; 
+            isStart.value = true;
             playAudio(currentAudio);
-            const checkStudentTemp:Student[] = [];   
+            const checkStudentTemp: Student[] = [];
             if (unselectedStudent.value.length >= checkCount.value) {
-                for (var i = 0 ; i < checkCount.value; i++) {
+                for (var i = 0; i < checkCount.value; i++) {
                     const len = unselectedStudent.value.length;
                     const randomIndex = Math.floor(Math.random() * len);
                     const student = unselectedStudent.value[randomIndex];
                     checkStudentTemp.unshift(student);
                     unselectedStudent.value.splice(randomIndex, 1);
                 }
-                if(form.isRepeat == 0) {
+                if (form.isRepeat == 0) {
                     unselectedStudent.value = [...form.allStudentList]
                 }
-            }else{
+            } else {
                 checkStudentTemp.unshift(...unselectedStudent.value);
                 const diffCount = checkCount.value - unselectedStudent.value.length;
                 unselectedStudent.value = []
                 form.allStudentList.map((v: Student) => {
                     let has = false
                     checkStudentTemp.map(val => {
-                        if(v.StudentID == val.StudentID) has = true
+                        if (v.StudentID == val.StudentID) has = true
                     })
-                    if(!has) {
+                    if (!has) {
                         unselectedStudent.value.push(v)
                     }
                 })
-                for(var i = 0;i< diffCount; i++) {
+                for (var i = 0; i < diffCount; i++) {
                     const len = unselectedStudent.value.length;
                     const randomIndex = Math.floor(Math.random() * len);
                     const student = unselectedStudent.value[randomIndex];
                     checkStudentTemp.unshift(student);
                     unselectedStudent.value.splice(randomIndex, 1);
                 }
-            } 
+            }
             animationTime.value = 0;
             randomDeg.value = 0;
             setTimeout(() => {
                 animationTime.value = duration;
                 randomDeg.value = 360 * 5;
-                setTimeout(() => {  
+                setTimeout(() => {
                     thisSelectStudent.value = checkStudentTemp
                     selectStudent.value.unshift(...checkStudentTemp)
                     if (!schoolTerm || !schoolTerm.code) {
@@ -271,13 +274,13 @@ export default defineComponent({
                     showResult.value = true
                 }, duration);
             }, 100);
-        }; 
+        };
 
         const reset = () => {
             animationTime.value = 0;
             randomDeg.value = 360;
             rotateX.value = -363;
-            if(form.isRepeat == 1) {
+            if (form.isRepeat == 1) {
                 selectStudent.value = [];
             }
             unselectedStudent.value = [...form.allStudentList]
@@ -292,11 +295,11 @@ export default defineComponent({
             reset();
         })
 
-        const updateForm = (value:any) => {
+        const updateForm = (value: any) => {
             form.isRepeat = value.isRepeat;
             form.classId = value.classId;
             form.studentRange = value.studentRange;
-            // form.allStudentList = [...value.storeStudentList];
+            form.allStudentList = [...value.storeStudentList];
             selectStudent.value = [];
             reset();
         }
@@ -361,7 +364,7 @@ export default defineComponent({
                         },
                     ],
                 })
-                .then(({filePath, canceled}) => {
+                .then(({ filePath, canceled }) => {
                     if (canceled) return;
                     getCurrentSemesterRollCallLog({
                         TermCode: schoolTerm.code,
@@ -425,13 +428,13 @@ export default defineComponent({
                                             wrapText: true,
                                         },
                                         border: {
-                                            top: {style: "thin", color: {}},
-                                            right: {style: "thin", color: {}},
+                                            top: { style: "thin", color: {} },
+                                            right: { style: "thin", color: {} },
                                             bottom: {
                                                 style: "thin",
                                                 color: {},
                                             },
-                                            left: {style: "thin", color: {}},
+                                            left: { style: "thin", color: {} },
                                         },
                                     },
                                     titleStyle: {
@@ -447,13 +450,13 @@ export default defineComponent({
                                             wrapText: true,
                                         },
                                         border: {
-                                            top: {style: "thin", color: {}},
-                                            right: {style: "thin", color: {}},
+                                            top: { style: "thin", color: {} },
+                                            right: { style: "thin", color: {} },
                                             bottom: {
                                                 style: "thin",
                                                 color: {},
                                             },
-                                            left: {style: "thin", color: {}},
+                                            left: { style: "thin", color: {} },
                                         },
                                     },
                                 },
@@ -630,6 +633,7 @@ export default defineComponent({
             -webkit-app-region: no-drag;
         }
     }
+
     .check-student-box {
         width: 100%;
         height: 100%;
@@ -638,18 +642,20 @@ export default defineComponent({
         top: 0;
         bottom: 0;
         right: 0;
-        margin: auto; 
+        margin: auto;
+
         .custom-reset-btn {
             margin: auto;
             width: 382px;
             background-image: url(~@/assets/images/suspension/btn_bg@2x.png) !important;
         }
-        >div {
+
+        > div {
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0 20px;
-            
+
             .student-item {
                 width: 300px;
                 height: 390px;
@@ -683,6 +689,7 @@ export default defineComponent({
                     text-align: center;
                 }
             }
+
             .student-item:nth-of-type(1) {
                 margin-left: 0;
             }
@@ -827,6 +834,7 @@ export default defineComponent({
     bottom: 98px;
     -webkit-app-region: no-drag;
 }
+
 .setting-btn-box {
     position: absolute;
     right: 210px;
@@ -838,6 +846,7 @@ export default defineComponent({
     color: #333;
     cursor: pointer;
 }
+
 .setting-btn {
     width: 20px;
     height: 20px;
@@ -845,6 +854,7 @@ export default defineComponent({
     color: #333;
     cursor: pointer;
 }
+
 .check-count {
     position: absolute;
     bottom: 222px;
@@ -854,12 +864,14 @@ export default defineComponent({
     display: flex;
     -webkit-app-region: no-drag;
     align-items: center;
-    >span:nth-of-type(1) {
+
+    > span:nth-of-type(1) {
         font-size: 18px;
         font-family: HarmonyOS_Sans_SC_Medium;
         color: #242B3A;
     }
-    >div {
+
+    > div {
         width: 178px;
     }
 }

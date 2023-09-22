@@ -19,7 +19,9 @@
                     <el-radio :label="0" size="large">全班学生</el-radio>
                     <el-radio :label="1" size="large">指定学生</el-radio>
                 </el-radio-group>
-                <span class="change" v-if="form.studentRange == 1" @click="getClassStudent(), studentListRef.studentDialogVisible = true">去选择<img src="@/assets/images/suspension/combinedshape@2x.png"></span>
+                <span class="change" v-if="form.studentRange == 1"
+                      @click="getClassStudent(), studentListRef.studentDialogVisible = true">去选择<img
+                    src="@/assets/images/suspension/combinedshape@2x.png"></span>
             </el-form-item>
             <el-form-item label="重复点名：">
                 <el-radio-group v-model="form.isRepeat">
@@ -48,7 +50,7 @@
 <script setup lang="ts">
 import { reactive, ref, nextTick } from 'vue';
 import { get, STORAGE_TYPES, set } from '@/utils/storage';
-import {store} from "@/store";
+import { store } from "@/store";
 import SettingStudent from "./settingStudent.vue"
 
 const dialogVisible = ref(false)
@@ -66,7 +68,7 @@ const getClassStudent = () => {
     nextTick(() => {
         studentListRef.value.studentName = "";
         studentListRef.value.allStudents = allStudents.filter((v: any) => form.classId == v.ClassID),
-        studentListRef.value.checkedStudents = form.storeStudentList
+            studentListRef.value.checkedStudents = form.storeStudentList
     })
 }
 getClassStudent()
@@ -79,9 +81,9 @@ const classChange = () => {
 const rangeChange = (val: any) => {
     form.allStudentList = allStudents.filter((v: any) => form.classId == v.ClassID)
     studentListRef.value.checkedStudents = []
-    if(val == 0) {
+    if (val == 0) {
         form.storeStudentList = allStudents.filter((v: any) => form.classId === v.ClassID)
-    }else{
+    } else {
         form.storeStudentList = []
     }
 }
@@ -107,24 +109,28 @@ defineExpose({
     color: var(--el-color-primary);
     margin-left: 32px;
     cursor: pointer;
+
     img {
         width: 6px;
         height: 10px;
         margin-left: 4px;
     }
 }
+
 .transfer-box {
     display: flex;
     align-items: center;
-    >div {
+
+    > div {
         flex: 1;
         height: 408px;
         border-radius: 4px;
         border: 1px solid #E0E2E7;
         display: flex;
         flex-direction: column;
-            overflow: auto;
-        >div:nth-of-type(1) {
+        overflow: auto;
+
+        > div:nth-of-type(1) {
             height: 48px;
             background: #F5F6FA;
             padding: 0 16px;
@@ -133,32 +139,39 @@ defineExpose({
             box-sizing: border-box;
             justify-content: space-between;
             border-radius: 4px 4px 0px 0px;
-            >span {
+
+            > span {
                 font-size: 14px;
                 color: #90949E;
             }
         }
+
         .student-list {
             flex: 1;
             overflow: auto;
             padding: 0 16px;
+
             ::v-deep(.el-checkbox) {
                 display: flex;
                 margin-right: 0;
             }
+
             .student {
                 display: flex;
                 align-items: center;
+
                 img {
                     width: 36px;
                     height: 36px;
                     margin-right: 12px;
                 }
+
                 p {
                     overflow: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
                 }
+
                 img:nth-of-type(2) {
                     width: 14px;
                     height: 14px;
@@ -169,7 +182,8 @@ defineExpose({
             }
         }
     }
-    >img {
+
+    > img {
         width: 36px;
         height: 31px;
         margin: 0 15px;

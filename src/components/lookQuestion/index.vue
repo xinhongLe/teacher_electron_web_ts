@@ -15,6 +15,7 @@
             ref="questionRef"
             v-model:nowQuestionID="nowQuestionID"
             v-model:isMinimized="isMinimized"
+            :question="question"
         >
             <template v-slot:footerBtn="slotProps">
                 <div class="me-tool-btn-new" v-show="type !== 2 && slotProps.sum >= 1"
@@ -75,10 +76,10 @@ import {
 } from "vue";
 import Question from "./Question.vue";
 import PureQuestionDialog from "./PureQuestionDialog.vue";
-import {checkPureQuestionByQuestionID} from "./api";
-import {MutationTypes, store} from "@/store";
+import { checkPureQuestionByQuestionID } from "./api";
+import { MutationTypes, store } from "@/store";
 import isElectron from "is-electron";
-import {IViewResourceData} from "@/types/store";
+import { IViewResourceData } from "@/types/store";
 
 export default defineComponent({
     name: "LookQuestion",
@@ -95,6 +96,11 @@ export default defineComponent({
         resource: {
             type: Object as PropType<IViewResourceData>,
             required: true
+        },
+        question: {
+            type: Object,
+            default: () => {
+            },
         },
         activeWindow: {
             type: Boolean,
@@ -196,7 +202,7 @@ export default defineComponent({
         };
     },
 
-    components: {Question, PureQuestionDialog}
+    components: { Question, PureQuestionDialog }
 });
 </script>
 

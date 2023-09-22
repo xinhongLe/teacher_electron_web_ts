@@ -16,14 +16,16 @@
                         type="primary"
                         @click.stop="addQuestionBasket"
                         :icon="Plus"
-                        >添加试题篮</el-button
+                    >添加试题篮
+                    </el-button
                     >
                     <el-button
                         v-else
                         type="danger"
                         @click.stop="delQuestionBasket"
                         :icon="Minus"
-                        >移出试题篮</el-button
+                    >移出试题篮
+                    </el-button
                     >
                 </p>
             </template>
@@ -33,6 +35,7 @@
                 :dialog="true"
                 :close="close"
                 :resource="resource"
+                :question="currentquestion"
                 :isshowbasket="true"
             />
         </el-dialog>
@@ -48,6 +51,7 @@ import Question from "@/components/lookQuestion/Question.vue";
 import { IViewResourceData } from "@/types/store";
 import { MutationTypes, store, ActionTypes } from "@/store";
 import useWrongBook from "../hooks/useWrongBook";
+
 const { formatInBasket } = useWrongBook();
 export default defineComponent({
     props: {
@@ -61,7 +65,8 @@ export default defineComponent({
         },
         currentquestion: {
             type: Object,
-            default: () => {},
+            default: () => {
+            },
         },
     },
     setup(props, { emit }) {
@@ -120,15 +125,17 @@ export default defineComponent({
 <style lang="scss" scoped>
 .container {
     :deep(.el-dialog) {
-        --el-dialog-width: 90%;
+        --el-dialog-width: 100%;
         margin: 0 auto;
         top: 50%;
         transform: translateY(-50%);
+
         .el-dialog__header {
             .custitle {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+
                 .text {
                     font-size: 18px;
                     color: #19203d;
@@ -137,6 +144,7 @@ export default defineComponent({
             }
         }
     }
+
     :deep(.el-dialog__body) {
         height: 90vh;
         padding: 0;
