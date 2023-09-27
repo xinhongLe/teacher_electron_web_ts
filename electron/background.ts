@@ -122,6 +122,9 @@ async function createLoginWindow() {
 async function createWindow() {
     ElectronLog.info("进入主界面");
     const size = screen.getPrimaryDisplay().workAreaSize;
+    const mainUrl = process.env.NODE_ENV === "development"
+            ? `${process.env.WEBPACK_DEV_SERVER_URL}`
+            : `file://${__dirname}/index.html`;
     mainWindow = new BrowserWindow({
         width: size.width,
         height: size.height,
@@ -142,11 +145,11 @@ async function createWindow() {
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         enable(mainWindow.webContents);
-        mainWindow.loadURL(`${process.env.WEBPACK_DEV_SERVER_URL}#/home`);
+        mainWindow.loadURL(mainUrl);
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
     } else {
         enable(mainWindow.webContents);
-        mainWindow.loadURL("app://./index.html/#/home");
+        mainWindow.loadURL(mainUrl);
     }
 
     mainWindow.on("ready-to-show", () => {
