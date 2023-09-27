@@ -123,8 +123,8 @@ async function createWindow() {
     ElectronLog.info("进入主界面");
     const size = screen.getPrimaryDisplay().workAreaSize;
     const mainUrl = process.env.NODE_ENV === "development"
-            ? `${process.env.WEBPACK_DEV_SERVER_URL}`
-            : `file://${__dirname}/index.html`;
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}`
+        : `file://${__dirname}/index.html`;
     mainWindow = new BrowserWindow({
         width: size.width,
         height: size.height,
@@ -142,7 +142,6 @@ async function createWindow() {
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
         }
     });
-
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         enable(mainWindow.webContents);
         mainWindow.loadURL(mainUrl);

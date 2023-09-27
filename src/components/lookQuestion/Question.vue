@@ -569,7 +569,6 @@ export default defineComponent({
             isShowRulers,
             rulersLeft,
             rulersTop,
-
             isShowPen,
             penLeft,
             penTop,

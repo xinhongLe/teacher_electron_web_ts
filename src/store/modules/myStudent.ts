@@ -4,7 +4,7 @@ import { fetchClassStudents, fetchSchoolClassPage } from "@/views/classManage/ap
 import { Module, MutationTree, ActionTree } from "vuex";
 import { MutationTypes, ActionTypes } from "..";
 
-const initState = ():MyStudentState => ({
+const initState = (): MyStudentState => ({
     selectClassInfo: {
         GradeAlbum: "",
         ID: "",
@@ -21,7 +21,7 @@ const initState = ():MyStudentState => ({
     searchStudent: ""
 });
 
-const mutations:MutationTree<MyStudentState> = {
+const mutations: MutationTree<MyStudentState> = {
     [MutationTypes.UPDATE_SELECT_CLASS_INFO](state, classInfo) {
         state.selectClassInfo = classInfo;
     },

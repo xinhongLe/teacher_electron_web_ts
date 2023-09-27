@@ -20,14 +20,14 @@
                 </div>
                 <div class="desc">{{ state.homeworkName }}</div>
                 <span v-if="props.currentWrongType == 1"
-                    >(发布于{{ state.publishTime }})</span
+                >(发布于{{ state.publishTime }})</span
                 >
                 <span
                     v-if="
                         props.currentWrongType == 3 ||
                         props.currentWrongType == 4
                     "
-                    >(筛选时间：{{
+                >(筛选时间：{{
                         props.dateRange.length
                             ? `${props.dateRange[0]} ~ ${props.dateRange[1]}`
                             : ""
@@ -139,7 +139,7 @@
                                                 (item.TotalNoSure +
                                                     item.TotalRight +
                                                     item.TotalWrong)) *
-                                                100
+                                            100
                                         ).toFixed(1)
                                     }}%
                                 </p>
@@ -195,16 +195,16 @@
                             </p>
                             <div class="wrong-rate">
                                 最近错误率<span
-                                    :style="{
+                                :style="{
                                         color: formatRecentColor(
                                             item.Homeworks,
                                             state.currentIndex
                                         ),
                                     }"
-                                    >{{
-                                        formatRecentWrongRatio(item.Homeworks)
-                                    }}%</span
-                                >
+                            >{{
+                                    formatRecentWrongRatio(item.Homeworks)
+                                }}%</span
+                            >
 
                                 <img
                                     class="arrow-jt-icon"
@@ -269,7 +269,7 @@
                                         alt=""
                                     />
                                     <span
-                                        >关联知识点：{{
+                                    >关联知识点：{{
                                             formatKnowledges(
                                                 errorQuestionDetails
                                                     .QuestionInfo
@@ -284,14 +284,16 @@
                                     type="primary"
                                     plain
                                     @click="explainQuestion()"
-                                    >讲解题目</el-button
+                                >讲解题目
+                                </el-button
                                 >
                                 <el-button
                                     type="primary"
                                     plain
                                     :disabled="!isHasSimilarQuestion"
                                     @click="openSimilarQuestion()"
-                                    >查看同类题</el-button
+                                >查看同类题
+                                </el-button
                                 >
                                 <el-button
                                     v-if="
@@ -301,7 +303,8 @@
                                     "
                                     @click="addQuestionBasket()"
                                     style="font-size: 12px"
-                                    >添加试题篮</el-button
+                                >添加试题篮
+                                </el-button
                                 >
                                 <el-button
                                     v-else
@@ -311,18 +314,29 @@
                                         )
                                     "
                                     style="color: #f76b6b; font-size: 12px"
-                                    >移出试题篮</el-button
+                                >移出试题篮
+                                </el-button
                                 >
                             </div>
                         </div>
-                        <!-- <div class="contents">
-                            {{
-                                errorQuestionDetails.QuestionInfo
-                                    .QuestionText || ""
-                            }}
-                        </div> -->
-                        <div class="error-img">
-                            <!-- <img ref="imgRef" :src="state.errorFiles" /> -->
+                        <div class="editd-data" v-if="errorQuestionDetails.QuestionInfo?.QuestionFlowText">
+                            <div class="items">
+                                <div class="text">
+                                    题目：
+                                </div>
+                                <MathJax
+                                    :text="errorQuestionDetails.QuestionInfo?.QuestionFlowText?.QuestionContent"></MathJax>
+                            </div>
+                            <div class="answers">
+                                <div class="text">
+                                    答案：
+                                </div>
+                                <MathJax
+                                    :text="errorQuestionDetails.QuestionInfo?.QuestionFlowText?.AnswerContent"></MathJax>
+
+                            </div>
+                        </div>
+                        <div class="error-img" v-else>
                             <el-image
                                 style="width: 334px"
                                 :src="state.errorFiles"
@@ -346,8 +360,8 @@
                                 <p class="text">
                                     答错
                                     <span>{{
-                                        errorQuestionDetails.TotalWrong
-                                    }}</span>
+                                            errorQuestionDetails.TotalWrong
+                                        }}</span>
                                 </p>
                                 <div class="line"></div>
                                 <p class="text">
@@ -366,7 +380,7 @@
                                 <p class="text">
                                     平均错误率
                                     <span style="color: #ff6b6b"
-                                        >{{ aveErrorRate }}%</span
+                                    >{{ aveErrorRate }}%</span
                                     >
                                 </p>
                             </div>
@@ -375,7 +389,8 @@
                             <div class="title">
                                 <p class="text">学生答题详情</p>
                                 <p class="switch">
-                                    仅看重复错误的学生<el-switch
+                                    仅看重复错误的学生
+                                    <el-switch
                                         style="padding-left: 8px"
                                         v-model="state.isRepeat"
                                     />
@@ -443,10 +458,10 @@
                                                 {{
                                                     Number(
                                                         ((item.TotalNoSure +
-                                                            item.TotalRight +
-                                                            item.TotalWrong) /
+                                                                item.TotalRight +
+                                                                item.TotalWrong) /
                                                             item.Total) *
-                                                            100
+                                                        100
                                                     ).toFixed(1)
                                                 }}%
                                             </p>
@@ -463,7 +478,7 @@
                                                             (item.TotalNoSure +
                                                                 item.TotalRight +
                                                                 item.TotalWrong)) *
-                                                            100
+                                                        100
                                                     ).toFixed(1)
                                                 }}%
                                             </p>
@@ -486,10 +501,10 @@
                                                 item.TagLevel == 300
                                                     ? "A层"
                                                     : item.TagLevel == 200
-                                                    ? "B层"
-                                                    : item.TagLevel == 100
-                                                    ? "C层"
-                                                    : ""
+                                                        ? "B层"
+                                                        : item.TagLevel == 100
+                                                            ? "C层"
+                                                            : ""
                                             }}
                                         </span>
                                         <span v-else> 未标记 </span>
@@ -498,7 +513,7 @@
                                                 ? item.Students.length
                                                 : 0
                                         }}</span
-                                        >)
+                                    >)
                                     </p>
                                     <div class="desc" v-if="!state.isRepeat">
                                         <span>
@@ -527,7 +542,7 @@
                                         </span>
 
                                         / 错误率<span
-                                            :style="{
+                                        :style="{
                                                 color:
                                                     formatPreErrorIcon(item) ==
                                                     1
@@ -538,12 +553,12 @@
                                                         ? '#33E190'
                                                         : '',
                                             }"
-                                        >
+                                    >
                                             {{
-                                                Number(
-                                                    item.WrongRatio * 100
-                                                ).toFixed(1)
-                                            }}%
+                                            Number(
+                                                item.WrongRatio * 100
+                                            ).toFixed(1)
+                                        }}%
                                         </span>
 
                                         <img
@@ -618,14 +633,14 @@
                                             答错<span>{{
                                                 person.ErrorCount
                                             }}</span
-                                            >次
+                                        >次
                                         </div>
                                         <div class="line"></div>
                                         <div class="practise-count">
                                             练习<span>{{
                                                 person.TotalCount
                                             }}</span
-                                            >次
+                                        >次
                                         </div>
                                     </div>
                                 </div>
@@ -692,6 +707,7 @@ import {
 import ErrorHstory from "./ErrorHstory.vue";
 import ExplainQuestion from "./ExplainQuestion.vue";
 import PureQuestionDialog from "@/components/lookQuestion/PureQuestionDialog.vue";
+import MathJax from "@/components/MathJax/index.vue";
 import emitter from "@/utils/mitt";
 import {
     getErrorQuestionDetail,
@@ -1034,10 +1050,10 @@ const totalAnswer = computed(() => {
 const completeRate = computed(() => {
     return Number(
         ((errorQuestionDetails.value.TotalNoSure +
-            errorQuestionDetails.value.TotalRight +
-            errorQuestionDetails.value.TotalWrong) /
+                errorQuestionDetails.value.TotalRight +
+                errorQuestionDetails.value.TotalWrong) /
             errorQuestionDetails.value.Total) *
-            100
+        100
     ).toFixed(1);
 });
 //计算答题情况-平均错误率
@@ -1047,7 +1063,7 @@ const aveErrorRate = computed(() => {
             (errorQuestionDetails.value.TotalNoSure +
                 errorQuestionDetails.value.TotalRight +
                 errorQuestionDetails.value.TotalWrong)) *
-            100
+        100
     ).toFixed(1);
 });
 //过滤分层-答错-未答
@@ -1352,6 +1368,7 @@ onBeforeMount(() => {
     min-width: 0;
     min-height: 0;
     background: #f5f6fa;
+
     .wrongdetail-header {
         width: 100%;
         height: 56px;
@@ -1360,12 +1377,15 @@ onBeforeMount(() => {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
         .header-left {
             display: flex;
             align-items: center;
+
             img {
                 cursor: pointer;
             }
+
             .title {
                 margin-left: 20px;
                 font-size: 18px;
@@ -1374,12 +1394,14 @@ onBeforeMount(() => {
                 font-weight: bold;
                 margin-right: 57px;
             }
+
             .desc {
                 font-size: 15px;
                 font-family: HarmonyOS_Sans_SC_Medium;
                 color: #19203d;
                 font-weight: bold;
             }
+
             span {
                 padding-left: 8px;
                 font-size: 13px;
@@ -1388,16 +1410,20 @@ onBeforeMount(() => {
             }
         }
     }
+
     .wrongdetail-main {
         margin-top: 10px;
         display: flex;
         height: calc(100% - 66px);
+
         .main-left {
             width: 20%;
+
             .search {
                 margin-bottom: 10px;
                 padding: 0 1.6rem;
             }
+
             .left-content {
                 height: calc(100% - 42px);
                 overflow: auto;
@@ -1413,6 +1439,7 @@ onBeforeMount(() => {
                     .title {
                         padding: 14px 0 0 14px;
                         font-weight: 600;
+
                         .top {
                             display: flex;
                             align-items: center;
@@ -1420,16 +1447,19 @@ onBeforeMount(() => {
                             font-size: 14px;
                             font-family: HarmonyOS_Sans_SC_Medium;
                             color: #19203d;
+
                             span {
                                 padding-right: 3px;
                             }
                         }
+
                         .bto {
                             font-size: 12px;
                             font-family: HarmonyOS_Sans_SC;
                             color: #5f626f;
                             margin-bottom: 10px;
                         }
+
                         .line {
                             width: 100%;
                             height: 1px;
@@ -1437,43 +1467,52 @@ onBeforeMount(() => {
                             // opacity: 0.11;
                         }
                     }
+
                     .ratedata {
                         padding: 10px 12px;
                         display: flex;
                         align-items: center;
+
                         .content {
                             margin-left: 12px;
                             font-size: 12px;
                             display: flex;
                             align-items: center;
+
                             .rate-title {
                                 font-family: HarmonyOS_Sans_SC;
                                 color: #5f626f;
                             }
+
                             .rate {
                                 color: #fbc54c;
                                 padding-left: 3px;
                             }
                         }
                     }
+
                     .ratedata-two {
                         padding: 12px 12px;
                         display: flex;
                         align-items: center;
+
                         p {
                             font-size: 12px;
                             color: #5f626f;
+
                             span {
                                 padding-left: 3px;
                                 color: #19203d;
                             }
                         }
+
                         .wrong-rate {
                             font-size: 12px;
                             color: #5f626f;
                             margin-left: 20px;
                             display: flex;
                             align-items: center;
+
                             span {
                                 padding-left: 3px;
                                 color: #f76b6b;
@@ -1481,6 +1520,7 @@ onBeforeMount(() => {
                         }
                     }
                 }
+
                 .list-item2 {
                     width: 100%;
                     background-color: #ffffff;
@@ -1490,9 +1530,11 @@ onBeforeMount(() => {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
+
                     .title2 {
                         padding: 14px 0 0 14px;
                         font-weight: 600;
+
                         .top {
                             display: flex;
                             align-items: center;
@@ -1500,16 +1542,19 @@ onBeforeMount(() => {
                             font-size: 14px;
                             font-family: HarmonyOS_Sans_SC_Medium;
                             color: #19203d;
+
                             span {
                                 padding-right: 3px;
                             }
                         }
+
                         .bto {
                             font-size: 12px;
                             font-family: HarmonyOS_Sans_SC;
                             color: #5f626f;
                             margin-bottom: 10px;
                         }
+
                         .line {
                             width: 100%;
                             height: 1px;
@@ -1517,10 +1562,12 @@ onBeforeMount(() => {
                             // opacity: 0.11;
                         }
                     }
+
                     .ratedata2 {
                         padding: 10px 12px;
                         display: flex;
                         align-items: center;
+
                         .content {
                             margin-left: 12px;
                             font-size: 12px;
@@ -1530,6 +1577,7 @@ onBeforeMount(() => {
                                 font-family: HarmonyOS_Sans_SC;
                                 color: #5f626f;
                             }
+
                             .rate {
                                 color: #fbc54c;
                                 padding-top: 5px;
@@ -1537,39 +1585,48 @@ onBeforeMount(() => {
                         }
                     }
                 }
+
                 .isActive {
                     transition: 0.3s;
                     background-color: #4b71ee !important;
+
                     .title,
                     .title2 {
                         .top,
                         .bto {
                             color: #ffffff !important;
                         }
+
                         .line {
                             background: #ffffff !important;
                             opacity: 0.21;
                         }
                     }
+
                     .ratedata,
                     .ratedata2 {
                         .rate-title {
                             color: #ffffff !important;
                             opacity: 0.8;
                         }
+
                         .rate {
                             color: #ffffff !important;
                         }
                     }
+
                     .ratedata-two {
                         p {
                             color: #ffffff !important;
+
                             span {
                                 color: #ffffff !important;
                             }
                         }
+
                         .wrong-rate {
                             color: #ffffff !important;
+
                             span {
                                 color: #ffffff !important;
                             }
@@ -1578,26 +1635,31 @@ onBeforeMount(() => {
                 }
             }
         }
+
         .main-right {
             flex: 1;
             height: calc(100% - 16px);
             overflow: auto;
             padding: 16px;
             background-color: #ffffff;
+
             .quersion-con {
                 .con-top {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
+
                     .left {
                         display: flex;
                         align-items: flex-end;
+
                         .types {
                             font-size: 16px;
                             font-family: HarmonyOS_Sans_SC_Bold;
                             color: #19203d;
                             font-weight: bold;
                         }
+
                         .desc {
                             display: flex;
                             align-items: center;
@@ -1607,6 +1669,7 @@ onBeforeMount(() => {
                             color: #5f626f;
                         }
                     }
+
                     .right {
                         :deep(.el-button.el-button--primary) {
                             background-color: #ffffff;
@@ -1616,6 +1679,7 @@ onBeforeMount(() => {
                             font-weight: 400;
                             color: #4b71ee;
                         }
+
                         :deep(.el-button--primary:focus, .el-button--primary:hover) {
                             background-color: #4b71ee;
                             border: none;
@@ -1623,9 +1687,17 @@ onBeforeMount(() => {
                         }
                     }
                 }
+
+                .editd-data {
+                    padding: 10px;
+                    border: 1px solid #e1e1e1;
+                    margin-top: 10px;
+                }
+
                 .contents {
                     // margin: 14px 0;
                 }
+
                 .error-img {
                     // width: 334px;
                     // height: 167px;
@@ -1635,12 +1707,14 @@ onBeforeMount(() => {
                     //     height: 100%;
                     // }
                 }
+
                 .line {
                     width: 100%;
                     height: 1px;
                     background: #f3f4f4;
                 }
             }
+
             .answer-details {
                 .top-title {
                     padding: 16px 0;
@@ -1654,18 +1728,22 @@ onBeforeMount(() => {
                         font-weight: bold;
                         margin-right: 12px;
                     }
+
                     .text-line {
                         display: flex;
                         align-items: center;
                         padding-top: 2px;
+
                         .text {
                             font-size: 12px;
                             color: #5f626f;
+
                             span {
                                 padding-left: 3px;
                                 color: #4b71ee;
                             }
                         }
+
                         .line {
                             width: 1px;
                             height: 12px;
@@ -1675,12 +1753,15 @@ onBeforeMount(() => {
                         }
                     }
                 }
+
                 .top-title-two {
                     padding: 16px 0;
+
                     .title {
                         display: flex;
                         align-items: center;
                         justify-content: space-between;
+
                         .text {
                             font-size: 16px;
                             font-family: HarmonyOS_Sans_SC_Bold;
@@ -1688,15 +1769,18 @@ onBeforeMount(() => {
                             font-weight: bold;
                             margin-right: 12px;
                         }
+
                         .switch {
                             font-size: 12px;
                             font-family: HarmonyOS_Sans_SC;
                             color: #19203d;
                         }
                     }
+
                     .statistics {
                         margin-top: 12px;
                         display: flex;
+
                         .statistics-list {
                             cursor: pointer;
                             width: 264px;
@@ -1706,9 +1790,11 @@ onBeforeMount(() => {
                             padding: 8px 12px;
                             border-radius: 4px;
                             margin-right: 20px;
+
                             .statistics-title {
                                 display: flex;
                                 align-items: center;
+
                                 p {
                                     margin-left: 5px;
                                     font-size: 14px;
@@ -1716,6 +1802,7 @@ onBeforeMount(() => {
                                     color: #19203d;
                                 }
                             }
+
                             .dates {
                                 margin-top: 8px;
                                 font-size: 12px;
@@ -1723,32 +1810,38 @@ onBeforeMount(() => {
                                 color: #a7aab4;
                                 padding-left: 22px;
                             }
+
                             .bot-rate {
                                 margin-top: 8px;
                                 display: flex;
                                 align-items: center;
                                 justify-content: space-around;
                                 padding-left: 16px;
+
                                 .count-text {
                                     display: flex;
                                     flex-direction: column;
                                     justify-content: center;
                                     align-items: center;
                                     font-size: 12px;
+
                                     .count {
                                         color: #4b71ee;
                                     }
+
                                     .text {
                                         margin-top: 2px;
                                     }
                                 }
                             }
                         }
+
                         .isActive {
                             position: relative;
                             background: #e6ecff;
                             border: 1px solid #4b71ee;
                             transition: 0.3s;
+
                             .bto-arrow {
                                 position: absolute;
                                 bottom: -20px;
@@ -1759,6 +1852,7 @@ onBeforeMount(() => {
                                 border: 10px solid transparent;
                                 border-top-color: #4b71ee;
                             }
+
                             .bto-arrow:after {
                                 content: "";
                                 width: 0;
@@ -1772,6 +1866,7 @@ onBeforeMount(() => {
                         }
                     }
                 }
+
                 .A-floor {
                     width: 100%;
                     background: #f9fafc;
@@ -1779,6 +1874,7 @@ onBeforeMount(() => {
                     padding: 14px 16px;
                     margin-bottom: 12px;
                     box-sizing: border-box;
+
                     .top-area {
                         width: 100%;
                         // height: 42px;
@@ -1786,9 +1882,11 @@ onBeforeMount(() => {
                         justify-content: space-between;
                         align-items: center;
                         cursor: pointer;
+
                         .left {
                             display: flex;
                             align-items: center;
+
                             .title {
                                 font-size: 14px;
                                 font-family: HarmonyOS_Sans_SC_Medium;
@@ -1796,6 +1894,7 @@ onBeforeMount(() => {
                                 font-weight: bold;
                                 margin-right: 12px;
                             }
+
                             .desc {
                                 font-size: 12px;
                                 font-family: HarmonyOS_Sans_SC;
@@ -1804,11 +1903,13 @@ onBeforeMount(() => {
                             }
                         }
                     }
+
                     .person-list {
                         transition: 0.5s;
                         margin-top: 14px;
                         display: flex;
                         flex-wrap: wrap;
+
                         .list-item {
                             cursor: pointer;
 
@@ -1817,25 +1918,31 @@ onBeforeMount(() => {
                             border-radius: 5px;
                             margin-right: 12px;
                             margin-bottom: 12px;
+
                             .top-data {
                                 padding: 10px 12px;
                                 display: flex;
+
                                 .images {
                                     width: 36px;
                                     height: 36px;
+
                                     img {
                                         width: 100%;
                                         height: 100%;
                                         border-radius: 50%;
                                     }
                                 }
+
                                 .name-number {
                                     margin-left: 16px;
+
                                     .name {
                                         font-size: 14px;
                                         font-family: HarmonyOS_Sans_SC;
                                         color: #19203d;
                                     }
+
                                     .number {
                                         font-size: 12px;
                                         font-family: HarmonyOS_Sans_SC;
@@ -1854,11 +1961,13 @@ onBeforeMount(() => {
                                 font-size: 12px;
                                 color: #a7aab4;
                                 border-top: 1px solid #f3f4f4;
+
                                 .wrong-count {
                                     span {
                                         color: #ff6b6b;
                                     }
                                 }
+
                                 .line {
                                     width: 1px;
                                     height: 12px;
@@ -1872,15 +1981,18 @@ onBeforeMount(() => {
         }
     }
 }
+
 .question-dialog {
     :deep(.el-dialog) {
         .el-dialog__header {
             // padding: 0;
         }
+
         .el-dialog__body {
             padding: 0;
         }
     }
+
     .my-header {
         font-size: 16px;
         font-family: HarmonyOS_Sans_SC_Bold;

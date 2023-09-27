@@ -1,6 +1,7 @@
 import { ref, watch } from "vue";
 import { ClassStudent } from "@/types/myStudent";
 import { ActionTypes, store } from "@/store";
+
 export default () => {
     const studentList = ref<ClassStudent[]>([]);
 
@@ -10,7 +11,7 @@ export default () => {
 
     watch(() => store.state.myStudent.selectClassInfo.ID, (classId) => {
         store.dispatch(ActionTypes.FETCH_STUDENT_LIST, classId);
-    });
+    }, { deep: true, immediate: true });
 
     watch(() => store.state.myStudent.searchStudent, (name) => {
         const allStudentList = store.state.myStudent.allStudentList;

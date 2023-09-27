@@ -1,7 +1,7 @@
 import request from "@/utils/request";
-import {AI_XUE_SHI_API} from "@/config";
-import {IResponse, RequestFun} from "@/types/response";
-import {IErrorHBook} from "@/types/errorbook";
+import { AI_XUE_SHI_API } from "@/config";
+import { IResponse, RequestFun } from "@/types/response";
+import { IErrorHBook } from "@/types/errorbook";
 
 //错题本左侧树形数据
 export interface LeftMenuByHomeWork {
@@ -110,6 +110,14 @@ export interface RepeatWrongStudentTags {
     Students: Students[];
 }
 
+export interface FlowText {
+    AnalysisConfig: number;
+    AnswerContent: string;
+    QuestionContent: string;
+    QuestionType: number;
+
+}
+
 //题目详情返回参数
 export interface ErrorQuestionDetails {
     QuestionInfo: {
@@ -117,6 +125,7 @@ export interface ErrorQuestionDetails {
         QuestionText: string;
         QuestionType: number;
         QuestionKnowledges: QuestionKnowledges[];
+        QuestionFlowText?: FlowText[] | undefined;
         QuestionOriginFile: {
             ID: string;
             Name: string;
@@ -129,6 +138,7 @@ export interface ErrorQuestionDetails {
             Type: number;
             StaffID: string;
         };
+
     };
     TotalWrong: number;
     TotalNoSure: number;
