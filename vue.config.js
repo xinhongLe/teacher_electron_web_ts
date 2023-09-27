@@ -303,7 +303,7 @@ module.exports = {
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },
-                asar: false,
+                asar: true,
                 files: ["**/*", "public/*"],
                 publish: [
                     {
