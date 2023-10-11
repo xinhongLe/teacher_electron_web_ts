@@ -1,7 +1,7 @@
-import {RootState, UserInfoState} from "@/types/store";
-import {Module, MutationTree} from "vuex";
-import {MutationTypes} from "..";
-import {set, STORAGE_TYPES} from "@/utils/storage";
+import { RootState, UserInfoState } from "@/types/store";
+import { Module, MutationTree } from "vuex";
+import { ActionTypes, MutationTypes, store } from "..";
+import { set, STORAGE_TYPES } from "@/utils/storage";
 
 const initState = (): UserInfoState => ({
     Schools: [],
@@ -27,10 +27,13 @@ const mutations: MutationTree<UserInfoState> = {
     [MutationTypes.USER_INFO_RESET_STATE](state) {
         Object.assign(state, initState());
     },
-    [MutationTypes.UPDATE_SELECTED_SCHOOL](state, {schoolId, schoolName}) {
+    [MutationTypes.UPDATE_SELECTED_SCHOOL](state, { schoolId, schoolName }) {
         state.schoolId = schoolId;
         state.schoolName = schoolName;
-        set(STORAGE_TYPES.CURRENT_USER_INFO, Object.assign(state, {schoolId, schoolName})); // 子窗口使用
+        set(STORAGE_TYPES.CURRENT_USER_INFO, Object.assign(state, { schoolId, schoolName })); // 子窗口使用
+        setTimeout(async () => {
+            await store.dispatch(ActionTypes.FETCH_CLASS_LIST, true);
+        }, 300);
     },
 
 };

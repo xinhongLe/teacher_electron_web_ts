@@ -14,7 +14,7 @@ export const initMathJax = (config = {}, callback?: () => void) => {
         // localStorage.setItem("MathJax-Menu-Settings", '{"renderer":"svg"}');
         const defaultConfig = {
             loader: { load: ["[tex]/unicode", "[tex]/mhchem"] },
-            tex: { 
+            tex: {
                 packages: { "[+]": ["unicode", "mhchem"] },
                 inlineMath: [['\\(', '\\)']],
                 displayMath: [

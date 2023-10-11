@@ -177,10 +177,10 @@ import {
     defineComponent, nextTick, reactive,
     ref, toRefs, computed, watch, onMounted
 } from "vue";
-import {convertToLetters} from "@/utils/common";
+import { convertToLetters } from "@/utils/common";
 import useDesignTemplate from "@/views/preparation/learnPlanDesign/useDesignTemplate";
-import {ElMessage} from "element-plus";
-import {downloadPDF} from "@/utils/html2pdf.ts";
+import { ElMessage } from "element-plus";
+import { downloadPDF } from "@/utils/html2pdf.ts";
 import MathJax from '@/components/MathJax/index.vue'
 
 export default defineComponent({
@@ -199,9 +199,9 @@ export default defineComponent({
             default: () => []
         }
     },
-    components: {MathJax},
+    components: { MathJax },
     emits: ["update:isReview", "addQuestionItem", "saveTemplateContent", "close"],
-    setup(props, {emit}) {
+    setup(props, { emit }) {
         const {
             templatePageData, lastPageNum, getEditer, templateInfo,
             addItem, setQuestionItem, currentAddItems, delItem, formateLearningGuidDetail
@@ -233,7 +233,7 @@ export default defineComponent({
         // 保存模板
         const saveTemplate = () => {
             console.log('templateInfo', templateInfo);
-            const {Title, Class, Name, Time, Lesson} = templateInfo;
+            const { Title, Class, Name, Time, Lesson } = templateInfo;
             const templateInfoArray = [
                 {
                     id: "",
@@ -307,7 +307,7 @@ export default defineComponent({
                 formateLearningGuidDetail(val, 1)
             }
 
-        }, {deep: true, immediate: true});
+        }, { deep: true, immediate: true });
         const downLoad = () => {
             // 获取需要下载的DOM元素
             emit("update:isReview", true);

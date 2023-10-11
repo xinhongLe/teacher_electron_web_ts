@@ -16,7 +16,23 @@
                 >
                     亲 您的浏览器不支持html5的audio标签
                 </audio>
+                <div class="editd-data" v-if="questionEditList.length">
+                    <div class="items">
+                        <div class="text">
+                            题目：
+                        </div>
+                        <MathJax :text="questionEditList[0]?.QuestionContent"></MathJax>
+                    </div>
+                    <div class="answers">
+                        <div class="text">
+                            答案：
+                        </div>
+                        <MathJax :text="questionEditList[0]?.AnswerContent"></MathJax>
+                    </div>
+
+                </div>
                 <img
+                    v-else
                     ref="imageRef"
                     class="question-img"
                     :src="imageUrl[nextIndex - 1]"
@@ -24,64 +40,6 @@
                 />
             </div>
         </div>
-        <!--        <div class="dialog-footer">-->
-        <!--            <div class="switch-box">-->
-        <!--                <div>-->
-        <!--                    <el-switch v-model="questionSwitchValue"></el-switch>-->
-        <!--                    <p>自动播放题音</p>-->
-        <!--                </div>-->
-        <!--                <div>-->
-        <!--                    <el-switch v-model="resolutionSwitchValue"></el-switch>-->
-        <!--                    <p>自动播放解析</p>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--            <div class="btn-warp">-->
-        <!--                <slot-->
-        <!--                    name="footerBtn"-->
-        <!--                    :sum="sum"-->
-        <!--                    :removeQuestion="removeQuestion"-->
-        <!--                />-->
-        <!--                <div class="btn-list">-->
-        <!--                    <div @click.stop="playSounds(0)" class="button">-->
-        <!--                        <p>听题音</p>-->
-        <!--                    </div>-->
-        <!--                    <div @click.stop="playSounds(1)" class="button">-->
-        <!--                        <p>听解析</p>-->
-        <!--                    </div>-->
-        <!--                    <div @click.stop="drawingShow = true" class="button pen">-->
-        <!--                        <p>画笔</p>-->
-        <!--                    </div>-->
-        <!--                    <div @click.stop="closeQuestion" class="button close">-->
-        <!--                        <p>关闭</p>-->
-        <!--                    </div>-->
-        <!--                    <div-->
-        <!--                        v-show="-->
-        <!--                            isElectron &&-->
-        <!--                            type != 2 &&-->
-        <!--                            !isPureQuestion &&-->
-        <!--                            !dialog &&-->
-        <!--                            !noMinix-->
-        <!--                        "-->
-        <!--                        @click.stop="smallQuestion"-->
-        <!--                        class="button mini"-->
-        <!--                    >-->
-        <!--                        <p>最小化</p>-->
-        <!--                    </div>-->
-        <!--                    <div v-if="isLastBtn" class="disabled button prev">-->
-        <!--                        <p>上一页</p>-->
-        <!--                    </div>-->
-        <!--                    <div v-else @click.stop="lastPage" class="button prev">-->
-        <!--                        <p>上一页</p>-->
-        <!--                    </div>-->
-        <!--                    <div v-if="isNextBtn" class="disabled button next">-->
-        <!--                        <p>下一页</p>-->
-        <!--                    </div>-->
-        <!--                    <div v-else @click.stop="nextPage" class="button next">-->
-        <!--                        <p>下一页</p>-->
-        <!--                    </div>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--        </div>-->
         <div>
             <div v-dragLine="'left'" class="nextpage">
                 <div class="me-tools-steps-new">
@@ -304,13 +262,14 @@ import {
 } from "vue";
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
-import {set, STORAGE_TYPES} from "@/utils/storage";
+import { set, STORAGE_TYPES } from "@/utils/storage";
 import emitter from "@/utils/mitt";
-import {IViewResourceData} from "@/types/store";
+import { IViewResourceData } from "@/types/store";
 import DrawingBoard from "@/components/drawingBoard/index.vue";
-import {KEYS} from "@/config/hotkey";
+import { KEYS } from "@/config/hotkey";
 import PenTool from "@/views/preparation/intelligenceClassroom/components/preview/PenTool.vue";
 import RulersTool from "@/views/preparation/intelligenceClassroom/components/preview/RulersTool.vue";
+import MathJax from "@/components/MathJax/index.vue";
 
 export default defineComponent({
     props: {
@@ -333,13 +292,17 @@ export default defineComponent({
             type: Object as PropType<IViewResourceData>,
             required: true,
         },
-
+        question: {
+            type: Object,
+            default: () => {
+            },
+        },
         toolClass: {
             type: String,
             default: 'question'
         }
     },
-    setup(props, {emit}) {
+    setup(props, { emit }) {
         const drawingBoardRef = ref();
         const type = computed(() => props.resource.type);
         const btnType = ref(-1);
@@ -360,6 +323,7 @@ export default defineComponent({
         const currentLineWidth = ref(2);
         const eraserLineWidth = ref(30);
         const {
+            questionEditList,
             imageUrl,
             voiceUrl,
             sum,
@@ -379,13 +343,19 @@ export default defineComponent({
             voiceUrlMap,
             nextPage,
             questionSn,
+            getQuestionEditList
         } = useDetail(
             props.isPureQuestion,
             questionID.value,
             emit,
             childRef,
-            props.resource
+            props.resource,
         );
+        watch(() => props.question, (val: any) => {
+            if (val) {
+                getQuestionEditList(val.QuestionFlowText)
+            }
+        }, { deep: true, immediate: true })
 
         const brushHandle = () => {
             btnType.value = 1;
@@ -443,7 +413,7 @@ export default defineComponent({
             drawingBoardRef.value.whiteboard.clear();
             drawingBoardRef.value.whiteboard.setElements(v);
             drawingBoardRef.value.whiteboard.render();
-        }, {deep: true})
+        }, { deep: true })
 
         watch(questionSwitchValue, (v) => {
             set(STORAGE_TYPES.AUTO_PALY_QUESTION_SWITCH, String(v));
@@ -486,7 +456,6 @@ export default defineComponent({
         const showDrawToos = () => {
             const dom: HTMLElement = document.querySelector(`.${props.toolClass} .draw-content`) as HTMLElement;
             const outdom: HTMLElement = document.querySelector(`.${props.toolClass}.me-tools`) as HTMLElement;
-            console.log('dom,outdom', dom, outdom)
             if (outdom?.style.width === "786px") {
                 isOpen.value = false;
                 outdom.style.width = "378px";
@@ -505,7 +474,7 @@ export default defineComponent({
         // 工具栏
         const openPaintTool = (event: MouseEvent, type: string) => {
             const target = event.target as HTMLDivElement;
-            const {left, top} = target.getBoundingClientRect();
+            const { left, top } = target.getBoundingClientRect();
             if (type === "paint") {
                 drawingShow.value = true;
                 isShowPen.value = true;
@@ -536,7 +505,6 @@ export default defineComponent({
         };
         // 尺规工具点击回调
         const setRulersTool = (value: any) => {
-            console.log('value', value)
             isShowRulers.value = true;
             drawingBoardRef.value.whiteboardOption("openTool", value)
         };
@@ -551,11 +519,9 @@ export default defineComponent({
         // 画笔其它配置
         const whiteboardOption = (option: string, value?: number | string) => {
             // emit("whiteboardOption", option, value);
-            console.log('option,value', option, value)
             drawingBoardRef.value.whiteboardOption(option, value)
         };
         const setEraserSize = (value: number) => {
-            console.log('value', value)
             drawingBoardRef.value.whiteboardOption("setEraserSize", value)
         };
 
@@ -564,6 +530,7 @@ export default defineComponent({
             resolutionSwitchValue,
             questionSwitchValue,
             imageUrl,
+            questionEditList,
             sum,
             number,
             nextIndex,
@@ -602,7 +569,6 @@ export default defineComponent({
             isShowRulers,
             rulersLeft,
             rulersTop,
-
             isShowPen,
             penLeft,
             penTop,
@@ -614,10 +580,11 @@ export default defineComponent({
             currentDrawColor,
             currentLineWidth,
             eraserLineWidth,
-            setEraserSize
+            setEraserSize,
+            getQuestionEditList
         };
     },
-    components: {DrawingBoard, PenTool, RulersTool}
+    components: { DrawingBoard, PenTool, RulersTool, MathJax }
 });
 </script>
 
@@ -665,16 +632,38 @@ export default defineComponent({
     }
 
     .material-box {
+        height: 90%;
+        overflow: auto;
+
         width: 90%;
         margin: 36px auto 0;
         border: solid 1px #ccc;
         position: relative;
-        flex: 1;
+        //flex: 1;
 
         .question-img {
             width: 100%;
             height: 100%;
             position: absolute;
+        }
+
+        .editd-data {
+            padding: 20px;
+
+            .items {
+                .text {
+                    margin-bottom: 10px;
+                }
+            }
+
+            .answers {
+                .text {
+                    margin-bottom: 10px;
+                }
+
+                margin-top: 20px;
+            }
+
         }
     }
 }

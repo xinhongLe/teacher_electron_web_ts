@@ -1,7 +1,7 @@
-import {reactive, ref, getCurrentInstance, nextTick, computed} from "vue";
-import {v4 as uuidv4} from "uuid";
-import {convertToLetters} from "@/utils/common";
-import {store} from "@/store";
+import { reactive, ref, getCurrentInstance, nextTick, computed } from "vue";
+import { v4 as uuidv4 } from "uuid";
+import { convertToLetters } from "@/utils/common";
+import { store } from "@/store";
 
 export default (type: number) => {
     // 最后一页是第几页
@@ -65,6 +65,16 @@ export default (type: number) => {
     });
     // 当前要添加题目的一栏
     const currentAddItems: any = ref();
+    // 处理公式
+    const delMath = (data: any) => {
+        const tableData = data.querySelectorAll('table');
+        tableData?.forEach((table: any) => {
+            table.style.width = "100%";
+        });
+        window.MathJax.typesetPromise([data]).catch((error: any) => {
+            console.error("MathJax 渲染出错:", error)
+        })
+    };
     // 统一设置 edit 回显内容
     const setEditerCon = (data: any) => {
         data.forEach((item: any) => {
@@ -72,6 +82,7 @@ export default (type: number) => {
                 nextTick(() => {
                     if (proxy.refs['editerRef' + data.Id]) {
                         proxy.refs['editerRef' + data.Id][0].innerHTML = data.Content;
+                        delMath(proxy.refs['editerRef' + data.Id][0]);
                     }
                 })
             })
@@ -83,6 +94,7 @@ export default (type: number) => {
             nextTick(() => {
                 if (proxy.refs['editerRef' + data.Id]) {
                     proxy.refs['editerRef' + data.Id][0].innerHTML = data.Content;
+                    delMath(proxy.refs['editerRef' + data.Id][0]);
                 }
             })
         })
@@ -91,19 +103,6 @@ export default (type: number) => {
     const getEditer = (data: any, item: any, page: any) => {
         const contHeight = data.target.parentElement.offsetHeight + 50 + 24;
         item.ConHeight = contHeight + 2;
-        // if (type == 1) {
-        //     if (page.Level == 1) {
-        //         item.ConHeight = item.ConHeight > 816 ? 816 : item.ConHeight
-        //     } else {
-        //         item.ConHeight = item.ConHeight > 1014 ? 1014 : item.ConHeight
-        //     }
-        // } else if (type == 2) {
-        //     if (page.Level == 1) {
-        //         item.ConHeight = item.ConHeight > 650 ? 650 : item.ConHeight
-        //     } else {
-        //         item.ConHeight = item.ConHeight > 1014 ? 1014 : item.ConHeight
-        //     }
-        // }
         item.Content = data.target.innerHTML;
         watchLayoutChange();
     };
@@ -140,8 +139,6 @@ export default (type: number) => {
 
     // 监听页面布局改变
     const watchLayoutChange = () => {
-
-        console.log('监听布局改变', templatePageData.value);
         templatePageData.value.forEach((pageData: any, index: number) => {
             let allContentHeight = 0;
             const topHeight = pageData.Level === 1 ? currentPageLayout.basicTopHeight : 0;
@@ -241,41 +238,56 @@ export default (type: number) => {
         getQuestionString(questions)
 
         nextTick(() => {
-            proxy.refs['editerRef' + currentAddItems.value.Id][0].innerHTML = currentAddItems.value.Content + questionString;
-            nextTick(() => {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                MathJax.texReset();
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                MathJax.typesetClear();
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                MathJax.typesetPromise([proxy.refs['editerRef' + currentAddItems.value.Id][0]]);
-            });
-            const imgData = proxy.refs['editerRef' + currentAddItems.value.Id][0].querySelectorAll('img');
-            imgData?.forEach((item: any) => {
-                item.style.maxWidth = "100%";
-                item.style.height = "auto";
-            })
-            templatePageData.value.forEach((item: any) => {
-                const index = item.Data.indexOf(currentAddItems.value);
-                if (index > -1) {
-                    item.Data[index].Content = currentAddItems.value.Content + questionString;
-                    item.Data[index].questionIds = questionIds;
-                    setTimeout(() => {
-                        item.Data[index].ConHeight = proxy.refs['editerRef' + currentAddItems.value.Id][0].offsetHeight + 74;
-                    }, 50)
-                }
-            });
-            setTimeout(() => {
-                watchLayoutChange();
-                questionString = "";
-                questionIds = []
-            }, 100)
-        })
+                proxy.refs['editerRef' + currentAddItems.value.Id][0].innerHTML = currentAddItems.value.Content + questionString;
+                nextTick(() => {
+                    console.log('window.MathJax', window.MathJax)
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    MathJax.texReset();
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    MathJax.typesetClear();
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    MathJax.typesetPromise([proxy.refs['editerRef' + currentAddItems.value.Id][0]]);
+                });
+                const imgData = proxy.refs['editerRef' + currentAddItems.value.Id][0].querySelectorAll('img');
+                imgData?.forEach((item: any) => {
+                    item.style.maxWidth = "100%";
+                    item.style.height = "auto";
+                })
+
+                const tableData = proxy.refs['editerRef' + currentAddItems.value.Id][0].querySelectorAll('table');
+                tableData?.forEach((table: any) => {
+                    table.style.border = '1px solid grey';
+                    table.style.width = "100%";
+                    table.rows?.forEach((tr: any) => {
+                        tr.cells?.forEach((td: any) => {
+                            td.style.outline = "1px solid grey";
+
+                        })
+                    })
+                });
+
+                templatePageData.value.forEach((item: any) => {
+                    const index = item.Data.indexOf(currentAddItems.value);
+                    if (index > -1) {
+                        item.Data[index].Content = currentAddItems.value.Content + questionString;
+                        item.Data[index].questionIds = questionIds;
+                        setTimeout(() => {
+                            item.Data[index].ConHeight = proxy.refs['editerRef' + currentAddItems.value.Id][0].offsetHeight + 74;
+                        }, 50)
+                    }
+                });
+                setTimeout(() => {
+                    watchLayoutChange();
+                    questionString = "";
+                    questionIds = []
+                }, 100)
+            }
+        )
     };
-    // 处理返回来的详情格式
+// 处理返回来的详情格式
     const formateLearningGuidDetail = (data: any, type: number) => {
         const learningGuidDetail = data;
         let baseInfo: any = [];
@@ -345,4 +357,5 @@ export default (type: number) => {
         formateLearningGuidDetail
 
     };
-};
+}
+;

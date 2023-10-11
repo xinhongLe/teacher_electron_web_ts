@@ -19,6 +19,15 @@ export interface FileInfo {
     Type: number;
 }
 
+export interface FlowText {
+    AnalysisConfig: number;
+    AnswerContent: string;
+    QuestionContent: string;
+    QuestionType: number;
+
+}
+
+
 export interface AnswerFile {
     DeleteFlag: number;
     Files: FileInfo[];
@@ -35,6 +44,7 @@ export interface Question {
     ChoiceValue: string;
     Level: number;
     QuestionFiles: FileInfo[];
+    QuestionFlowText?: FlowText[] | undefined;
     AnswerFiles: AnswerFile[];
     MaterialID: string;
     QuestionID: string;
