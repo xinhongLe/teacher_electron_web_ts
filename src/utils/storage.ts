@@ -130,6 +130,11 @@ export enum STORAGE_TYPES {
      * 下载历史
      */
     DOWNLOAD_HISTORY = "DOWNLOAD_HISTORY",
+
+    /**
+     * 默认下载路径
+     */
+    DOWNLOAD_PATH = "DOWNLOAD_PATH"
 }
 
 export const set = (

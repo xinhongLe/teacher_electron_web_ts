@@ -83,14 +83,16 @@ const mutations: MutationTree<CommonState> = {
         state.currentBeikeResource = type;
     },
     [MutationTypes.SET_DOWNLOAD_LIST](state, { type, data }: { type: string, data: IResourceItem }) {
+        const path = get(STORAGE_TYPES.DOWNLOAD_PATH) || window.electron.getPath("downloads");
         const downloadObj = {
             id: data.ResourceId,
             name: type === "wincard" ? `${sanitize(data.Name)}.lyxpkg` : `${data.Name}.${data.File.FileExtention}`,
             type,
             data,
+            path,
             timestamp: new Date().getTime(),
             status: 0
-        };
+        }
 
         if (state.downloading.findIndex(item => item.id === downloadObj.id) > -1) {
             ElMessage.warning("已在下载列表中");
