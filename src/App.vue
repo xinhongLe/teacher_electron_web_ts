@@ -12,11 +12,11 @@
 
 <script lang="ts" setup>
 import isElectron from "is-electron";
-import {onMounted} from "vue";
-import {set, STORAGE_TYPES} from "./utils/storage";
+import { onMounted } from "vue";
+import { set, STORAGE_TYPES } from "./utils/storage";
 import UpdateDialog from "./components/updateDialog/index.vue";
 import useUpdate from "./hooks/useUpdate";
-import {ENV} from "./config";
+import { ENV } from "./config";
 
 const {
     updateVisible,
@@ -30,9 +30,9 @@ const {
 } = useUpdate();
 // 默认开启缓存
 set(STORAGE_TYPES.SET_ISCACHE, true);
-
+// 设置每个应用的权限
+set(STORAGE_TYPES.SET_APP_PERMISSION, ["preparation", "wrongbook", "class-manage", "homework", "report-center", "resource-center", "composition", "pblstudy", "assessment-center", "suspension"]);
 onMounted(() => {
-
     if (isElectron() && ENV !== "development") {
         // 检查选择
         const data: any = window.electron.getUpdateUserChoice();

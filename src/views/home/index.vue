@@ -249,18 +249,18 @@
 
 <script lang="ts">
 import useTime from "@/hooks/useTime";
-import {ElMessage} from "element-plus";
-import {defineComponent, onActivated, ref, onMounted, onUnmounted} from "vue";
-import {useRouter, useRoute} from "vue-router";
+import { ElMessage } from "element-plus";
+import { defineComponent, onActivated, ref, onMounted, onUnmounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
 import usePageEvent from "@/hooks/usePageEvent";
 import isElectron from "is-electron";
-import {EVENT_TYPE} from "@/config/event";
-import {nextTick} from "process";
-import {debounce} from "lodash";
-import {get, STORAGE_TYPES, storeChange} from "@/utils/storage";
-import {getPlatformByOrgId} from "@/api/home";
-import {UserInfoState} from "@/types/store";
+import { EVENT_TYPE } from "@/config/event";
+import { nextTick } from "process";
+import { debounce } from "lodash";
+import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
+import { getPlatformByOrgId } from "@/api/home";
+import { UserInfoState } from "@/types/store";
 import useMaximizeWindow from "@/hooks/useMaximizeWindow";
 
 export default defineComponent({
@@ -269,24 +269,31 @@ export default defineComponent({
         Calendar
     },
     setup() {
-        const {createBuryingPointFn} = usePageEvent("首页");
+        const appPermission = get(STORAGE_TYPES.SET_APP_PERMISSION);
+        const { createBuryingPointFn } = usePageEvent("首页");
         const router = useRouter();
         const route = useRoute();
-        const {weekNext, weekPre, initDays, days} = useTime();
+        const { weekNext, weekPre, initDays, days } = useTime();
         initDays();
         const moreVisible = ref(false); //点击更多的弹框
         const go = (val: string) => {
-            console.log('val', val)
-            if (val === "") {
-                ElMessage.warning({
-                    message: "功能建设中 敬请期待"
-                });
-            } else {
-                if (val == "more-content") {
-                    moreVisible.value = true;
-                    return;
+            const nval = val.split("/")[0];
+            if (appPermission && appPermission.includes(nval)) {
+                if (val === "") {
+                    ElMessage.warning({
+                        message: "功能建设中 敬请期待"
+                    });
+                } else {
+                    if (val == "more-content") {
+                        moreVisible.value = true;
+                        return;
+                    }
+                    router.push(`/${val}`);
                 }
-                router.push(`/${val}`);
+            } else {
+                ElMessage.warning({
+                    message: "暂无权限！"
+                });
             }
         };
         //首页点击埋点事件
@@ -325,7 +332,7 @@ export default defineComponent({
             const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
             const id = currentUserInfo.schoolId;
 
-            getPlatformByOrgId([{id}]).then(res => {
+            getPlatformByOrgId([{ id }]).then(res => {
                 platformId.value = res.result.length > 0 ? res.result[0].platformId : "";
             });
         };

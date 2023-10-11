@@ -30,8 +30,8 @@
                     <template v-if="info.HomeworkPaperType == 2">
                         <span>&nbsp; 第{{ info.WorkbookPaperPageNum }}页</span>
                         <span :style="{ marginLeft: '40px' }">{{
-                            info.AlbumName
-                        }}</span>
+                                info.AlbumName
+                            }}</span>
                     </template>
                 </p>
                 <span
@@ -40,17 +40,19 @@
                         info.HomeworkPaperType == 1 ||
                         info.HomeworkPaperType == 0
                     "
-                    >{{ getCourseBagType(info.ClassifyType) }}</span
+                >{{ getCourseBagType(info.ClassifyType) }}</span
                 >
             </div>
             <div style="color: #000; width: 90px;min-width: 90px;">
                 <template v-if="info.HomeworkPaperType == 0"
-                    >{{ info.AllQuestionCount }}题</template
+                >{{ info.AllQuestionCount }}题
+                </template
                 >
                 <template v-if="info.HomeworkPaperType == 1"
-                    >时长：{{
+                >时长：{{
                         formatDuration(info.VideoDurationTick)
-                    }}</template
+                    }}
+                </template
                 >
             </div>
             <div style="flex: 1;margin: 0 10px;">
@@ -59,8 +61,9 @@
                         info.HomeworkPaperType == 1 ||
                         info.HomeworkPaperType == 0
                     "
-                    >{{ info.AlbumName }} {{ info.ChapterName }}
-                    {{ info.LessonName }}</template
+                >{{ info.AlbumName }} {{ info.ChapterName }}
+                    {{ info.LessonName }}
+                </template
                 >
             </div>
 
@@ -85,7 +88,7 @@
                     ></el-progress>
                     <span>当前正确率:</span>
                     <span class="text-color"
-                        >{{ probability ? probability : "0.00" }}%
+                    >{{ probability ? probability : "0.00" }}%
                     </span>
                 </template>
             </div>
@@ -101,7 +104,7 @@
             <div class="people">
                 <span>已完成人数：</span>
                 <span class="text-color"
-                    >{{ info.FinishStudentCount }} /
+                >{{ info.FinishStudentCount }} /
                     {{ info.AllStudentCount }}</span
                 >
             </div>
@@ -350,10 +353,10 @@ export default defineComponent({
             return props.info.ReviewQuestionCount
                 ? (
                     (props.info.ReviewQuestionCount /
-                          (props.info.RightCount +
-                              props.info.WrongCount +
-                              props.info.NoSureCount)) *
-                      100
+                        (props.info.RightCount +
+                            props.info.WrongCount +
+                            props.info.NoSureCount)) *
+                    100
                 ).toFixed(2)
                 : 0;
         });
@@ -576,28 +579,34 @@ export default defineComponent({
         width: 30px;
     }
 }
+
 .hign-photo-warp {
     :deep(.el-dialog__body) {
         padding: 0;
         overflow: hidden;
     }
+
     :deep(.el-dialog__header) {
         display: none;
     }
+
     :deep(.el-dialog) {
         margin: 0;
         padding: 30px;
         box-sizing: border-box;
         background: rgba(0, 0, 0, 0.2);
     }
+
     :deep(.el-overlay-dialog) {
         height: calc(100vh + 36px);
     }
 }
+
 .table-row {
     font-size: 14px;
     color: #5f626f;
     margin-bottom: 10px;
+
     .homework-warp {
         width: 20%;
 
@@ -605,22 +614,26 @@ export default defineComponent({
             width: 0;
             height: 25px;
             visibility: hidden;
+
             .el-input__inner {
                 width: 0;
                 height: 25px;
             }
         }
     }
+
     > div {
         padding: 13px 20px;
         background: #f3f7ff;
         height: 100%;
+
         > span {
             flex: 1;
             min-width: 0;
             display: block;
             white-space: nowrap;
         }
+
         > span:nth-of-type(2),
         .progress-content {
             flex: 1.5;
@@ -629,29 +642,35 @@ export default defineComponent({
                 white-space: nowrap;
             }
         }
+
         p {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
         .people {
             flex: 1;
             white-space: nowrap;
         }
+
         .progress-content1 {
             width: 5%;
             margin: 0 20px;
         }
+
         .btn-list {
             float: right;
             margin-left: 10px;
             text-align: right;
         }
+
         .answer,
         .detail {
             display: flex;
             justify-content: center;
             align-items: center;
+
             > span {
                 display: flex;
                 justify-content: center;
@@ -661,20 +680,24 @@ export default defineComponent({
             }
         }
     }
+
     .text-color {
         color: #4b71ee;
     }
+
     .first-col {
         display: flex;
         justify-content: flex-start;
         align-items: center;
         flex: 2;
         margin-right: 3rem;
+
         img {
             width: 20px;
             height: 20px;
             vertical-align: bottom;
         }
+
         p {
             flex: 2;
             font-size: 16px;
@@ -683,6 +706,7 @@ export default defineComponent({
             color: #19203d;
             margin: 0 30px;
         }
+
         .course-bag-type {
             flex: 1;
             min-width: 0;
@@ -691,6 +715,7 @@ export default defineComponent({
             position: relative;
             margin-left: 10px;
             white-space: nowrap;
+
             &::before {
                 position: absolute;
                 left: -8px;
@@ -703,20 +728,24 @@ export default defineComponent({
             }
         }
     }
+
     .progress-content {
         flex: 1;
         display: flex;
         align-items: center;
+
         :deep(.el-progress-circle) {
             width: 30px !important;
             height: 30px !important;
             margin-right: 10px;
         }
+
         :deep(.el-progress__text) {
             display: none;
         }
     }
 }
+
 .file {
     display: flex;
     justify-content: flex-start;
@@ -725,6 +754,7 @@ export default defineComponent({
     padding: 0 20px !important;
     border-top: 1px solid #e9ecf0;
     flex-wrap: wrap;
+
     > .file-info {
         width: auto;
         // max-width: 20%;

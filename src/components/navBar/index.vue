@@ -83,10 +83,11 @@ import useBreadList from "./hooks/useBreadList";
 import { Bread } from "./interface";
 import ExitDialog from "./ExitDialog.vue";
 import UserInfo from "./userInfo.vue";
-import { set, STORAGE_TYPES } from "@/utils/storage";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
 import { store } from "@/store";
 import { getMyClassByOrgId } from "@/api/home";
 import DownloadDialog from "./DownloadDialog.vue";
+import { ElMessage } from "element-plus";
 
 export default defineComponent({
     name: "NavBar",
@@ -98,6 +99,7 @@ export default defineComponent({
         DownloadDialog
     },
     setup() {
+        const appPermission = get(STORAGE_TYPES.SET_APP_PERMISSION);
         const classList: any = ref([]);
         // 当前选择的班级
         const currentSelectClass = ref("");
@@ -107,8 +109,15 @@ export default defineComponent({
         const visible = ref(false);
         const classVisible = ref(false);
         const go = (item: Bread) => {
-            if (route.name !== item.name) {
-                router.push(item.path);
+            const val = item.path.split("/")[1];
+            if ((appPermission && appPermission.includes(val)) || val === "home") {
+                if (route.name !== item.name) {
+                    router.push(item.path);
+                }
+            } else {
+                ElMessage.warning({
+                    message: "暂无权限！"
+                });
             }
         };
 

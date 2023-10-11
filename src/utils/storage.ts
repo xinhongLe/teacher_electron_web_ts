@@ -1,4 +1,4 @@
-import {decrypt, encrypt} from "./crypto";
+import { decrypt, encrypt } from "./crypto";
 import isElectron from "is-electron";
 
 const PREFIX = "VUE";
@@ -130,6 +130,11 @@ export enum STORAGE_TYPES {
      * 下载历史
      */
     DOWNLOAD_HISTORY = "DOWNLOAD_HISTORY",
+
+    /**
+     * 应用权限
+     */
+    SET_APP_PERMISSION = "SET_APP_PERMISSION"
 }
 
 export const set = (

@@ -46,11 +46,11 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, reactive, toRefs, PropType, watch, onUnmounted} from "vue";
-import {Homework, StudentMission} from "@/types/homework";
-import {sendWrongTopicDetail, GetStudentMissionList, overWrongTopicCollection} from "../api";
+import { computed, defineComponent, reactive, toRefs, PropType, watch, onUnmounted } from "vue";
+import { Homework, StudentMission } from "@/types/homework";
+import { sendWrongTopicDetail, GetStudentMissionList, overWrongTopicCollection } from "../api";
 import mqtt from "mqtt";
-import {VUE_APP_YUN_API_MQTT} from "@/config";
+import { VUE_APP_YUN_API_MQTT } from "@/config";
 
 interface State {
     status: number,
@@ -89,7 +89,7 @@ export default defineComponent({
         }
     },
     emits: ["update:dialogVisible", "updateTaskList"],
-    setup(props, {emit}) {
+    setup(props, { emit }) {
         const state = reactive<State>({
             status: 0,
             isFinish: 0,
@@ -99,10 +99,7 @@ export default defineComponent({
         });
         const visible = computed(() => props.dialogVisible);
 
-        const client = mqtt.connect(VUE_APP_YUN_API_MQTT || "", {
-            port: process.env.NODE_ENV === "development" ? 8083 : 0,
-            keepalive: 30
-        });
+        let client: any = null;
 
         const getPublish = (id: string) => {
             return `ErrorBack_${id}`;
@@ -110,21 +107,25 @@ export default defineComponent({
 
         watch(() => props.dialogVisible, async (val) => {
             if (val) {
+                client = mqtt.connect(VUE_APP_YUN_API_MQTT || "", {
+                    port: process.env.NODE_ENV === "development" ? 8083 : 0,
+                    keepalive: 30
+                });
                 state.status = props.mistakesCollectState;
                 state.isFinish = props.isFinishState;
                 state.finishCount = props.collectedCount;
                 state.collectionId = props.collectionId;
                 await _GetStudentMissionList();
             } else {
-                client.unsubscribe(getPublish(state.collectionId));
+                client && client.unsubscribe(getPublish(state.collectionId));
             }
         });
 
-        client && client.on("connect", function (err) {
+        client && client.on("connect", function (err: any) {
             window.electron.log.info("client connect mistakes", err);
         });
 
-        client && client.on("error", (err) => {
+        client && client.on("error", (err: any) => {
             window.electron.log.info("client error mistakes", err);
         });
 
@@ -140,7 +141,7 @@ export default defineComponent({
             await _sendWrongTopicDetail();
         };
         const _GetStudentMissionList = () => {
-            return GetStudentMissionList({ID: props.info.ClassHomeworkPaperID || props.info.classHomeworkPaperID}).then(res => {
+            return GetStudentMissionList({ ID: props.info.ClassHomeworkPaperID || props.info.classHomeworkPaperID }).then(res => {
                 if (res.resultCode === 200) {
                     state.studentsList = res.result || [];
                 }
@@ -168,7 +169,7 @@ export default defineComponent({
         };
 
         const stopWrongTopicCollection = () => {
-            overWrongTopicCollection({Id: state.collectionId}).then(res => {
+            overWrongTopicCollection({ Id: state.collectionId }).then(res => {
                 if (res.resultCode === 200) {
                     close();
                 }

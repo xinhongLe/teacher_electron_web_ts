@@ -1,11 +1,11 @@
 import router from "@/router";
-import {Homework} from "@/types/homework";
-import {LessonClasses, LessonSubject} from "@/types/login";
-import {get, STORAGE_TYPES} from "@/utils/storage";
+import { Homework } from "@/types/homework";
+import { LessonClasses, LessonSubject } from "@/types/login";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 import moment from "moment";
-import {computed, nextTick, onActivated, reactive, ref, toRefs, watch} from "vue";
-import {fetchClassHomeworkPaperList, fetchHomeworkDateByYear, GetMySubjectByOrgId} from "../api";
-import {store} from "@/store";
+import { computed, nextTick, onActivated, onMounted, reactive, ref, toRefs, watch } from "vue";
+import { fetchClassHomeworkPaperList, fetchHomeworkDateByYear, GetMySubjectByOrgId } from "../api";
+import { store } from "@/store";
 
 export default () => {
     const form = reactive({
@@ -41,7 +41,7 @@ export default () => {
                     };
                 });
                 detailList.forEach(item => {
-                    const {ClassID} = item;
+                    const { ClassID } = item;
                     homeworkListMap.value[ClassID] ? homeworkListMap.value[ClassID].push(item) : (homeworkListMap.value[ClassID] = [item]);
                 });
             }
@@ -98,14 +98,14 @@ export default () => {
                 initData()
             }, 200)
         }
-    }, {deep: true});
+    }, { deep: true });
     watch(() => store.state.userInfo.currentSelectClass, (val: any) => {
         if (!val.ClassAixueshiId) return;
         selectClassId.value = val.ClassAixueshiId
         // initData(0)
-    }, {deep: true})
+    }, { deep: true })
 
-    onActivated(() => {
+    onMounted(() => {
         initData();
         // if (!router.currentRoute.value.meta.isBack) {
         //     initData();

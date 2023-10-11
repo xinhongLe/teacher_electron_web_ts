@@ -319,20 +319,32 @@
                                 >
                             </div>
                         </div>
-                        <div class="editd-data" v-if="errorQuestionDetails.QuestionInfo?.QuestionFlowText">
+                        <div class="editd-data" v-if="errorQuestionDetails.QuestionInfo?.QuestionsFlowText"
+                             :style="{height: show ? 'auto' : '80px'}">
                             <div class="items">
                                 <div class="text">
-                                    题目：
+                                    <span>
+                                         题目：
+                                    </span>
+                                    <div class="right-show" @click="show = !show">
+                                        <span>{{ show ? "收起" : "展开" }}</span>
+                                        <el-icon v-if="show">
+                                            <ArrowUpBold/>
+                                        </el-icon>
+                                        <el-icon v-else>
+                                            <ArrowDownBold/>
+                                        </el-icon>
+                                    </div>
                                 </div>
                                 <MathJax
-                                    :text="errorQuestionDetails.QuestionInfo?.QuestionFlowText?.QuestionContent"></MathJax>
+                                    :text="errorQuestionDetails.QuestionInfo?.QuestionsFlowText?.QuestionContent"></MathJax>
                             </div>
                             <div class="answers">
                                 <div class="text">
                                     答案：
                                 </div>
                                 <MathJax
-                                    :text="errorQuestionDetails.QuestionInfo?.QuestionFlowText?.AnswerContent"></MathJax>
+                                    :text="errorQuestionDetails.QuestionInfo?.QuestionsFlowText?.AnswerContent"></MathJax>
 
                             </div>
                         </div>
@@ -652,25 +664,6 @@
             </div>
         </main>
     </div>
-    <!-- <div class="question-dialog">
-        <el-dialog
-            v-model="state.visible"
-            :show-close="false"
-            :close-on-click-modal="false"
-            width="80%"
-        >
-            <template #title>
-                <div class="my-header">讲解题目</div>
-            </template>
-            <lookQuestion
-                v-if="state.isShowQuestion"
-                :dialog="true"
-                :close="close"
-            >
-            </lookQuestion>
-        </el-dialog>
-    </div>
-    -->
     <PureQuestionDialog
         v-if="state.pureQuestionVisible"
         v-model:visible="state.pureQuestionVisible"
@@ -684,7 +677,6 @@
         :currentquestion="state.currentQuestionData"
     >
     </ExplainQuestion>
-
     <ErrorHstory
         v-if="state.errorHstoryVisible"
         v-model:visible="state.errorHstoryVisible"
@@ -793,6 +785,8 @@ const questionType = ref("");
 const frequency = ref(0);
 //分层筛选
 const questionTagType = ref(1);
+// 展开 收起
+const show = ref(false);
 const state = reactive({
     errorFiles: "",
     isRepeat: false, //时候查看重复错误的学生
@@ -821,53 +815,9 @@ const state = reactive({
     //当前选中的错题项
     currentIndex: "",
     //答题详情list
-    detailList: [
-        // {
-        //     TagId: 1,
-        //     name: "A层",
-        //     count: 0,
-        //     isExpend: false,
-        // },
-        // {
-        //     id: 2,
-        //     name: "B层",
-        //     count: 9,
-        //     isExpend: false,
-        //     studentList: [],
-        // },
-        // {
-        //     id: 3,
-        //     name: "C层",
-        //     count: 11,
-        //     isExpend: false,
-        //     studentList: [],
-        // },
-        // {
-        //     id: 4,
-        //     name: "未标记",
-        //     count: 0,
-        //     isExpend: false,
-        //     studentList: [],
-        // },
-    ],
+    detailList: [],
     //答题详情统计卡片list
-    statisticsList: [
-        // {
-        //     id: 1,
-        //     name: "求倍数的错题巩固联系",
-        //     date: "2022-07-05 (周二)",
-        // },
-        // {
-        //     id: 2,
-        //     name: "求倍数的错题巩固联系",
-        //     date: "2022-07-05 (周二)",
-        // },
-        // {
-        //     id: 3,
-        //     name: "求倍数的错题巩固联系",
-        //     date: "2022-07-05 (周二)",
-        // },
-    ] as any,
+    statisticsList: [] as any,
     //当前选中的答题详情卡片
     currentStatisticIndex: 0,
     //讲解题目 公共组件显示
@@ -1690,8 +1640,29 @@ onBeforeMount(() => {
 
                 .editd-data {
                     padding: 10px;
-                    border: 1px solid #e1e1e1;
                     margin-top: 10px;
+                    overflow: hidden;
+
+                    .items {
+                        .text {
+                            display: flex;
+                            justify-content: space-between;
+
+                            .right-show {
+                                font-size: 14px;
+                                color: #4B71EE;
+                                cursor: pointer;
+
+                                > span {
+                                    margin-right: 6px;
+                                }
+                            }
+                        }
+                    }
+
+                    .answers {
+                        margin-top: 10px;
+                    }
                 }
 
                 .contents {
