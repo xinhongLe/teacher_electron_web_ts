@@ -403,14 +403,12 @@ function createProjectionWindow() {
         height: size.height,
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
-        alwaysOnTop: true,
         resizable: false,
     });
 
     projectionWin.once("ready-to-show", () => {
         projectionWin && projectionWin.show();
         projectionWin && projectionWin.focus();
-        showSuspension()
     });
 
     projectionWin.once("closed", () => {
@@ -1065,6 +1063,8 @@ export function registerEvent() {
     });
 
     ipcMain.handle("openProjectionWindow", () => {
+        showSuspension();
+        setSuspensionSize();
         if (projectionWin) {
             return projectionWin.show();
         }
