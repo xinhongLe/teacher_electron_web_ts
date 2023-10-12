@@ -232,18 +232,18 @@
                             />
                             <div class="blackboard-text">锁屏管理</div>
                         </div>
-                        <div
-                            class="blackboard-box"
-                            @click.stop="
-                                clicKBuryPoint('互动游戏'), openGameSet()
-                            "
-                        >
-                            <img
-                                src="@/assets/images/suspension/pic_aiteacher.png"
-                                alt=""
-                            />
-                            <div class="blackboard-text">互动游戏</div>
-                        </div>
+<!--                        <div-->
+<!--                            class="blackboard-box"-->
+<!--                            @click.stop="-->
+<!--                                clicKBuryPoint('互动游戏'), openGameSet()-->
+<!--                            "-->
+<!--                        >-->
+<!--                            <img-->
+<!--                                src="@/assets/images/suspension/pic_aiteacher.png"-->
+<!--                                alt=""-->
+<!--                            />-->
+<!--                            <div class="blackboard-text">互动游戏</div>-->
+<!--                        </div>-->
                     </div>
                 </el-collapse-item>
                 <el-collapse-item
