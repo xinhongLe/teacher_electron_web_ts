@@ -377,7 +377,8 @@ function createProjectionWindow() {
 
     projectionWin.once("ready-to-show", () => {
         projectionWin && projectionWin.show();
-        // projectionWin && projectionWin.webContents.openDevTools();
+        projectionWin && projectionWin.focus();
+        showSuspension()
     });
 
     projectionWin.once("closed", () => {
