@@ -143,6 +143,13 @@ module.exports = {
             title: "键盘",
             chunks: ["virtualKeyBoard"]
         },
+        // gameSet: {
+        //     entry: "src/childWindow/gameSet/main.ts",
+        //     template: "public/gameSet.html",
+        //     filename: "gameSet.html",
+        //     title: "互动游戏",
+        //     chunks: ["gameSet"]
+        // },
         pblEditWinCard: {
             entry: "src/childWindow/pblEditWinCard/main.ts",
             template: "public/template.html",
