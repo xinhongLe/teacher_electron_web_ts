@@ -91,6 +91,8 @@ export default defineComponent({
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
+    max-height: 660px;
+    overflow-y: auto;
     .content{
         text-align: center;
         margin-left: 20px;
