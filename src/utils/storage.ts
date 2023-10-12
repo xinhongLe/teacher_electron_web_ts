@@ -132,6 +132,11 @@ export enum STORAGE_TYPES {
     DOWNLOAD_HISTORY = "DOWNLOAD_HISTORY",
 
     /**
+     * 默认下载路径
+     */
+    DOWNLOAD_PATH = "DOWNLOAD_PATH",
+
+    /**
      * 应用权限
      */
     SET_APP_PERMISSION = "SET_APP_PERMISSION"

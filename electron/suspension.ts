@@ -18,6 +18,7 @@ let teamCompetitionWin: BrowserWindow | null;
 let teamCompetitionWin2: BrowserWindow | null;
 let answerMachineWin: BrowserWindow | null;
 let quickAnswerWin: BrowserWindow | null;
+let gameSetWin: BrowserWindow | null;
 let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
@@ -33,7 +34,7 @@ let lastSpwan: ChildProcessWithoutNullStreams | null = null;
 let lastPort = 1122;
 let isFirstTime = true;
 let openTimes = -1;
-let lastOpenTime = new Date().getTime();
+const lastOpenTime = new Date().getTime();
 let currentCourseData: any = null;
 
 const timerURL =
@@ -71,6 +72,11 @@ const quickAnswerURL =
     process.env.NODE_ENV === "development"
         ? `${process.env.WEBPACK_DEV_SERVER_URL}quickAnswer.html`
         : `file://${__dirname}/quickAnswer.html`;
+
+const gameSetURL =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}gameSet.html`
+        : `file://${__dirname}/gameSet.html`;
 
 const localTeamURL =
     process.env.NODE_ENV === "development"
@@ -190,7 +196,7 @@ function createTimerWindow() {
         frame: false, // 要创建无边框窗口
         resizable: false, // 禁止窗口大小缩放
         height: 500,
-        useContentSize: true,
+        useContentSize: true
     });
     timerWin.on("ready-to-show", () => {
         timerWin && timerWin.show();
@@ -244,7 +250,7 @@ function createUnfoldSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
     // 设置黑板窗口位置
     const winSize = unfoldSuspensionWin.getSize(); // 获取窗口宽高
@@ -275,7 +281,7 @@ function createBlackboardWindow() {
         minWidth: 1000,
         minHeight: 600,
         show: false,
-        useContentSize: true,
+        useContentSize: true
     });
     // blackboardWin.webContents.openDevTools(); // 打开黑板调试
 
@@ -360,6 +366,32 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
     });
 
     quickAnswerWin.on("closed", () => {
+        quickAnswerWin = null;
+    });
+}
+
+function createGameSetWindow() {
+    gameSetWin = createWindow(gameSetURL, {
+        width: 1080,
+        height: 920,
+        frame: false, // 要创建无边框窗口
+        // type: "toolbar",
+        alwaysOnTop: true,
+        resizable: true, // 是否允许窗口大小缩放
+        useContentSize: true,
+        maximizable: false
+    });
+    // gameSetWin.webContents.openDevTools(); // 打开游戏调试器
+
+    gameSetWin.on("ready-to-show", () => {
+        gameSetWin && gameSetWin.show();
+    });
+
+    gameSetWin.once("ready-to-show", () => {
+        gameSetWin && gameSetWin.setAlwaysOnTop(true, "pop-up-menu");
+    });
+
+    gameSetWin.on("closed", () => {
         quickAnswerWin = null;
     });
 }
@@ -1052,6 +1084,13 @@ export function registerEvent() {
         showSuspension();
         if (!quickAnswerWin) {
             createQuickAnswerWindow(allStudentList, isAnswer);
+        }
+    });
+
+    ipcMain.handle("openGameSetWindow", (_) => {
+        showSuspension();
+        if (!quickAnswerWin) {
+            createGameSetWindow();
         }
     });
 

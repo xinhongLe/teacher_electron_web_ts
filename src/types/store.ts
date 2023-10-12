@@ -112,6 +112,7 @@ export interface IDownloading {
     id: string;
     name: string;
     type: string;
+    path?: string;
     data: IResourceItem;
     timestamp: number;
     status: number; // 0: 待下载 1: 下载中 2: 已完成 3: 已取消 4: 下载失败
