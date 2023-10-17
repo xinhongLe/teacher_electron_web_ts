@@ -7,6 +7,10 @@ import useOutLogin from "@/hooks/useOutLogin";
 import useUpdate from "@/hooks/useUpdate";
 import UpdateDialog from "@/components/updateDialog/index.vue";
 import { CaretBottom } from "@element-plus/icons-vue";
+import { IYunInfo } from "@/types/login";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import { UserInfoState } from "@/types/store";
+import { getPlatformByOrgId, getUserPermissionData, IUserData } from "@/api/home";
 
 const emit = defineEmits(["download"]);
 
@@ -31,24 +35,49 @@ const account = computed(() => store.state.userInfo.account);
 const name = computed(() => store.state.userInfo.name);
 const schoolList = computed(() => store.state.userInfo.Schools || []);
 const schoolName = computed(() => store.state.userInfo.schoolName);
-const setSelectedSchool = () => {
+
+const getUserPermission = async () => {
+    //云平台信息
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
+    const id = currentUserInfo.schoolId;
+    const res = await getPlatformByOrgId([{ id }]);
+    const platformID = res.result.length > 0 ? res.result[0].platformId : "";
+    const params = {
+        appId: "16575192334088313568614617905834",
+        orgId: currentUserInfo.schoolId,
+        platformId: platformID,
+        userId: yunInfo.UserId
+    };
+    const resData: any = await getUserPermissionData(params);
+    console.log("resData", resData)
+    const appList = resData.result[0]?.menus;
+    if (!appList?.length) return;
+    // 设置每个应用的权限
+    set(STORAGE_TYPES.SET_APP_PERMISSION, appList.map((item: any) => item.link));
+};
+
+const setSelectedSchool = async () => {
     if (!store.state.userInfo.schoolId && schoolList.value.length > 0) {
         const school = schoolList.value[0];
         store.commit(MutationTypes.UPDATE_SELECTED_SCHOOL, {
             schoolId: school.UserCenterSchoolID,
             schoolName: school.Name,
         });
+        await getUserPermission()
     }
 };
 setSelectedSchool();
 watch(schoolList, () => {
     setSelectedSchool();
 });
-const selectSchool = (school: { UserCenterSchoolID: string; Name: string }) => {
+const selectSchool = async (school: { UserCenterSchoolID: string; Name: string }) => {
     store.commit(MutationTypes.UPDATE_SELECTED_SCHOOL, {
         schoolId: school.UserCenterSchoolID,
         schoolName: school.Name,
     });
+    await getUserPermission()
+
 };
 const showCacheDialog = ref(false);
 
@@ -68,6 +97,7 @@ const useLogout = () => {
     }
 };
 
+
 //检查更新emitter.emit
 const checkUpdate = () => {
     getUpdateJson();
@@ -85,10 +115,10 @@ const goDownload = () => {
             <el-sub-menu index="user">
                 <template #title>
                     <div class="avatar-wrapper">
-                        <img src="./img/avator_small.svg" />
+                        <img src="./img/avator_small.svg"/>
                         <span class="name">{{ name || "匿名" }}</span>
                         <el-icon class="icon">
-                            <CaretBottom />
+                            <CaretBottom/>
                         </el-icon>
                     </div>
                 </template>
@@ -186,7 +216,7 @@ const goDownload = () => {
             </el-sub-menu>
         </el-menu>
     </div>
-    <Feedback ref="feedbackRef" />
+    <Feedback ref="feedbackRef"/>
     <Suspense v-if="isElectron()">
         <ClearCacheDialog
             v-if="showCacheDialog"
@@ -194,7 +224,7 @@ const goDownload = () => {
         />
     </Suspense>
     <Suspense v-if="isElectron()">
-        <AutoClearCache />
+        <AutoClearCache/>
     </Suspense>
     <UpdateDialog
         v-model:updateVisible="updateVisible"

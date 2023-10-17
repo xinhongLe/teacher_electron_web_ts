@@ -18,7 +18,8 @@
                             plain
                             :icon="Plus"
                             @click="commonHomeworkDialog = true"
-                            >自定义作业</el-button
+                        >自定义作业
+                        </el-button
                         >
                         <el-button
                             plain
@@ -26,7 +27,8 @@
                             type="primary"
                             :icon="Plus"
                             @click="systemHomeworkDialog = true"
-                            >在线作业</el-button
+                        >在线作业
+                        </el-button
                         >
                         <el-button
                             plain
@@ -34,7 +36,8 @@
                             type="warning"
                             :icon="Plus"
                             @click="teachHomeworkDialog = true"
-                            >教辅作业</el-button
+                        >教辅作业
+                        </el-button
                         >
                         <!-- <el-button
                             plain
@@ -78,7 +81,8 @@
         </div>
         <footer>
             <el-button type="primary" @click="submit" size="large"
-                >立即发送</el-button
+            >立即发送
+            </el-button
             >
         </footer>
         <CommonHomeworkDialog
@@ -198,8 +202,8 @@ export default defineComponent({
                     paperID: v.WorkbookPaperID,
                     answerShowTime: v.publishTime
                         ? `${moment(v.publishTime).format(
-                              "YYYY-MM-DD HH:mm:ss"
-                          )}`
+                            "YYYY-MM-DD HH:mm:ss"
+                        )}`
                         : "",
                 };
             });
@@ -216,8 +220,14 @@ export default defineComponent({
                     teachHomeworkList.value = [];
                     systemHomeworkList.value = [];
                     assignObjectRef.value &&
-                        assignObjectRef.value.clearClassList();
-                    router.push("/homework");
+                    assignObjectRef.value.clearClassList();
+                    // router.push("/homework");
+                    router.push({
+                        path: "/homework",
+                        query: {
+                            subjectId: route.params.subjectId
+                        }
+                    });
                 }, 500); // 延时跳转，确保服务器数据已刷新
             }
         };
@@ -263,25 +273,31 @@ export default defineComponent({
 .assign-homework-wrapper {
     height: 100%;
     flex: 1;
+
     header {
         padding: 20px;
+
         p {
             font-size: 32px;
             font-weight: 600;
             color: #19203d;
         }
     }
+
     .row-line {
         height: 10px;
         background-color: #f5f6fa;
     }
+
     .assign-homework-content {
         height: calc(100% - 152px);
         overflow-y: auto;
         padding: 20px;
+
         > div {
             display: flex;
             margin-bottom: 30px;
+
             .title-class {
                 width: 100px;
                 font-size: 20px;
@@ -291,10 +307,13 @@ export default defineComponent({
                 margin-right: 20px;
                 padding-top: 8px;
             }
+
             .class-wrapper {
                 flex: 1;
+
                 .class-content {
                     margin-top: 10px;
+
                     > p {
                         width: 100%;
                         height: 56px;
@@ -303,6 +322,7 @@ export default defineComponent({
                         border-radius: 4px;
                         padding: 0 20px;
                         margin-bottom: 10px;
+
                         span {
                             display: inline-block;
                             margin-left: 40px;
@@ -310,12 +330,14 @@ export default defineComponent({
                     }
                 }
             }
+
             .content-wrapper {
                 flex: 1;
                 min-width: 0;
             }
         }
     }
+
     footer {
         margin-top: 15px;
         text-align: center;

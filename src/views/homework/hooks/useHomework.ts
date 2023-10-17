@@ -6,8 +6,10 @@ import moment from "moment";
 import { computed, nextTick, onActivated, onMounted, reactive, ref, toRefs, watch } from "vue";
 import { fetchClassHomeworkPaperList, fetchHomeworkDateByYear, GetMySubjectByOrgId } from "../api";
 import { store } from "@/store";
+import { useRoute } from "vue-router";
 
 export default () => {
+    const route = useRoute();
     const form = reactive({
         subject: "",
         date: ""
@@ -104,7 +106,16 @@ export default () => {
         selectClassId.value = val.ClassAixueshiId
         // initData(0)
     }, { deep: true })
-
+// 监听路由参数的变化
+    watch(
+        () => route.query.subjectId,
+        (value: any) => {
+            if (value) {
+                form.subject = value;
+                initData();
+            }
+        }
+    );
     onMounted(() => {
         initData();
         // if (!router.currentRoute.value.meta.isBack) {

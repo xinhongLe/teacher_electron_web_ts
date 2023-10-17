@@ -1,8 +1,8 @@
 import request from "@/utils/request";
-import {AI_XUE_SHI_API} from "@/config";
-import {IOssPathsRes, IOssTokenRes} from "@/types/oss";
-import {Tools} from "@/types/tools";
-import {IResponse, RequestFun} from "@/types/response";
+import { AI_XUE_SHI_API } from "@/config";
+import { IOssPathsRes, IOssTokenRes } from "@/types/oss";
+import { Tools } from "@/types/tools";
+import { IResponse, RequestFun } from "@/types/response";
 
 export * from "./teach";
 
@@ -10,7 +10,7 @@ export function getOssPaths(): Promise<IOssPathsRes> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/Universal/BaseData/GetOssPathes",
-        headers: {DeviceID: "Franchisee", noLoading: "true"},
+        headers: { DeviceID: "Franchisee", noLoading: "true" },
         method: "post",
         data: {}
     });
@@ -20,7 +20,7 @@ export function getOssToken(): Promise<IOssTokenRes> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V3/Auxiliary/GetOssToken",
-        headers: {DeviceID: "Franchisee", noLoading: "true"},
+        headers: { DeviceID: "Franchisee", noLoading: "true" },
         method: "post",
         data: {}
     });
@@ -51,7 +51,7 @@ export const getUserSig: RequestFun<{ sdkAppID: number, userID: string }, Promis
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/Web/TencentLive/GetUserSig",
-        headers: {noLoading: "true"},
+        headers: { noLoading: "true" },
         method: "post",
         data
     });
@@ -70,8 +70,10 @@ export const rollCallLog: RequestFun<{ SchoolId: string, TermCode: string, Stude
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/API/W4/RollCall/AddRollCallRecord",
-        headers: {noLoading: "true"},
+        headers: { noLoading: "true" },
         method: "post",
         data
     });
 }
+
+

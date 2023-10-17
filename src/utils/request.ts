@@ -6,6 +6,9 @@ import { initAllState, store } from "@/store";
 import loading from "@/components/loading";
 import isElectron from "is-electron";
 import moment from "moment";
+import { IS_ENCRYPT, privateKey, publickey } from "@/config";
+// @ts-ignore
+import { sm2 } from "sm-crypto";
 
 const http = axios.create({
     baseURL: "/",
@@ -18,7 +21,7 @@ http.interceptors.request.use(
     (config: AxiosRequestConfig) => {
         if (get(STORAGE_TYPES.SET_TOKEN)) {
             config.headers = {
-                "Content-Type": "application/json-patch+json",
+                "Content-Type": IS_ENCRYPT ? "application/ejson" : "application/json-patch+json",
                 ...config.headers,
                 Token: get(STORAGE_TYPES.SET_TOKEN),
                 startTime: moment().format("YYYY-MM-DD HH:mm:ss.SSS"),
@@ -31,7 +34,7 @@ http.interceptors.request.use(
         if (!config.headers?.noLoading) {
             loading.show();
         }
-
+        if (IS_ENCRYPT) config.data = sm2.doEncrypt(JSON.stringify(config.data), publickey, 0);
         return config;
     },
     (error) => {
@@ -68,6 +71,7 @@ http.interceptors.response.use(
                 duration: 5 * 1000
             });
         }
+        if (IS_ENCRYPT) response.data = JSON.parse(sm2.doDecrypt(response.data, privateKey, 0))
         return response;
     },
     (error) => {
@@ -89,7 +93,7 @@ http.interceptors.response.use(
     }
 );
 
-interface IRequest<T>{
+interface IRequest<T> {
     baseURL: string | undefined;
     url: string;
     method: Method;
@@ -108,6 +112,7 @@ const queueMap = new Map();
 class Queue<T, U> {
     requestList: Request<T, U>[] = [];
     isRequesting = false;
+
     add(data: Request<T, U>) {
         this.requestList.push(data);
         this.start();

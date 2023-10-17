@@ -2,7 +2,13 @@ import request from "@/utils/request";
 import { IResponse } from "@/types/response";
 import { ICardList, ITreeList } from "@/types/home";
 import { Slide } from "wincard";
-import { WINDOW_CRAD_API, originType, API_CENTER_USER_MANAGE, AI_XUE_SHI_API } from "@/config/index";
+import {
+    WINDOW_CRAD_API,
+    originType,
+    API_CENTER_USER_MANAGE,
+    AI_XUE_SHI_API,
+    VUE_APP_API_ORG_MANAGE
+} from "@/config/index";
 import { getWinCardDBData, WinCardData } from "@/utils/database";
 import { CardProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
@@ -681,3 +687,22 @@ export function getMyClassByOrgId(): Promise<IResponse<IMyClassResponse>> {
         baseURL: AI_XUE_SHI_API
     });
 }
+
+export interface IUserData {
+    appId: string;
+    orgId: string;
+    platformId: string;
+    userId: string;
+}
+
+// 查询用户菜单权限
+export function getUserPermissionData(data: IUserData): Promise<IResponse<unknown>> {
+    return request({
+        url: "/label/getUserPermissionData",
+        headers: { noLoading: "true" },
+        method: "post",
+        baseURL: VUE_APP_API_ORG_MANAGE,
+        data
+    });
+}
+

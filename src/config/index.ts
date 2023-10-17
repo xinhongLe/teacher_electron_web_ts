@@ -30,6 +30,8 @@ export const VUE_APP_TRACK_LOG = process.env.VUE_APP_TRACK_LOG;
 export const UPLOAD_CRAD_API = "https://api.aixueshi.top:5015";
 
 export const API_CENTER_USER_MANAGE = process.env.VUE_APP_API_CENTER_USER_MANAGE;
+export const VUE_APP_API_ORG_MANAGE = process.env.VUE_APP_API_ORG_MANAGE;
+
 
 // 注册学生模板下载地址
 export const ADD_STUDENT_TEMPLATE =
@@ -65,11 +67,11 @@ export const ALL_SUBJECT_LIST = [
     }
 ];
 export const pageTypeList = [
-    {name: "素材页", value: 11, type: "element", note: ""},
-    {name: "听写页", value: 12, type: "listen", note: "编辑要听写的词汇，系统自动播报；支持设置播报次数与播报速度等"},
-    {name: "跟读页", value: 13, type: "follow", note: "选择跟读素材，轻松实现课堂标准跟读；支持设置播报模式"},
-    {name: "教具页", value: 16, type: "teach", note: "选择课程相关的学科教具插入页面，快速进行模拟实验"},
-    {name: "游戏页", value: 20, type: "game", note: "选择喜欢的游戏插入页面，可在课堂进行有趣的师生互动"}
+    { name: "素材页", value: 11, type: "element", note: "" },
+    { name: "听写页", value: 12, type: "listen", note: "编辑要听写的词汇，系统自动播报；支持设置播报次数与播报速度等" },
+    { name: "跟读页", value: 13, type: "follow", note: "选择跟读素材，轻松实现课堂标准跟读；支持设置播报模式" },
+    { name: "教具页", value: 16, type: "teach", note: "选择课程相关的学科教具插入页面，快速进行模拟实验" },
+    { name: "游戏页", value: 20, type: "game", note: "选择喜欢的游戏插入页面，可在课堂进行有趣的师生互动" }
 ];
 
 export enum pageType {
@@ -108,3 +110,9 @@ export const fileTypeMap: Record<string, number> = {
 
 // 乐易学云平台下备教systemId
 export const systemId = "16529394468916581254231961296573";
+
+// 是否加密
+export const IS_ENCRYPT = process.env.VUE_APP_IS_ENCRYPT as string === "true";
+
+export const privateKey = "00C91AA0AF8182774568E77AAEEAFA7740B5ED93E78914C8C1F8E31E5A398973E9";
+export const publickey = "0431E114ACB87EF5F9FB1E053794EB128A627DFF42983A30AD72E672437718575D14B83BDA072A52B9ED3ED849439E3530F0B30E5893B690A824730";

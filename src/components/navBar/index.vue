@@ -99,7 +99,6 @@ export default defineComponent({
         DownloadDialog
     },
     setup() {
-        const appPermission = get(STORAGE_TYPES.SET_APP_PERMISSION);
         const classList: any = ref([]);
         // 当前选择的班级
         const currentSelectClass = ref("");
@@ -109,6 +108,7 @@ export default defineComponent({
         const visible = ref(false);
         const classVisible = ref(false);
         const go = (item: Bread) => {
+            const appPermission = get(STORAGE_TYPES.SET_APP_PERMISSION);
             const val = item.path.split("/")[1];
             if ((appPermission && appPermission.includes(val)) || val === "home") {
                 if (route.name !== item.name) {

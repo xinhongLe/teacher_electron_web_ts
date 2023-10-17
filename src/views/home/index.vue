@@ -269,7 +269,6 @@ export default defineComponent({
         Calendar
     },
     setup() {
-        const appPermission = get(STORAGE_TYPES.SET_APP_PERMISSION);
         const { createBuryingPointFn } = usePageEvent("首页");
         const router = useRouter();
         const route = useRoute();
@@ -277,6 +276,7 @@ export default defineComponent({
         initDays();
         const moreVisible = ref(false); //点击更多的弹框
         const go = (val: string) => {
+            const appPermission = get(STORAGE_TYPES.SET_APP_PERMISSION);
             const nval = val.split("/")[0];
             if (appPermission && appPermission.includes(nval)) {
                 if (val === "") {
