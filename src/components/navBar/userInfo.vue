@@ -50,9 +50,12 @@ const getUserPermission = async () => {
         userId: yunInfo.UserId
     };
     const resData: any = await getUserPermissionData(params);
-    console.log("resData", resData)
-    const appList = resData.result[0]?.menus;
-    if (!appList?.length) return;
+    let appList: any = [];
+    if (resData.result.length > 0) {
+        appList = resData.result[0]?.menus;
+    } else {
+        appList = [];
+    }
     // 设置每个应用的权限
     set(STORAGE_TYPES.SET_APP_PERMISSION, appList.map((item: any) => item.link));
 };
