@@ -4,59 +4,28 @@
             <div class="top">
                 <div class="left" ref="leftBlock">
                     <div class="left-one" @click="go('preparation'), clicKBuryPoint('备课')"
-                         :style="!layoutAdjust ? 'flex:1' : ''">
+                         :style="!layoutAdjust ? 'flex:1' : ''"
+                         :class="getPermission('preparation') ? '' : 'no-permission'"
+                    >
                         <span>备课</span>
                     </div>
                     <div class="left-two" :style="!layoutAdjust ? 'flex:1' : ''">
-                        <div class="work" @click="go('homework'), clicKBuryPoint('作业')">
+                        <div class="work" @click="go('homework'), clicKBuryPoint('作业')"
+                             :class="getPermission('homework') ? '' : 'no-permission'"
+                        >
                             <span>作业</span>
                         </div>
-                        <div class="wrong-book" @click="go('wrongbook'), clicKBuryPoint('班级错题本')">
+                        <div class="wrong-book" @click="go('wrongbook'), clicKBuryPoint('班级错题本')"
+                             :class="getPermission('wrongbook') ? '' : 'no-permission'"
+                        >
                             <span>班级错题本</span>
                         </div>
-                        <!--                        <div class="composition-pbl">-->
-                        <!--                            <div class="composition" @click="go('wrongbook'), clicKBuryPoint('班级错题本')">-->
-                        <!--                                <span>班级错题本</span>-->
-                        <!--                            </div>-->
-                        <!--                            <div class="composition" @click="go('composition'), clicKBuryPoint('AI作文批改')">-->
-                        <!--                                <span>AI作文批改</span>-->
-                        <!--                            </div>-->
-                        <!--                            <div class="pbl" @click="go('pblstudy'), clicKBuryPoint('PBL项目式学习')">-->
-                        <!--                                <span>PBL项目式学习</span>-->
-                        <!--                            </div>-->
-                        <!--                        </div>-->
                     </div>
-                    <!--                    <div class="left-row" v-if="layoutAdjust">-->
-                    <!--                        <div class="left-one" @click="go('preparation'), clicKBuryPoint('备课')">-->
-                    <!--                            <span>备课</span>-->
-                    <!--                        </div>-->
-                    <!--                        <div class="left-two">-->
-                    <!--                            <div class="work" @click="go('homework'), clicKBuryPoint('作业')">-->
-                    <!--                                <span>作业</span>-->
-                    <!--                            </div>-->
-                    <!--                            <div class="composition" @click="go('composition'), clicKBuryPoint('AI作文批改')">-->
-                    <!--                                <span>AI作文批改</span>-->
-                    <!--                            </div>-->
-                    <!--                        </div>-->
-                    <!--                        <div class="left-three" @click="-->
-                    <!--                            go('report-center'), clicKBuryPoint('报表中心')-->
-                    <!--                        ">-->
-                    <!--                            <span>报表中心</span>-->
-                    <!--                        </div>-->
-                    <!--                        <div-->
-                    <!--                            class="left-four"-->
-                    <!--                            @click="-->
-                    <!--                                go('resource-center/' + platformId),-->
-                    <!--                                    clicKBuryPoint('资源中心')-->
-                    <!--                            "-->
-                    <!--                        >-->
-                    <!--                            <span>资源中心</span>-->
-                    <!--                        </div>-->
-                    <!--                    </div>-->
                     <div class="bottom-left" v-if="layoutAdjust">
                         <div class="bottom-item">
-                            <div class="item" @click="go('resource-center/' + platformId), clicKBuryPoint('资源中心')
-                        ">
+                            <div class="item" @click="go('resource-center/' + platformId), clicKBuryPoint('资源中心')"
+                                 :class="getPermission('resource-center') ? '' : 'no-permission'"
+                            >
                                 <div class="item_div">
                                     <img src="../../assets/indexImages/pic_zyzx.png" alt=""/>
                                     <span>资源中心</span>
@@ -65,7 +34,9 @@
                             <div class="item" @click="
                             go('assessment-center'),
                             clicKBuryPoint('评测中心')
-                        ">
+                        "
+                                 :class="getPermission('assessment-center') ? '' : 'no-permission'"
+                            >
                                 <div class="item_div">
                                     <img src="../../assets/indexImages/pic_kaoshi_new.png" alt=""/>
                                     <span>测评中心</span>
@@ -73,7 +44,9 @@
                             </div>
                             <div class="item" @click="
                             go('composition'), clicKBuryPoint('AI作文')
-                        ">
+                        "
+                                 :class="getPermission('composition') ? '' : 'no-permission'"
+                            >
                                 <div class="item_div">
                                     <img src="../../assets/indexImages/pic_aizw@2x.png" alt=""/>
                                     <span>AI作文</span>
@@ -81,25 +54,11 @@
                             </div>
                         </div>
                         <div class="bottom-item">
-                            <!--                            <div class="item" @click="-->
-                            <!--                            go('wrongbook'), clicKBuryPoint('班级错题本')-->
-                            <!--                        ">-->
-                            <!--                                <div class="item_div">-->
-                            <!--                                    <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>-->
-                            <!--                                    <span>班级错题本</span>-->
-                            <!--                                </div>-->
-                            <!--                            </div>-->
-                            <!--                            <div class="item" @click="-->
-                            <!--                            go('composition'), clicKBuryPoint('AI作文')-->
-                            <!--                        ">-->
-                            <!--                                <div class="item_div">-->
-                            <!--                                    <img src="../../assets/indexImages/pic_aizw@2x.png" alt=""/>-->
-                            <!--                                    <span>AI作文</span>-->
-                            <!--                                </div>-->
-                            <!--                            </div>-->
                             <div class="item" @click="
                             go('pblstudy'), clicKBuryPoint('PBL项目式学习')
-                        ">
+                        "
+                                 :class="getPermission('pblstudy') ? '' : 'no-permission'"
+                            >
                                 <div class="item_div">
                                     <img src="../../assets/indexImages/icon_pbl@2x.png" alt=""/>
 
@@ -108,7 +67,9 @@
                             </div>
                             <div class="item" @click="
                             go('class-manage'), clicKBuryPoint('班级管理')
-                        ">
+                        "
+                                 :class="getPermission('class-manage') ? '' : 'no-permission'"
+                            >
                                 <div class="item_div">
                                     <img src="../../assets/indexImages/icon_xuesheng.png" alt=""/>
                                     <span>班级管理</span>
@@ -116,29 +77,24 @@
                             </div>
                             <div class="item" @click="
                             go('report-center'), clicKBuryPoint('报表中心')
-                        ">
+                        "
+                                 :class="getPermission('report-center') ? '' : 'no-permission'"
+                            >
                                 <div class="item_div">
                                     <img src="../../assets/indexImages/pic_baobiao_new.png" alt=""/>
                                     <span>报表中心</span>
                                 </div>
                             </div>
-                            <!--                            <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">-->
-                            <!--                                <div class="item_div">-->
-                            <!--                                    <img src="../../assets/indexImages/icon_more.png" alt=""/>-->
-                            <!--                                    <span>更多</span>-->
-                            <!--                                </div>-->
-                            <!--                            </div>-->
-
                         </div>
-
-
                     </div>
                 </div>
-                <div class="right" ref="classSchedule" style="flex: 1;">
+                <div class="right" :class="getPermission('attend-class') ? '' : 'no-permission'" ref="classSchedule"
+                     style="flex: 1;">
                     <Calendar ref="calendar" :days="days" :isShowDetailBtn="true" @reLoadLayout="reLayout">
                         <template v-slot:default="slotProps">
                             <header class="header">
-                                <div @click="weekPre(), clicKBuryPoint('上周')" class="week flex-align-items">
+                                <div @click="getPermission('attend-class') ? weekPre() : '', clicKBuryPoint('上周')"
+                                     class="week flex-align-items">
                                     <el-icon :size="16">
                                         <ArrowLeft/>
                                     </el-icon>
@@ -146,14 +102,15 @@
                                 </div>
                                 <div class="title">上课</div>
                                 <div class="header-right">
-                                    <div class="refresh flex-align-items" @click="slotProps.initSchedules">
+                                    <div class="refresh flex-align-items"
+                                         @click="getPermission('attend-class') ? slotProps.initSchedules : ''">
                                         <el-icon :size="16" :style="{ marginRight: '4px' }">
                                             <RefreshRight/>
                                         </el-icon>
                                         刷新课表
                                     </div>
                                     <div @click="
-                                        weekNext(), clicKBuryPoint('下周')
+                                        getPermission('attend-class') ? weekNext() : '', clicKBuryPoint('下周')
                                     " class="week flex-align-items">
                                         下周
                                         <el-icon :size="16">
@@ -171,51 +128,49 @@
                 <div
                     class="item"
                     @click="go('resource-center/' + platformId), clicKBuryPoint('资源中心')"
+                    :class="getPermission('resource-center') ? '' : 'no-permission'"
                 >
                     <div class="item_div">
                         <img src="../../assets/indexImages/pic_zyzx.png" alt=""/>
                         <span>资源中心</span>
                     </div>
                 </div>
-                <div class="item" @click="go('assessment-center'), clicKBuryPoint('评测中心')">
+                <div class="item" @click="go('assessment-center'), clicKBuryPoint('评测中心')"
+                     :class="getPermission('assessment-center') ? '' : 'no-permission'"
+                >
                     <div class="item_div">
                         <img src="../../assets/indexImages/pic_kaoshi_new.png" alt=""/>
                         <span>测评中心</span>
                     </div>
                 </div>
-                <div class="item" @click="go('composition'), clicKBuryPoint('AI作文')">
+                <div class="item" @click="go('composition'), clicKBuryPoint('AI作文')"
+                     :class="getPermission('composition') ? '' : 'no-permission'"
+                >
                     <div class="item_div">
                         <img src="../../assets/indexImages/pic_aizw@2x.png" alt=""/>
                         <span>AI作文</span>
                     </div>
                 </div>
-                <!--                <div class="item" @click="go('wrongbook'), clicKBuryPoint('班级错题本')">-->
-                <!--                    <div class="item_div">-->
-                <!--                        <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>-->
-                <!--                        <span>班级错题本</span>-->
-                <!--                    </div>-->
-                <!--                </div>-->
-
-                <div class="item" @click="go('pblstudy'), clicKBuryPoint('PBL项目式学习')">
+                <div class="item" @click="go('pblstudy'), clicKBuryPoint('PBL项目式学习')"
+                     :class="getPermission('pblstudy') ? '' : 'no-permission'"
+                >
                     <div class="item_div">
                         <img src="../../assets/indexImages/icon_pbl@2x.png" alt=""/>
                         <span>PBL项目式学习</span>
                     </div>
                 </div>
 
-                <div class="item" @click="go('class-manage'), clicKBuryPoint('班级管理')">
+                <div class="item" @click="go('class-manage'), clicKBuryPoint('班级管理')"
+                     :class="getPermission('class-manage') ? '' : 'no-permission'"
+                >
                     <div class="item_div">
                         <img src="../../assets/indexImages/icon_xuesheng.png" alt=""/>
                         <span>班级管理</span>
                     </div>
                 </div>
-                <!--                <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">-->
-                <!--                    <div class="item_div">-->
-                <!--                        <img src="../../assets/indexImages/icon_more.png" alt=""/>-->
-                <!--                        <span>更多</span>-->
-                <!--                    </div>-->
-                <!--                </div>-->
-                <div class="item" @click="go('report-center'), clicKBuryPoint('报表中心')">
+                <div class="item" @click="go('report-center'), clicKBuryPoint('报表中心')"
+                     :class="getPermission('report-center') ? '' : 'no-permission'"
+                >
                     <div class="item_div">
                         <img src="../../assets/indexImages/pic_baobiao_new.png" alt=""/>
                         <span>报表中心</span>
@@ -250,7 +205,7 @@
 <script lang="ts">
 import useTime from "@/hooks/useTime";
 import { ElMessage } from "element-plus";
-import { defineComponent, onActivated, ref, onMounted, onUnmounted } from "vue";
+import { defineComponent, onActivated, ref, onMounted, onUnmounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
 import usePageEvent from "@/hooks/usePageEvent";
@@ -258,10 +213,12 @@ import isElectron from "is-electron";
 import { EVENT_TYPE } from "@/config/event";
 import { nextTick } from "process";
 import { debounce } from "lodash";
-import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
+import { get, set, STORAGE_TYPES, storeChange } from "@/utils/storage";
 import { getPlatformByOrgId } from "@/api/home";
 import { UserInfoState } from "@/types/store";
 import useMaximizeWindow from "@/hooks/useMaximizeWindow";
+import { store } from "@/store";
+import useHome from "@/hooks/useHome";
 
 export default defineComponent({
     name: "Home",
@@ -269,6 +226,9 @@ export default defineComponent({
         Calendar
     },
     setup() {
+        const {
+            getUserPermission
+        } = useHome();
         const { createBuryingPointFn } = usePageEvent("首页");
         const router = useRouter();
         const route = useRoute();
@@ -276,9 +236,7 @@ export default defineComponent({
         initDays();
         const moreVisible = ref(false); //点击更多的弹框
         const go = (val: string) => {
-            const appPermission = get(STORAGE_TYPES.SET_APP_PERMISSION);
-            const nval = val.split("/")[0];
-            if (appPermission && appPermission.includes(nval)) {
+            if (getPermission(val)) {
                 if (val === "") {
                     ElMessage.warning({
                         message: "功能建设中 敬请期待"
@@ -290,11 +248,17 @@ export default defineComponent({
                     }
                     router.push(`/${val}`);
                 }
-            } else {
-                ElMessage.warning({
-                    message: "暂无权限！"
-                });
             }
+        };
+        const appPermission = ref();
+        watch(() => store.state.userInfo.schoolId, async () => {
+            appPermission.value = await getUserPermission();
+            set(STORAGE_TYPES.SET_APP_PERMISSION, appPermission.value);
+        }, { deep: true, immediate: true });
+        // 获取应用权限
+        const getPermission = (val: string) => {
+            const nval = val.split("/")[0];
+            return appPermission.value && appPermission.value.includes(nval);
         };
         //首页点击埋点事件
         const clicKBuryPoint = (name: string) => {
@@ -352,31 +316,6 @@ export default defineComponent({
         const resize = debounce(() => {
             if (classSchedule.value && route.path === "/home") {
                 // 右边边小于一半，没有进行过布局调整，进行布局调整
-                // if (classSchedule.value.clientWidth < window.innerWidth * 0.4) {
-                //     layoutAdjust.value = true;
-                // }
-
-                // if (layoutAdjust.value) {
-                //     if (leftBlock.value.clientWidth < window.innerWidth * 0.4) {
-                //         layoutAdjust.value = false;
-                //     }
-                // } else {
-                //     if (leftBlock.value.clientWidth > window.innerWidth * 0.6) {
-                //         layoutAdjust.value = true;
-                //     }
-                // }
-                //
-                // nextTick(() => {
-                //     calendar.value.resize();
-                //
-                //     // 2s后再次重新计算，降低误差出现
-                //     if (timer) clearTimeout(timer);
-                //     timer = setTimeout(() => {
-                //         clearTimeout(timer);
-                //         timer = null;
-                //         calendar.value.resize();
-                //     }, 2000);
-                // });
             }
         }, 200);
         const resizeObserver = new ResizeObserver(resize);
@@ -438,6 +377,7 @@ export default defineComponent({
             calendar,
             clicKBuryPoint,
             reLayout,
+            getPermission,
             moreVisible,
             leftBlock,
             classSchedule,
@@ -451,6 +391,24 @@ export default defineComponent({
 <style lang="scss" scoped>
 * {
     user-select: none;
+}
+
+.no-permission {
+    opacity: .5;
+    position: relative;
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-image: url("./../../assets/indexImages/icon_lock.png");
+        background-size: cover;
+        color: #fff;
+        width: 40px;
+        height: 40px;
+    }
 }
 
 .home {
