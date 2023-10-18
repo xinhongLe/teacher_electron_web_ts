@@ -24,7 +24,8 @@
                             @openCourse="openCourse" @createHomePoint="createHomePoint"
                             @openClassDialog="openClassDialog"
                             @openLessonDialogTip="openLessonDialogTip" @openDeleteDialogTip="openDeleteDialogTip"
-                            :ref="'courseRef' + col.APMP + col.SectionName + item.index"/>
+                            :ref="'courseRef' + col.APMP + col.SectionName + item.index"
+                            :isAttendClassPermission="isAttendClassPermission"/>
                 </div>
             </div>
         </div>
@@ -81,6 +82,10 @@ export default defineComponent({
         isShowDetailBtn: {
             type: Boolean,
             default: false
+        },
+        appPermission: {
+            type: Array as PropType<string[]>,
+            required: true
         }
     },
     emits: ["openCourse", "reLoadLayout"],
@@ -104,6 +109,10 @@ export default defineComponent({
         const isCurrentDay = (day: string) => {
             return moment().isSame(day, "d");
         };
+        const isAttendClassPermission = ref(true);
+        watch(() => props.appPermission, (val: any) => {
+            isAttendClassPermission.value = val?.includes("attend-class");
+        }, { deep: true, immediate: true });
 
         provide("updateSchedules", updateSchedules);
 
@@ -252,7 +261,8 @@ export default defineComponent({
             hasLessonVisible,
             deleteLessonVisible,
             currentCourseId,
-            currentPackageList
+            currentPackageList,
+            isAttendClassPermission
         };
     }
 });

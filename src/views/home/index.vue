@@ -90,7 +90,8 @@
                 </div>
                 <div class="right" :class="getPermission('attend-class') ? '' : 'no-permission'" ref="classSchedule"
                      style="flex: 1;">
-                    <Calendar ref="calendar" :days="days" :isShowDetailBtn="true" @reLoadLayout="reLayout">
+                    <Calendar ref="calendar" :days="days" :isShowDetailBtn="true" @reLoadLayout="reLayout"
+                              :appPermission="appPermission">
                         <template v-slot:default="slotProps">
                             <header class="header">
                                 <div @click="getPermission('attend-class') ? weekPre() : '', clicKBuryPoint('上周')"
@@ -219,6 +220,7 @@ import { UserInfoState } from "@/types/store";
 import useMaximizeWindow from "@/hooks/useMaximizeWindow";
 import { store } from "@/store";
 import useHome from "@/hooks/useHome";
+import { APP_PERMISSION } from "@/config";
 
 export default defineComponent({
     name: "Home",
@@ -257,6 +259,7 @@ export default defineComponent({
         }, { deep: true, immediate: true });
         // 获取应用权限
         const getPermission = (val: string) => {
+            if (APP_PERMISSION === "false") return true;
             const nval = val.split("/")[0];
             return appPermission.value && appPermission.value.includes(nval);
         };
@@ -378,6 +381,7 @@ export default defineComponent({
             clicKBuryPoint,
             reLayout,
             getPermission,
+            appPermission,
             moreVisible,
             leftBlock,
             classSchedule,

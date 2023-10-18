@@ -50,6 +50,8 @@ export const VUE_APP_CLASS_TIME_API = process.env.VUE_APP_CLASS_TIME_API;
 // 组卷中心web页面
 export const VUE_APP_GVC_WEB = process.env.VUE_APP_GVC_WEB;
 
+// 是否开启应用权限
+export const APP_PERMISSION = process.env.VUE_APP_IS_PERMISSION;
 
 // 所有的科目列表及id
 export const ALL_SUBJECT_LIST = [

@@ -9,7 +9,7 @@
         @dragenter="isDrop && colData.ID ? (isActive = true) : null"
         @dragleave="isDrop && colData.ID ? (isActive = false) : null" -->
         <el-popover trigger="hover" popper-class="preparation-popper-class-adjust" :append-to-body="false"
-                    @hide="currentWillDelPackageId = ''" v-if="colData.ClassName">
+                    @hide="currentWillDelPackageId = ''" v-if="colData.ClassName && isAttendClassPermission">
             <div class="lesson-contents">
                 <div class="lesson-title">
                     {{ colData.ClassName }}
@@ -172,6 +172,10 @@ const props = defineProps({
     isDrop: {
         type: Boolean,
         default: false,
+    },
+    isAttendClassPermission: {
+        type: Boolean,
+        default: true
     }
 });
 const showDeleteLesson = ref(false);
