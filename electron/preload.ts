@@ -600,10 +600,12 @@ window.electron = {
                 : process.platform === "linux"
                     ? ".deb"
                     : ".exe";
+        const arch = process.platform === "darwin" ? process.arch : "";
         const fileName =
             (process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端") +
             "-" +
             version +
+            arch +
             extension;
         const updataUrl =
             "https://app-v.oss-cn-shanghai.aliyuncs.com/teacherElectron/build/" +

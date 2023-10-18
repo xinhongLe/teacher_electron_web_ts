@@ -219,6 +219,7 @@ module.exports = {
         ]
     },
     chainWebpack(config) {
+        console.log(config);
         config.optimization.splitChunks({
             cacheGroups: {
                 suspension: {
@@ -306,7 +307,7 @@ module.exports = {
                 productName: process.env.VUE_APP_PRODUCT_NAME, // 项目名
                 copyright:
                     "COPYRIGHT © 2022 江苏乐易智慧科技有限公司 ALL RIGHTS RESERVED", // 版权信息
-                artifactName: "${productName}-${version}" + ".${ext}",
+                artifactName: "${productName}-${version}" + (process.platform === "darwin" ? "-${arch}" : "") + ".${ext}",
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },
@@ -376,7 +377,8 @@ module.exports = {
                         {
                             "target": "dmg",
                             "arch": [
-                                "x64"
+                                "x64",
+                                "arm64"
                             ]
                         }
                     ],
