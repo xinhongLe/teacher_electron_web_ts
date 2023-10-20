@@ -162,7 +162,10 @@ export default (
     watchEffect(getDetail);
 
     const nextPage = () => {
-        console.log("nextPage", nextIndex.value, imageUrl.value, questionEditList.value)
+        if (isNextBtn.value) {
+            ElMessage.warning("已经是最后一页了!");
+            return;
+        }
         if (nextIndex.value < imageUrl.value.length) {
             playSounds(1);
             imageRef.value &&
@@ -201,7 +204,10 @@ export default (
 
     const lastPage = () => {
         isNextBtn.value = false;
-
+        if (isLastBtn.value) {
+            ElMessage.warning("已经是第一页了!");
+            return;
+        }
         if (number.value > 1) {
             isLastBtn.value = false;
             if (nextIndex.value < imageUrl.value.length) {

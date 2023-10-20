@@ -23,7 +23,7 @@
                         </div>
                         <MathJax :text="questionEditList[0]?.QuestionContent"></MathJax>
                     </div>
-                    <div class="answers">
+                    <div class="answers" v-if="nextIndex === 2">
                         <div class="text">
                             答案：
                         </div>
