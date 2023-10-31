@@ -90,13 +90,18 @@ import { store } from "@/store";
 import { cloneDeep } from "lodash";
 import { pageType } from "@/config";
 import { ElMessage } from "element-plus";
-import { setShowModel } from "@/api/home";
+import { getCardDetail, setShowModel } from "@/api/home";
 import { ArrowLeft } from "@element-plus/icons-vue";
 import { IViewResourceData } from "@/types/store";
 import Remark from "../components/preview/remark.vue";
 import OpenCardViewDialog from "../components/edit/openCardViewDialog.vue";
 import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import { getPageDetailRes } from "@/views/preparation/intelligenceClassroom/api";
+import { getOssUrl } from "@/utils/oss";
+import { Slide } from "wincard";
+import { dealAnimationData } from "@/utils/dataParse";
+import useHome from "@/hooks/useHome";
 
 export default defineComponent({
     name: "WinPreview",
@@ -147,6 +152,8 @@ export default defineComponent({
         const eraserLineWidth = ref(30);
         const windowCards = ref<CardProps[]>([]);
         const currentDrawColor = ref("#f60000");
+
+        const { transformPageDetail } = useHome();
 
         watch(
             () => currentDrawColor.value,
@@ -331,7 +338,7 @@ export default defineComponent({
 
         const openCardShow = ref(false);
         const openCardList = ref<PageProps[]>([]);
-        const openCard = (data: any) => {
+        const openCard = async (data: any) => {
             if (!data[0] || !data[0].cards) return;
 
             const cards = [...data[0].cards];
@@ -349,8 +356,42 @@ export default defineComponent({
                 }
             }
             if (pages.length === 0) {
-                ElMessage.warning("该弹卡已删除");
-                return;
+                for (let i = 0; i < pageList.length; i++) {
+                    const item = pageList[i];
+                    const data = { pageID: item.id, OriginType: 0 };
+                    const type: number = transformType(item.type);
+                    const res = await getPageDetailRes(data, type);
+                    let json = res.result.Json;
+                    if (!json) continue;
+                    json = JSON.parse(json || "{}");
+
+                    let url = "";
+                    if (item.type === 20 || item.type === 16) {
+                        const file = json?.ToolFileModel?.File;
+                        const key = `${file?.FilePath}/${file?.FileMD5}.${file?.FileExtention || file?.Extention}`;
+                        url = json?.ToolFileModel ? await getOssUrl(key, "axsfile") : "";
+                    }
+
+                    const slide: Slide = await transformPageDetail({ Type: item.type }, json);
+
+                    pages.push({
+                        ID: item.id,
+                        Name: item.Name,
+                        Type: item.type,
+                        Sort: 0,
+                        State: 1,
+                        AcademicPresupposition: "",
+                        DesignIntent: "it.DesignIntent",
+                        Json: dealAnimationData(slide),
+                        Index: 0,
+                        Url: url,
+                        ParentID: item.ID,
+                        Remark: "",
+                        Height: 0,
+                        Width: 0,
+                        TeachPageRelationID: ""
+                    });
+                }
             }
             openCardShow.value = true;
             openCardList.value = pages;
@@ -365,6 +406,25 @@ export default defineComponent({
 
                 emit("update:mode", !props.mode);
             });
+        };
+
+        const transformType = (type: number | string) => {
+            switch (type) {
+                case 11:
+                case "element":
+                    return 0;
+                case 12:
+                case "listen":
+                    return 1;
+                case 13:
+                case "follow":
+                    return 2;
+                case 16:
+                case "teach":
+                    return 3;
+                default:
+                    return -1;
+            }
         };
 
         return {
