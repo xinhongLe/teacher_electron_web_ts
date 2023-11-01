@@ -46,18 +46,18 @@
 </template>
 
 <script lang="ts">
-import {store} from "@/store";
+import { store } from "@/store";
 import NavBar from "./NavBar.vue";
-import {ElMessage} from "element-plus";
-import {set, STORAGE_TYPES} from "@/utils/storage";
+import { ElMessage } from "element-plus";
+import { set, STORAGE_TYPES } from "@/utils/storage";
 import useMinimizeWindow from "@/hooks/useMinimizeWindow";
-import {computed, defineComponent, onMounted, ref} from "vue";
+import { computed, defineComponent, onMounted, ref } from "vue";
 import WinPreview from "@/views/preparation/intelligenceClassroom/preview/index.vue";
 import Tools from "@/views/preparation/intelligenceClassroom/components/preview/tools.vue";
-import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
-    components: {WinPreview, NavBar, Tools},
+    components: { WinPreview, NavBar, Tools },
     setup() {
         const index = ref(0);
         const lVisit = ref(true);
@@ -169,6 +169,8 @@ export default defineComponent({
             const urlSearchParams = new URLSearchParams(window.location.search.replace(/\\&/g, "%26"));
             const params = Object.fromEntries(urlSearchParams.entries());
             const json = await window.electron.unpackCacheFile(params.file);
+            console.log("json---", json);
+
             if (!json) return;
             if (json.slides) {
                 ElMessage.warning("请重新下载课件");

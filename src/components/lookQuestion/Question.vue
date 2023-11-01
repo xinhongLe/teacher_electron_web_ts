@@ -5,39 +5,41 @@
             <slot name="title"/>
             <div class="count">{{ number }} / {{ sum }}</div>
             <div class="material-box">
-                <audio
-                    ref="audioRef"
-                    :src="
+                <div style="height: 100%;width: 100%" ref="zoomContainer">
+                    <audio
+                        ref="audioRef"
+                        :src="
                         voiceUrlMap[nextIndex - 1 === 0 ? 'question' : 'answer']
                     "
-                    :controls="true"
-                    @canplay="playAudio"
-                    style="display: none"
-                >
-                    亲 您的浏览器不支持html5的audio标签
-                </audio>
-                <div class="editd-data" v-if="questionEditList.length">
-                    <div class="items">
-                        <div class="text">
-                            题目：
+                        :controls="true"
+                        @canplay="playAudio"
+                        style="display: none"
+                    >
+                        亲 您的浏览器不支持html5的audio标签
+                    </audio>
+                    <div class="editd-data" v-if="questionEditList.length">
+                        <div class="items">
+                            <div class="text">
+                                题目：
+                            </div>
+                            <MathJax :text="questionEditList[0]?.QuestionContent"></MathJax>
                         </div>
-                        <MathJax :text="questionEditList[0]?.QuestionContent"></MathJax>
-                    </div>
-                    <div class="answers" v-if="nextIndex === 2">
-                        <div class="text">
-                            答案：
+                        <div class="answers" v-if="nextIndex === 2">
+                            <div class="text">
+                                答案：
+                            </div>
+                            <MathJax :text="questionEditList[0]?.AnswerContent"></MathJax>
                         </div>
-                        <MathJax :text="questionEditList[0]?.AnswerContent"></MathJax>
-                    </div>
 
+                    </div>
+                    <img
+                        v-else
+                        ref="imageRef"
+                        class="question-img"
+                        :src="imageUrl[nextIndex - 1]"
+                        alt=""
+                    />
                 </div>
-                <img
-                    v-else
-                    ref="imageRef"
-                    class="question-img"
-                    :src="imageUrl[nextIndex - 1]"
-                    alt=""
-                />
             </div>
         </div>
         <div>
@@ -351,6 +353,111 @@ export default defineComponent({
             childRef,
             props.resource,
         );
+
+        // 鼠标/触摸屏放大缩小逻辑
+        const zoomContainer = ref(); //  放大缩小容器
+        const prevX = ref(0); // 上一次鼠标的X坐标
+        const prevY = ref(0); // 上一次鼠标的Y坐标
+        const isDragging = ref(false); // 是否正在拖拽
+        const prevDistance = ref(); // 上一次两指之间的距离
+        let scale = 1; // 缩放比例
+        let translateX = 0; // X方向的偏移量
+        let translateY = 0; // Y方向的偏移量
+        // 鼠标缩放-实现页面放大缩小
+        const handleWheel = (event: any) => {
+            if (drawingShow.value) return;
+            event.preventDefault();
+
+            const delta = Math.sign(event.deltaY);
+            const offset = getScrollOffset(event.clientX, event.clientY);
+            const oldScale = scale;
+            const newScale = delta > 0 ? scale * 0.9 : scale * 1.1;
+
+            const scrollX = offset.x * (1 - newScale / oldScale);
+            const scrollY = offset.y * (1 - newScale / oldScale);
+
+            scale = newScale;
+            translateX += scrollX;
+            translateY += scrollY;
+
+            // 修改容器元素的样式来实现缩放和滚动
+            zoomContainer.value.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+        };
+
+        const getScrollOffset = (clientX: any, clientY: any) => {
+            const boundingRect = zoomContainer.value.getBoundingClientRect();
+            const offsetX = clientX - boundingRect.left;
+            const offsetY = clientY - boundingRect.top;
+
+            return { x: offsetX, y: offsetY };
+        };
+        // 鼠标按下
+        const handleMouseDown = (event: any) => {
+            if (drawingShow.value) return;
+            prevX.value = event.clientX;
+            prevY.value = event.clientY;
+            isDragging.value = true;
+        };
+        // 鼠标移动
+        const handleMouseMove = (event: any) => {
+            if (drawingShow.value) return;
+            if (!isDragging.value) return;
+
+            const offsetX = event.clientX - prevX.value;
+            const offsetY = event.clientY - prevY.value;
+
+            translateX += offsetX;
+            translateY += offsetY;
+            zoomContainer.value.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+
+            prevX.value = event.clientX;
+            prevY.value = event.clientY;
+        };
+        // 触摸屏-手指抬起
+        const handleMouseUp = () => {
+            isDragging.value = false;
+        };
+        // 获取-触摸点x位置
+        const getEventX = (event: any) => {
+            return event.clientX || event.pageX || event.touches[0].clientX || event.touches[0].pageX;
+        };
+        // 获取-触摸点y位置
+        const getEventY = (event: any) => {
+            return event.clientY || event.pageY || event.touches[0].clientY || event.touches[0].pageY;
+        };
+        // 触摸屏-手指点下去
+        const handleTouchStart = (event: any) => {
+            prevX.value = getEventX(event.touches[0]);
+            prevY.value = getEventY(event.touches[0]);
+
+            if (event.touches.length === 2) {
+                const dx = event.touches[1].clientX - event.touches[0].clientX;
+                const dy = event.touches[1].clientY - event.touches[0].clientY;
+                prevDistance.value = Math.sqrt(dx * dx + dy * dy);
+            }
+        };
+        // 触摸屏-手指按住移动
+        const handleTouchMove = (event: any) => {
+            // event.preventDefault();
+
+            if (event.touches.length === 2) {
+                const dx = event.touches[1].clientX - event.touches[0].clientX;
+                const dy = event.touches[1].clientY - event.touches[0].clientY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const delta = distance - prevDistance.value;
+                scale *= delta > 0 ? 0.9 : 1.1;
+                updateTransform();
+                prevDistance.value = distance;
+            }
+        };
+        // 触摸屏-手指移动结数
+        const handleTouchEnd = () => {
+            prevDistance.value = null;
+        };
+        //更新缩放
+        const updateTransform = () => {
+            zoomContainer.value.style.transform = `scale(${scale})`;
+        };
         watch(() => props.question, (val: any) => {
             if (val) {
                 getQuestionEditList(val.QuestionFlowText)
@@ -428,11 +535,25 @@ export default defineComponent({
             if (!props.isPureQuestion) {
                 emitter.on("smallQuestion", smallQuestion);
             }
+            // document.addEventListener("mousedown", handleMouseDown);
+            // document.addEventListener("wheel", handleWheel);
+            // document.addEventListener("mousemove", handleMouseMove);
+            // document.addEventListener("mouseup", handleMouseUp);
+            // document.addEventListener("touchstart", handleTouchStart);
+            // document.addEventListener("touchmove", handleTouchMove);
+            // document.addEventListener("touchend", handleTouchEnd);
         });
 
         onUnmounted(() => {
             document.removeEventListener("keydown", keydownListener);
             emitter.off("smallQuestion");
+            // document.removeEventListener("mousedown", handleMouseDown);
+            // document.removeEventListener("wheel", handleWheel);
+            // document.removeEventListener("mousemove", handleMouseMove);
+            // document.removeEventListener("mouseup", handleMouseUp);
+            // document.removeEventListener("touchstart", handleTouchStart);
+            // document.removeEventListener("touchmove", handleTouchMove);
+            // document.removeEventListener("touchend", handleTouchEnd);
         });
 
         // 快捷键翻页
@@ -488,15 +609,16 @@ export default defineComponent({
             if (type === "eraser") {
                 drawingShow.value = true;
                 nextTick(() => {
-                    drawingBoardRef.value.whiteboardOption("setEraser")
+                    whiteboardOption("setEraser");
                 })
             }
             if (type === "mouse") {
                 drawingShow.value = false;
-                drawingBoardRef.value.whiteboardOption("setMouse")
+                whiteboardOption("setMouse");
             }
             if (type === "rulers") {
                 drawingShow.value = true;
+
                 isShowRulers.value = true;
                 rulersLeft.value = left;
                 rulersTop.value = top;
@@ -581,7 +703,19 @@ export default defineComponent({
             currentLineWidth,
             eraserLineWidth,
             setEraserSize,
-            getQuestionEditList
+            getQuestionEditList,
+            handleWheel,
+            zoomContainer,
+            handleMouseMove,
+            handleMouseDown,
+            handleMouseUp,
+            getEventX,
+            isDragging,
+            prevX,
+            prevY,
+            handleTouchStart,
+            handleTouchMove,
+            handleTouchEnd
         };
     },
     components: { DrawingBoard, PenTool, RulersTool, MathJax }
@@ -633,7 +767,7 @@ export default defineComponent({
 
     .material-box {
         height: 90%;
-        overflow: auto;
+        overflow: hidden;
 
         width: 90%;
         margin: 36px auto 0;

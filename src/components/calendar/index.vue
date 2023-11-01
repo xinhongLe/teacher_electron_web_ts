@@ -43,6 +43,8 @@ import moment from "moment";
 import selectClass from "@/components/selectClass/index.vue";
 import hasLessonDialogTip from "./hasLessonDialogTip.vue";
 import deleteLessonDialogTip from "./deleteLessonDialogTip.vue";
+import { APP_PERMISSION } from "@/config";
+
 import {
     computed,
     defineComponent,
@@ -111,6 +113,7 @@ export default defineComponent({
         };
         const isAttendClassPermission = ref(true);
         watch(() => props.appPermission, (val: any) => {
+            if (APP_PERMISSION === "false") return true;
             isAttendClassPermission.value = val?.includes("attend-class");
         }, { deep: true, immediate: true });
 

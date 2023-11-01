@@ -29,7 +29,7 @@ import {
     defineExpose
 } from "vue";
 import WritingBoardTool from "./WritingBoardTool.vue";
-import WhiteBoard, {OPTION_TYPE} from "mwhiteboard";
+import WhiteBoard, { OPTION_TYPE } from "mwhiteboard";
 
 const props = defineProps({
     show: {
@@ -78,6 +78,7 @@ const whiteboardOption = (option: string, value?: number) => {
         whiteboard.value.setOptionType(OPTION_TYPE.ERASER);
         writingBoardNotMouse.value = true;
     } else if (option === "setMouse") {
+        // whiteboard.value.setOptionType(OPTION_TYPE.MOUSE);
         writingBoardNotMouse.value = false;
     } else if (option === "openTool") {
         writingBoardNotMouse.value = true;
@@ -112,7 +113,7 @@ const resize = () => {
     // 窗口发生变化重新计算距离
     setTimeout(() => {
         if (whiteboardBox.value) {
-            const {x, y} = whiteboardBox.value.getBoundingClientRect();
+            const { x, y } = whiteboardBox.value.getBoundingClientRect();
             options.value = {
                 offsetX: x,
                 offsetY: y,
@@ -133,7 +134,7 @@ watch(
 onMounted(() => {
     nextTick(() => {
         if (whiteboardBox.value) {
-            const {x, y} = whiteboardBox.value.getBoundingClientRect();
+            const { x, y } = whiteboardBox.value.getBoundingClientRect();
             options.value = {
                 offsetX: x,
                 offsetY: x == 0 && y == 0 ? y : y + 20, //初始化加载画笔偏移 + 20
@@ -143,7 +144,7 @@ onMounted(() => {
     });
 });
 
-defineExpose({whiteboard, whiteboardOption, undo, redo})
+defineExpose({ whiteboard, whiteboardOption, undo, redo })
 
 </script>
 

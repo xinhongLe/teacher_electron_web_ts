@@ -88,6 +88,7 @@ import { store } from "@/store";
 import { getMyClassByOrgId } from "@/api/home";
 import DownloadDialog from "./DownloadDialog.vue";
 import { ElMessage } from "element-plus";
+import { APP_PERMISSION } from "@/config";
 
 export default defineComponent({
     name: "NavBar",
@@ -108,16 +109,22 @@ export default defineComponent({
         const visible = ref(false);
         const classVisible = ref(false);
         const go = (item: Bread) => {
-            const appPermission = get(STORAGE_TYPES.SET_APP_PERMISSION);
-            const val = item.path.split("/")[1];
-            if ((appPermission && appPermission.includes(val)) || val === "home") {
+            if (APP_PERMISSION === "false") {
                 if (route.name !== item.name) {
                     router.push(item.path);
                 }
             } else {
-                ElMessage.warning({
-                    message: "暂无权限！"
-                });
+                const appPermission = get(STORAGE_TYPES.SET_APP_PERMISSION);
+                const val = item.path.split("/")[1];
+                if ((appPermission && appPermission.includes(val)) || val === "home") {
+                    if (route.name !== item.name) {
+                        router.push(item.path);
+                    }
+                } else {
+                    ElMessage.warning({
+                        message: "暂无权限！"
+                    });
+                }
             }
         };
 
