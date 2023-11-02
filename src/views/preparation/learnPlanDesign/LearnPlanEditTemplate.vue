@@ -45,7 +45,7 @@ import {
     uploadResource,
     updateLearningGuid
 } from "@/api/resource";
-import {ElMessage} from "element-plus";
+import { ElMessage } from "element-plus";
 
 export default defineComponent({
     name: "LearnPlanEditTemplate",
@@ -57,16 +57,19 @@ export default defineComponent({
         resourceData: {
             type: Object,
             default: {}
+        },
+        source: {
+            type: String,
+            default: ""
         }
     },
     emits: ["goBack"],
-    components: {AddQuestionDialog, TemplateOne, TemplateTwo, DeleteDialog},
-    setup(props, {emit}) {
+    components: { AddQuestionDialog, TemplateOne, TemplateTwo, DeleteDialog },
+    setup(props, { emit }) {
         // 当前模板组件
         const currentComponents: any = computed(() => {
             return props.templateType == 1 ? markRaw(TemplateOne) : markRaw(TemplateTwo)
         })
-        console.log('currentComponents', currentComponents)
         // 删除组件
         const deleteDialogRef = ref();
         // 模板组件
@@ -92,14 +95,12 @@ export default defineComponent({
         // 保存模板
         const saveTemplate = () => {
             nextTick(() => {
-                console.log('templateRef', templateRef.value)
                 templateRef.value.saveTemplate();
             })
         };
         // 下载模板
         const downLoad = () => {
             nextTick(() => {
-                console.log('templateRef', templateRef.value)
                 templateRef.value.downLoad();
             })
         };
@@ -121,7 +122,7 @@ export default defineComponent({
                 const res = await updateLearningGuid(params);
                 if (res.success && res.resultCode === 200) {
                     ElMessage.success("保存成功");
-                    emit("goBack")
+                    emit("goBack", props.source);
                 }
             } else {
                 // 新增
@@ -132,7 +133,7 @@ export default defineComponent({
                 const res = await uploadResource(params);
                 if (res.success && res.resultCode === 200) {
                     ElMessage.success("保存成功");
-                    emit("goBack")
+                    emit("goBack", props.source);
                 }
             }
         };

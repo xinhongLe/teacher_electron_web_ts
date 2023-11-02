@@ -232,7 +232,6 @@ export default defineComponent({
         };
         // 保存模板
         const saveTemplate = () => {
-            console.log('templateInfo', templateInfo);
             const { Title, Class, Name, Time, Lesson } = templateInfo;
             const templateInfoArray = [
                 {

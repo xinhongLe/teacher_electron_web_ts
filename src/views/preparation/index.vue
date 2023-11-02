@@ -45,7 +45,7 @@
     <!--编辑导学案模板页面-->
     <div v-else class="preparation">
         <LearnPlanEditTemplate @goBack="goBack" :templateType="templateType"
-                               :resourceData="currentResourceData"
+                               :resourceData="currentResourceData" :source="source"
                                ref="learnPlanEditTemplateRef"></LearnPlanEditTemplate>
     </div>
 
@@ -62,17 +62,17 @@
 <script lang="ts">
 import HeadCom from "./layout/head.vue";
 import LeftMenu from "./layout/leftMenu.vue";
-import {IAddLessonBag} from "@/api/prepare";
+import { IAddLessonBag } from "@/api/prepare";
 import Resources from "./layout/resources.vue";
 import usePageEvent from "@/hooks/usePageEvent";
 import useClickDrag from "@/hooks/useClickDrag";
-import {RESOURCE_TYPE} from "@/config/resource";
+import { RESOURCE_TYPE } from "@/config/resource";
 import LessonPackage from "./layout/lessonPackage.vue";
 import useLessonPackage from "@/hooks/useLessonPackage";
 import ClassArrangement from "./classArrangement/index.vue";
 import LearnPlanDesign from "@/views/preparation/learnPlanDesign/index.vue";
 import LearnPlanEditTemplate from "@/views/preparation/learnPlanDesign/LearnPlanEditTemplate.vue";
-import {defineComponent, nextTick, watch, ref, computed, markRaw, onMounted} from "vue";
+import { defineComponent, nextTick, watch, ref, computed, markRaw, onMounted } from "vue";
 import TemplateOne from "@/views/preparation/learnPlanDesign/components/TemplateOne.vue";
 import TemplateTwo from "@/views/preparation/learnPlanDesign/components/TemplateTwo.vue";
 import emitter from "@/utils/mitt";
@@ -92,10 +92,10 @@ export default defineComponent({
         LearnPlanEditTemplate
     },
     setup() {
-        const {clickOutSide} = useClickDrag();
-        const {lessonPackageList, addLessonPackage, deleteLessonPackage} = useLessonPackage();
+        const { clickOutSide } = useClickDrag();
+        const { lessonPackageList, addLessonPackage, deleteLessonPackage } = useLessonPackage();
         // 埋点需求
-        const {createBuryingPointFn} = usePageEvent("备课", true);
+        const { createBuryingPointFn } = usePageEvent("备课", true);
         const showClassArrangement = ref(false);
         const showPackage = ref(false);
         const course = ref({
@@ -150,7 +150,7 @@ export default defineComponent({
             addLessonBag.value.chapterName = val.chapterName;
             addLessonBag.value.lessonId = val.lessonId;
             addLessonBag.value.lessonName = val.lessonName;
-        }, {deep: true});
+        }, { deep: true });
         // 去排课
         const toArrangeClass = async (data: any, type: number, ev?: TouchEvent) => {
             HeadRef.value && HeadRef.value.toMyLessonPackage();
@@ -162,7 +162,7 @@ export default defineComponent({
         // 刷新备课包中的资源列表
         const updateBagList = async () => {
             nextTick(() => {
-                LessonPackageRef.value.getMyLessonBagNew({id: course.value.lessonId});
+                LessonPackageRef.value.getMyLessonBagNew({ id: course.value.lessonId });
                 if (showPackage.value && showClassArrangement.value) {
                     ClassArrangementRef.value.success();
                 } else {
@@ -178,7 +178,7 @@ export default defineComponent({
                 showClassArrangement.value = false;
                 showPackage.value = false;
             }
-        }, {deep: true});
+        }, { deep: true });
         const LessonPackageRef = ref();
         // 去备课包排课
         const toLessonBagArrange = (data: any, type: number, ev?: TouchEvent) => {
@@ -218,13 +218,16 @@ export default defineComponent({
             templateType.value = type;
         };
         // 退出模板编辑页面
-        const goBack = () => {
+        const goBack = (val: string) => {
             isPreparation.value = true;
+            nextTick(() => {
+                source.value = val;
+            });
         };
         const currentLearningGuidDetail: any = ref([]);
         const openLearningGuidSource = async (data: any) => {
             // console.log('data--225', data);
-            const res = await getLearningGuidDetail({id: data.ResourceId});
+            const res = await getLearningGuidDetail({ id: data.ResourceId });
             if (res.success && res.resultCode == 200) {
                 currentLearningGuidDetail.value = res.result;
                 if (data.openType == 'view') {

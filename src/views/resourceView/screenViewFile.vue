@@ -103,9 +103,9 @@
 </template>
 
 <script lang="ts">
-import {getLearningGuidDetail, IResourceItem} from "@/api/resource";
-import {MutationTypes, useStore} from "@/store";
-import {getOssUrl} from "@/utils/oss";
+import { getLearningGuidDetail, IResourceItem } from "@/api/resource";
+import { MutationTypes, useStore } from "@/store";
+import { getOssUrl } from "@/utils/oss";
 import PenTool from "@/views/preparation/intelligenceClassroom/components/preview/PenTool.vue";
 
 import {
@@ -123,7 +123,7 @@ import TemplateOne from "@/views/preparation/learnPlanDesign/components/Template
 import TemplateTwo from "@/views/preparation/learnPlanDesign/components/TemplateTwo.vue";
 
 export default defineComponent({
-    components: {DrawingBoard, PenTool},
+    components: { DrawingBoard, PenTool },
 
     props: {
         index: {
@@ -131,7 +131,7 @@ export default defineComponent({
             default: 0,
         },
     },
-    setup(props, {emit}) {
+    setup(props, { emit }) {
         const templateRef = ref();
         // 当前模板组件
         const currentComponents: any = ref();
@@ -149,7 +149,6 @@ export default defineComponent({
                 : null
         );
         const type = computed(() => resource.value?.ResourceShowType);
-        console.log('resource,type', resource, type)
         const extention = computed(() =>
             resource.value && resource.value.File
                 ? resource.value.File.FileExtention
@@ -173,7 +172,7 @@ export default defineComponent({
             if (!resource.value) return;
 
             if (resource.value.ResourceShowType === 0 && resource.value.File) {
-                const {FilePath, FileMD5, FileExtention, FileBucket} =
+                const { FilePath, FileMD5, FileExtention, FileBucket } =
                     resource.value.File;
                 const key = `${FilePath}/${FileMD5}.${FileExtention}`;
                 const fileUrl = await getOssUrl(key, FileBucket);
@@ -213,7 +212,7 @@ export default defineComponent({
 
             const target = event.target as HTMLDivElement;
             if (type === "paint") {
-                const {left, top} = target.getBoundingClientRect();
+                const { left, top } = target.getBoundingClientRect();
                 drawingShow.value = true;
                 isShowPen.value = true;
                 penLeft.value = left;
@@ -246,7 +245,7 @@ export default defineComponent({
         const isReview = ref(false);
         const openLearningGuidSource = async (data: any) => {
             // console.log('data--225', data);
-            const res = await getLearningGuidDetail({id: data.ResourceId});
+            const res = await getLearningGuidDetail({ id: data.ResourceId });
             if (res.success && res.resultCode == 200) {
                 showDesign.value = true;
                 await nextTick(() => {
@@ -261,7 +260,7 @@ export default defineComponent({
             if (val === 2) {
                 openLearningGuidSource(resource.value)
             }
-        }, {deep: true, immediate: true})
+        }, { deep: true, immediate: true })
         onMounted(() => {
             const iframe: any = document.getElementById("office-iframe");
             const mask: any = document.querySelector('.mask');

@@ -359,7 +359,7 @@ import {
     watch,
     nextTick
 } from "vue";
-import {Plus, Refresh, Upload, Edit} from "@element-plus/icons-vue";
+import { Plus, Refresh, Upload, Edit } from "@element-plus/icons-vue";
 import {
     editResource,
     fetchMyPackageNum,
@@ -370,18 +370,18 @@ import {
     uploadResource
 } from "@/api/resource";
 import CustomSelect from "./customSelect.vue";
-import {ElMessage} from "element-plus";
+import { ElMessage } from "element-plus";
 import useUploadFile from "@/hooks/useUploadFile";
 import emitter from "@/utils/mitt";
-import {MutationTypes, useStore} from "@/store";
-import {getOssUrl} from "@/utils/oss";
-import {useRouter} from "vue-router";
+import { MutationTypes, useStore } from "@/store";
+import { getOssUrl } from "@/utils/oss";
+import { useRouter } from "vue-router";
 import moment from "moment";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
-import {EVENT_TYPE} from "@/config/event";
-import {RESOURCE_TYPE} from "@/config/resource";
+import { EVENT_TYPE } from "@/config/event";
+import { RESOURCE_TYPE } from "@/config/resource";
 import isElectron from "is-electron";
-import {exportExcel, IExcel} from "mexcel";
+import { exportExcel, IExcel } from "mexcel";
 import Loading from "@/components/loading/Loading.vue";
 import useLessonPackage from "@/hooks/useLessonPackage";
 
@@ -480,12 +480,16 @@ export default defineComponent({
             type: String,
             required: true
         },
+        source: {
+            type: String,
+            required: true
+        }
     },
-    components: {Plus, Refresh, Upload, CustomSelect, Edit, Loading},
+    components: { Plus, Refresh, Upload, CustomSelect, Edit, Loading },
     emits: ["update:source", "update:type", "updateBagList", "learnPlanDesign"],
-    setup(props, {emit}) {
-        const {createBuryingPointFn} = usePageEvent("备课"); //备课埋点
-        const {getPrepareGetMyBagCountNew, packageCount} = useLessonPackage();
+    setup(props, { emit }) {
+        const { createBuryingPointFn } = usePageEvent("备课"); //备课埋点
+        const { getPrepareGetMyBagCountNew, packageCount } = useLessonPackage();
 
         const store = useStore();
         const userId = computed(() => store.state.userInfo.userCenterUserID);
@@ -493,7 +497,7 @@ export default defineComponent({
             () => store.state.preparation.subjectPublisherBookValue
         );
         const schoolId = store.state.userInfo.schoolId;
-        const {course} = toRefs(props);
+        const { course } = toRefs(props);
         let isInit = true;
         watch(course, () => {
             getMyPackageNum();
@@ -613,7 +617,7 @@ export default defineComponent({
             emitter.off("toMyResource");
         });
 
-        const source = ref("");
+        const source = ref(props.source);
         const sourceList = ref([
             {
                 value: "",
@@ -657,12 +661,12 @@ export default defineComponent({
             },
             directorys: [
                 {
-                    schoolSection: {id: "", name: ""},
-                    subject: {id: "", name: ""},
-                    version: {id: "", name: ""},
-                    grade: {id: "", name: ""},
-                    chapter: {id: "", name: ""},
-                    lesson: {id: "", name: ""}
+                    schoolSection: { id: "", name: "" },
+                    subject: { id: "", name: "" },
+                    version: { id: "", name: "" },
+                    grade: { id: "", name: "" },
+                    chapter: { id: "", name: "" },
+                    lesson: { id: "", name: "" }
                 }
             ],
             degree: "3",
@@ -710,12 +714,12 @@ export default defineComponent({
         // 新增目录
         const addDirectory = () => {
             form.directorys.push({
-                schoolSection: {id: "", name: ""},
-                subject: {id: "", name: ""},
-                version: {id: "", name: ""},
-                grade: {id: "", name: ""},
-                chapter: {id: "", name: ""},
-                lesson: {id: "", name: ""}
+                schoolSection: { id: "", name: "" },
+                subject: { id: "", name: "" },
+                version: { id: "", name: "" },
+                grade: { id: "", name: "" },
+                chapter: { id: "", name: "" },
+                lesson: { id: "", name: "" }
             });
         };
 
@@ -822,17 +826,17 @@ export default defineComponent({
 
             if (res?.success) {
                 uploadResourceOpen.value = false;
-                if (currentEditType.value === "add") {
-                    // type.value = "";
-                    source.value = "4";
-                    emit("update:type", type.value);
-                    emit("update:source", source.value);
-                } else {
-                    emitter.emit(
-                        "updateResourceList",
-                        currentEditType.value === "add" ? "" : form.resourceId
-                    );
-                }
+                // if (currentEditType.value === "add") {
+                //     // type.value = "";
+                //     source.value = "4";
+                //     emit("update:type", type.value);
+                //     emit("update:source", source.value);
+                // } else {
+                emitter.emit(
+                    "updateResourceList",
+                    currentEditType.value === "add" ? "" : form.resourceId
+                );
+                // }
             }
 
         };
@@ -848,7 +852,7 @@ export default defineComponent({
         const acceptList =
             ".ppt,.pptx,.doc,.docx,.xls,.xlsx,.pdf,.mp3,.mp4,.gif,.jpg,.png,.jpeg,.wav";
 
-        const beforeUpload = ({name}: { name: string }) => {
+        const beforeUpload = ({ name }: { name: string }) => {
             const fileType = name.substring(name.lastIndexOf(".") + 1);
             const whiteList = [
                 "ppt",
@@ -876,14 +880,14 @@ export default defineComponent({
 
         const fileList = ref<{ name: string; url: string }[]>([]);
 
-        const {uploadFile, loadingShow} = useUploadFile("RescourceFile");
+        const { uploadFile, loadingShow } = useUploadFile("RescourceFile");
 
         const uploadSuccess = async ({
                                          file
                                      }: {
             file: File & Blob & { uid: number };
         }) => {
-            const res = await uploadFile({file});
+            const res = await uploadFile({ file });
             form.files.push({
                 extension: res.fileExtension,
                 md5: res.md5,
@@ -1078,7 +1082,7 @@ export default defineComponent({
                         }
                     ]
                 })
-                .then(({filePath, canceled}) => {
+                .then(({ filePath, canceled }) => {
                     if (canceled) return;
                     getCartOptionList({
                         lessonId: course.value.lessonId,
@@ -1169,13 +1173,13 @@ export default defineComponent({
                                             wrapText: true
                                         },
                                         border: {
-                                            top: {style: "thin", color: {}},
-                                            right: {style: "thin", color: {}},
+                                            top: { style: "thin", color: {} },
+                                            right: { style: "thin", color: {} },
                                             bottom: {
                                                 style: "thin",
                                                 color: {}
                                             },
-                                            left: {style: "thin", color: {}}
+                                            left: { style: "thin", color: {} }
                                         }
                                     },
                                     titleStyle: {
@@ -1191,13 +1195,13 @@ export default defineComponent({
                                             wrapText: true
                                         },
                                         border: {
-                                            top: {style: "thin", color: {}},
-                                            right: {style: "thin", color: {}},
+                                            top: { style: "thin", color: {} },
+                                            right: { style: "thin", color: {} },
                                             bottom: {
                                                 style: "thin",
                                                 color: {}
                                             },
-                                            left: {style: "thin", color: {}}
+                                            left: { style: "thin", color: {} }
                                         }
                                     }
                                 }
