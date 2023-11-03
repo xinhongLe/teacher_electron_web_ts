@@ -2,7 +2,7 @@ import { throttle } from "lodash";
 import { nextTick } from "process";
 import { reactive, ref, Ref } from "vue";
 
-export default (contentRef: Ref<HTMLElement>) => {
+export default (contentRef: Ref<HTMLElement | any>) => {
     const transform = reactive({
         translateX: 0,
         translateY: 0,
@@ -72,8 +72,8 @@ export default (contentRef: Ref<HTMLElement>) => {
     const unit = 0.05; // 缩放单位
     // 获取目标dom左上角距离视窗左边和上边的距离
     const getDomOffset = () => {
-        const offsetX = contentRef.value.offsetLeft + transform.translateX;
-        const offsetY = contentRef.value.offsetTop + transform.translateY + 60;
+        const offsetX = contentRef.value.offsetLeft + transform.translateX + contentRef.value.parentElement.offsetLeft;
+        const offsetY = contentRef.value.offsetTop + transform.translateY + 60 + contentRef.value.parentElement.offsetTop;
         return { offsetX, offsetY };
     };
 
@@ -96,19 +96,21 @@ export default (contentRef: Ref<HTMLElement>) => {
 
     const handleMousewheelScreen = (e: WheelEvent) => {
         if (!isMove) {
-            e.preventDefault();
+            // e.preventDefault();
             const offset = getPointOffset({ x: e.pageX, y: e.pageY });
+            const x = offset.offsetX;
+            const y = offset.offsetY;
             if (e.deltaY > 0) {
                 if (transform.scale <= 0.5) return;
                 // 缩小
                 transform.scale -= unit;
-                // transform.translateX = offset.offsetX * unit + transform.translateX;
-                // transform.translateY = offset.offsetY * unit + transform.translateY;
+                transform.translateX = transform.translateX + unit * x;
+                transform.translateY = transform.translateY + unit * y;
             } else {
                 // 放大
                 transform.scale += unit;
-                // transform.translateX = -offset.offsetX * unit + transform.translateX;
-                // transform.translateY = -offset.offsetY * unit + transform.translateY;
+                transform.translateX -= unit * x;
+                transform.translateY -= unit * y;
             }
             isShowResetBtn.value = transform.scale !== 1;
         }
@@ -142,10 +144,13 @@ export default (contentRef: Ref<HTMLElement>) => {
     };
 
     const touchMoveListener = throttle((e: TouchEvent, isCanMove: boolean) => {
+        console.log('isMove', isMove)
+
         isMove = isCanMove;
         if (!isMove) return;
-        e.preventDefault();
+        console.log('isMove222', isMove);
         if (touchInfo.value?.length === 2 && e.touches.length === 2) {
+            console.log('双指缩放', touchInfo.value)
             isTouchScale.value = true;
             // 双指缩放
             const zoom = getDistance({ x: e.touches[0].pageX, y: e.touches[0].pageY }, {

@@ -5,7 +5,10 @@
             <slot name="title"/>
             <div class="count">{{ number }} / {{ sum }}</div>
             <div class="material-box">
-                <div style="height: 100%;width: 100%" ref="zoomContainer">
+                <div ref="zoomContainer"
+                     style="width: 100%;height: 100%;transform-origin: top left;" :style="{
+                                transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`
+                            }">
                     <audio
                         ref="audioRef"
                         :src="
@@ -261,6 +264,7 @@ import {
     Ref,
     ref,
     watch,
+    toRefs
 } from "vue";
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
@@ -272,6 +276,7 @@ import { KEYS } from "@/config/hotkey";
 import PenTool from "@/views/preparation/intelligenceClassroom/components/preview/PenTool.vue";
 import RulersTool from "@/views/preparation/intelligenceClassroom/components/preview/RulersTool.vue";
 import MathJax from "@/components/MathJax/index.vue";
+import useTransform from "@/hooks/useTransform";
 
 export default defineComponent({
     props: {
@@ -354,110 +359,16 @@ export default defineComponent({
             props.resource,
         );
 
-        // 鼠标/触摸屏放大缩小逻辑
         const zoomContainer = ref(); //  放大缩小容器
-        const prevX = ref(0); // 上一次鼠标的X坐标
-        const prevY = ref(0); // 上一次鼠标的Y坐标
-        const isDragging = ref(false); // 是否正在拖拽
-        const prevDistance = ref(); // 上一次两指之间的距离
-        let scale = 1; // 缩放比例
-        let translateX = 0; // X方向的偏移量
-        let translateY = 0; // Y方向的偏移量
-        // 鼠标缩放-实现页面放大缩小
-        const handleWheel = (event: any) => {
-            if (drawingShow.value) return;
-            event.preventDefault();
+        const {
+            transform,
+            onMove,
+            handleMousewheelScreen,
+            touchStartListener,
+            touchEndListener,
+            touchMoveListener
+        } = useTransform(zoomContainer);
 
-            const delta = Math.sign(event.deltaY);
-            const offset = getScrollOffset(event.clientX, event.clientY);
-            const oldScale = scale;
-            const newScale = delta > 0 ? scale * 0.9 : scale * 1.1;
-
-            const scrollX = offset.x * (1 - newScale / oldScale);
-            const scrollY = offset.y * (1 - newScale / oldScale);
-
-            scale = newScale;
-            translateX += scrollX;
-            translateY += scrollY;
-
-            // 修改容器元素的样式来实现缩放和滚动
-            zoomContainer.value.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
-        };
-
-        const getScrollOffset = (clientX: any, clientY: any) => {
-            const boundingRect = zoomContainer.value.getBoundingClientRect();
-            const offsetX = clientX - boundingRect.left;
-            const offsetY = clientY - boundingRect.top;
-
-            return { x: offsetX, y: offsetY };
-        };
-        // 鼠标按下
-        const handleMouseDown = (event: any) => {
-            if (drawingShow.value) return;
-            prevX.value = event.clientX;
-            prevY.value = event.clientY;
-            isDragging.value = true;
-        };
-        // 鼠标移动
-        const handleMouseMove = (event: any) => {
-            if (drawingShow.value) return;
-            if (!isDragging.value) return;
-
-            const offsetX = event.clientX - prevX.value;
-            const offsetY = event.clientY - prevY.value;
-
-            translateX += offsetX;
-            translateY += offsetY;
-            zoomContainer.value.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
-
-            prevX.value = event.clientX;
-            prevY.value = event.clientY;
-        };
-        // 触摸屏-手指抬起
-        const handleMouseUp = () => {
-            isDragging.value = false;
-        };
-        // 获取-触摸点x位置
-        const getEventX = (event: any) => {
-            return event.clientX || event.pageX || event.touches[0].clientX || event.touches[0].pageX;
-        };
-        // 获取-触摸点y位置
-        const getEventY = (event: any) => {
-            return event.clientY || event.pageY || event.touches[0].clientY || event.touches[0].pageY;
-        };
-        // 触摸屏-手指点下去
-        const handleTouchStart = (event: any) => {
-            prevX.value = getEventX(event.touches[0]);
-            prevY.value = getEventY(event.touches[0]);
-
-            if (event.touches.length === 2) {
-                const dx = event.touches[1].clientX - event.touches[0].clientX;
-                const dy = event.touches[1].clientY - event.touches[0].clientY;
-                prevDistance.value = Math.sqrt(dx * dx + dy * dy);
-            }
-        };
-        // 触摸屏-手指按住移动
-        const handleTouchMove = (event: any) => {
-            // event.preventDefault();
-
-            if (event.touches.length === 2) {
-                const dx = event.touches[1].clientX - event.touches[0].clientX;
-                const dy = event.touches[1].clientY - event.touches[0].clientY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const delta = distance - prevDistance.value;
-                scale *= delta > 0 ? 0.9 : 1.1;
-                updateTransform();
-                prevDistance.value = distance;
-            }
-        };
-        // 触摸屏-手指移动结数
-        const handleTouchEnd = () => {
-            prevDistance.value = null;
-        };
-        //更新缩放
-        const updateTransform = () => {
-            zoomContainer.value.style.transform = `scale(${scale})`;
-        };
         watch(() => props.question, (val: any) => {
             if (val) {
                 getQuestionEditList(val.QuestionFlowText)
@@ -513,6 +424,10 @@ export default defineComponent({
             drawingBoardRef.value.whiteboard.clear();
             childRef.value?.clearBrush();
             emit("update:nowQuestionID", v);
+
+            transform.scale = 1;
+            transform.translateY = 0;
+            transform.translateX = 0;
         });
 
         watch(() => canvasData.value, (v) => {
@@ -529,31 +444,41 @@ export default defineComponent({
         watch(resolutionSwitchValue, (v) => {
             set(STORAGE_TYPES.AUTO_PALY_RESOLUTION_SWITCH, String(v));
         });
-
+        const onMouseWheel = (e: WheelEvent) => {
+            if (drawingShow.value) return;
+            handleMousewheelScreen(e);
+        };
+        const onMouseMove = (e: MouseEvent) => {
+            if (drawingShow.value) return;
+            onMove(e);
+        };
+        const onTouchStart = (e: TouchEvent) => {
+            touchStartListener(e, !drawingShow.value);
+        };
+        const onTouchMove = (e: TouchEvent) => {
+            touchMoveListener(e, !drawingShow.value);
+        };
         onMounted(() => {
             document.addEventListener("keydown", keydownListener);
             if (!props.isPureQuestion) {
                 emitter.on("smallQuestion", smallQuestion);
             }
-            // document.addEventListener("mousedown", handleMouseDown);
-            // document.addEventListener("wheel", handleWheel);
-            // document.addEventListener("mousemove", handleMouseMove);
-            // document.addEventListener("mouseup", handleMouseUp);
-            // document.addEventListener("touchstart", handleTouchStart);
-            // document.addEventListener("touchmove", handleTouchMove);
-            // document.addEventListener("touchend", handleTouchEnd);
+            document.addEventListener("mousedown", onMouseMove);
+            document.addEventListener("wheel", onMouseWheel);
+            document.addEventListener("touchstart", onTouchStart);
+            document.addEventListener("touchmove", onTouchMove);
+            document.addEventListener("touchend", touchEndListener);
         });
 
         onUnmounted(() => {
             document.removeEventListener("keydown", keydownListener);
             emitter.off("smallQuestion");
-            // document.removeEventListener("mousedown", handleMouseDown);
-            // document.removeEventListener("wheel", handleWheel);
-            // document.removeEventListener("mousemove", handleMouseMove);
-            // document.removeEventListener("mouseup", handleMouseUp);
-            // document.removeEventListener("touchstart", handleTouchStart);
-            // document.removeEventListener("touchmove", handleTouchMove);
-            // document.removeEventListener("touchend", handleTouchEnd);
+            document.removeEventListener("mousedown", onMouseMove);
+            document.removeEventListener("wheel", onMouseWheel);
+            document.removeEventListener("touchstart", onTouchStart);
+            document.removeEventListener("touchmove", onTouchMove);
+            document.removeEventListener("touchend", touchEndListener);
+
         });
 
         // 快捷键翻页
@@ -704,18 +629,10 @@ export default defineComponent({
             eraserLineWidth,
             setEraserSize,
             getQuestionEditList,
-            handleWheel,
             zoomContainer,
-            handleMouseMove,
-            handleMouseDown,
-            handleMouseUp,
-            getEventX,
-            isDragging,
-            prevX,
-            prevY,
-            handleTouchStart,
-            handleTouchMove,
-            handleTouchEnd
+            onMove,
+            handleMousewheelScreen,
+            ...toRefs(transform)
         };
     },
     components: { DrawingBoard, PenTool, RulersTool, MathJax }

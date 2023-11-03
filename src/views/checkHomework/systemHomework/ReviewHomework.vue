@@ -2,23 +2,37 @@
     <div>
         <div class="access-system-detail" :style="{height: show ? 'auto' : '80px'}">
             <div class="system-explain">
-                <p>{{ questionTypeName }} : </p>
-                <div ref="questionContentRef"/>
-                <div ref="answerContentRef"/>
+                <div v-if="questionContent">
+                    <p>{{ questionTypeName }} :</p>
+                    <div ref="questionContentRef"/>
+                    <div ref="answerContentRef"/>
+                </div>
+                <img
+                    v-else
+                    :src="questionFile"
+                    class="question-img"
+                    alt=""
+                />
             </div>
-<!--            <div class="system-detail" @click="lookQuestions({id: questionDetailId,type: 0})">-->
-<!--                <img src="@/assets/images/homeworkNew/icon_timuxiangqing.png" alt=""/>-->
-<!--                <span>题目详情</span>-->
-<!--            </div>-->
+            <!--            <div class="system-detail" @click="lookQuestions({id: questionDetailId,type: 0})">-->
+            <!--                <img src="@/assets/images/homeworkNew/icon_timuxiangqing.png" alt=""/>-->
+            <!--                <span>题目详情</span>-->
+            <!--            </div>-->
             <div class="operation-box">
-               <div class="show text flex-between-center" @click="show = !show">
-                   <span>{{show ? "收起" : "展开"}}</span>
-                   <el-icon v-if="show"><ArrowUpBold /></el-icon>
-                   <el-icon v-else><ArrowDownBold /></el-icon>
-               </div>
+                <div class="show text flex-between-center" @click="show = !show">
+                    <span>{{ show ? "收起" : "展开" }}</span>
+                    <el-icon v-if="show">
+                        <ArrowUpBold/>
+                    </el-icon>
+                    <el-icon v-else>
+                        <ArrowDownBold/>
+                    </el-icon>
+                </div>
                 <div class="detail text flex-between-center" @click="lookQuestions({id: questionDetailId,type: 0})">
                     <span>题目详情</span>
-                    <el-icon><ArrowRightBold /></el-icon>
+                    <el-icon>
+                        <ArrowRightBold/>
+                    </el-icon>
                 </div>
             </div>
         </div>
@@ -34,7 +48,8 @@
                         <div style="width: 100%">
                             <div class="flex-between-center" v-if="index == 0">
                                 <span>未做学生 <span style="font-size: 12px">({{ item.length }})人</span></span>
-                                <div v-if="homeworkDetail.type === 2" @click.stop style="width: 200px;padding: 10px 20px 10px 0">
+                                <div v-if="homeworkDetail.type === 2" @click.stop
+                                     style="width: 200px;padding: 10px 20px 10px 0">
                                     <el-input @input="filterNoDoneStudentList" v-model="studentName"
                                               placeholder="搜索学生姓名" :suffix-icon="Search"/>
                                 </div>
@@ -69,7 +84,8 @@
             </el-collapse>
         </div>
 
-        <collect-wrong-topic @updateQuestionInfo="updateQuestionInfo" :questionList="questionList" :value="studentValue" v-model:dialogVisible="dialogVisible"></collect-wrong-topic>
+        <collect-wrong-topic @updateQuestionInfo="updateQuestionInfo" :questionList="questionList" :value="studentValue"
+                             v-model:dialogVisible="dialogVisible"></collect-wrong-topic>
     </div>
 </template>
 
@@ -99,6 +115,10 @@ export default defineComponent({
             default: ""
         },
         answerContent: {
+            type: String,
+            default: ""
+        },
+        questionFile: {
             type: String,
             default: ""
         },
@@ -168,7 +188,7 @@ export default defineComponent({
 
         const dialogVisible = ref(false);
         const studentValue = ref();
-        const collectWrongTopic = (value:MissionDetail) => {
+        const collectWrongTopic = (value: MissionDetail) => {
             if (props.homeworkDetail?.type === 2) { // 错题收集弹窗 仅针对 教辅作业
                 dialogVisible.value = true;
                 studentValue.value = value;
@@ -209,6 +229,7 @@ export default defineComponent({
     //align-items: center;
     height: 60px;
     overflow: hidden;
+
     .system-explain {
         font-size: 14px;
 
@@ -218,39 +239,48 @@ export default defineComponent({
             color: #19203d;
             line-height: 20px;
         }
+
+        .question-img {
+            width: 100%;
+        }
     }
 
-    .operation-box{
+    .operation-box {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        .text{
+
+        .text {
             font-size: 14px;
             color: #4B71EE;
             cursor: pointer;
-            >span{
+
+            > span {
                 margin-right: 6px;
             }
         }
-        .show{
+
+        .show {
             padding-right: 14px;
             border-right: 1px solid #E9ECF0;
         }
-        .detail{
+
+        .detail {
             padding-left: 14px;
         }
     }
 }
 
 .access-system-stdentList {
-    :deep(.correct-student_1){
-        .el-collapse-item__header{
-            background:  #F5F6FA !important;
+    :deep(.correct-student_1) {
+        .el-collapse-item__header {
+            background: #F5F6FA !important;
         }
     }
+
     .correct-student_1 {
         :deep(.is-active) {
-            background:  #F5F6FA;
+            background: #F5F6FA;
         }
 
         :deep(.el-collapse-item__wrap) {
@@ -270,9 +300,9 @@ export default defineComponent({
         }
     }
 
-    :deep(.correct-student_2){
-        .el-collapse-item__header{
-            background:  #EBF0FF !important;
+    :deep(.correct-student_2) {
+        .el-collapse-item__header {
+            background: #EBF0FF !important;
         }
     }
 
@@ -298,11 +328,12 @@ export default defineComponent({
         }
     }
 
-    :deep(.correct-student_3){
-        .el-collapse-item__header{
-            background:  #FEF2F6 !important;
+    :deep(.correct-student_3) {
+        .el-collapse-item__header {
+            background: #FEF2F6 !important;
         }
     }
+
     .correct-student_3 {
         :deep(.is-active) {
             background: #FEF2F6;
@@ -325,11 +356,12 @@ export default defineComponent({
         }
     }
 
-    :deep(.correct-student_4){
-        .el-collapse-item__header{
-            background:  #DEFAF3 !important;
+    :deep(.correct-student_4) {
+        .el-collapse-item__header {
+            background: #DEFAF3 !important;
         }
     }
+
     .correct-student_4 {
         :deep(.is-active) {
             background: #DEFAF3;
@@ -459,7 +491,7 @@ export default defineComponent({
         }
     }
 
-    .no-student{
+    .no-student {
         display: flex;
         align-items: center;
         justify-content: center;

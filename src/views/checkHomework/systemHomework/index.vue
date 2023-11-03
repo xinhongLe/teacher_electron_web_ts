@@ -63,6 +63,9 @@ import { useRoute } from "vue-router";
 import { fetchClassHomeworkPaperQuestionList, fetchQuestinInfoByQuestionID } from "../api";
 import Chart from "./Chart.vue";
 import ReviewHomework from "./ReviewHomework.vue";
+import { getOssUrl } from "@/utils/oss";
+import { FileInfo } from "@/types/lookQuestion";
+
 export default defineComponent({
     name: "systemHomework",
     props: {
@@ -83,6 +86,15 @@ export default defineComponent({
         const questionContent = ref("");
         const answerContent = ref("");
         const questionType = ref(-1);
+        const questionFile = ref("");
+
+        const getUrl = async (file: FileInfo) => {
+            const { Extention, FilePath, FileName, Bucket } = file;
+            const key = Extention
+                ? `${FilePath}/${FileName}.${Extention}`
+                : `${FilePath}/${FileName}`;
+            return getOssUrl(key, Bucket);
+        };
 
         async function getQuestinInfoByQuestionID(questionID: string) {
             const res = await fetchQuestinInfoByQuestionID({
@@ -93,6 +105,10 @@ export default defineComponent({
                 questionContent.value = res.result.Question.FlowText?.QuestionContent || "";
                 answerContent.value = res.result.Question.FlowText?.AnswerContent || "";
                 questionType.value = res.result.Question.Type;
+
+                if (questionContent.value) {
+                    questionFile.value = await getUrl(res.result.Question?.QuestionFiles[0].File);
+                }
             }
         }
 
@@ -146,26 +162,30 @@ export default defineComponent({
 .content-warp {
     display: flex;
     height: calc(100% - 8.8rem);
+
     .left {
         display: flex;
         flex-direction: column;
         width: 260px;
         background: #f5f6fa;
         padding: 12px 16px 0 16px;
+
         .access-system-select {
             width: 100%;
             height: 40px;
             margin-bottom: 20px;
         }
+
         .access-system-chart {
-             flex: 1;
-             overflow-y: auto;
+            flex: 1;
+            overflow-y: auto;
             //padding: 12px 0;
             //display: flex;
             //flex-wrap: wrap;
             //justify-content: space-between;
             //overflow-y: overlay;
         }
+
         .access-system-toast {
             height: 50px;
             bottom: 0;
@@ -177,11 +197,13 @@ export default defineComponent({
             div {
                 display: flex;
                 align-items: center;
+
                 span {
                     display: block;
                     width: 12px;
                     height: 12px;
                 }
+
                 p {
                     font-size: 14px;
                     font-family: PingFangSC-Regular, PingFang SC;
@@ -193,6 +215,7 @@ export default defineComponent({
             }
         }
     }
+
     .right {
         flex: 1;
         min-width: 0px;

@@ -78,7 +78,7 @@ const whiteboardOption = (option: string, value?: number) => {
         whiteboard.value.setOptionType(OPTION_TYPE.ERASER);
         writingBoardNotMouse.value = true;
     } else if (option === "setMouse") {
-        // whiteboard.value.setOptionType(OPTION_TYPE.MOUSE);
+        whiteboard.value.setOptionType(OPTION_TYPE.MOUSE);
         writingBoardNotMouse.value = false;
     } else if (option === "openTool") {
         writingBoardNotMouse.value = true;
@@ -156,7 +156,7 @@ defineExpose({ whiteboard, whiteboardOption, undo, redo })
     left: 0;
     top: 0;
     z-index: 99998;
-    pointer-events: none;
+    //pointer-events: none;
 
     &.active {
         pointer-events: all;

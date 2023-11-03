@@ -1,4 +1,4 @@
-import {nextTick} from "vue";
+import { nextTick } from "vue";
 
 const drag = {
     mounted(el: HTMLElement, binding: any) {
@@ -13,7 +13,7 @@ const drag = {
         // 存在父级容器
         if (containerId) {
             const containerEle: any = document.getElementById(containerId);
-            let {width, height} = containerEle.getBoundingClientRect();
+            let { width, height } = containerEle.getBoundingClientRect();
             containerWidth = width;
             containerHeight = height;
             if (
@@ -30,8 +30,8 @@ const drag = {
         el.addEventListener(
             "mousedown",
             (e) => {
-                e.preventDefault();
-                let {width, height} = el.getBoundingClientRect();
+                e.stopPropagation();
+                let { width, height } = el.getBoundingClientRect();
                 // 当前目标元素的left与top
                 const left = el.offsetLeft;
                 const top = el.offsetTop;
@@ -74,7 +74,7 @@ const drag = {
                     document.onmouseup = null;
                 };
             },
-            {passive: false}
+            { passive: false }
         );
 
         //触摸屏 触摸按下
@@ -87,7 +87,8 @@ const drag = {
         let topLimit = 0;
         let bottomLimit = 0;
         el.addEventListener("touchstart", (e) => {
-            let {width, height} = el.getBoundingClientRect();
+            e.stopPropagation();
+            let { width, height } = el.getBoundingClientRect();
             // 当前目标元素的left与top
             left = el.offsetLeft;
             top = el.offsetTop;
@@ -101,6 +102,7 @@ const drag = {
             bottomLimit = containerHeight - top - height;
         });
         el.addEventListener("touchmove", (e) => {
+            e.stopPropagation();
             // 鼠标移动的距离
             let disX = e.touches[0].clientX - mouseX;
             let disY = e.touches[0].clientY - mouseY;

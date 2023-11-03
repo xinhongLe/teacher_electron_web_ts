@@ -2,11 +2,12 @@ const dragLine = {
     mounted(el: HTMLElement, binding: any) {
         let moveEl = el as HTMLElement;
         const mouseDown = (e: MouseEvent) => {
+            e.stopPropagation();
             //鼠标点击物体那一刻相对于物体左侧边框的距离=点击时的位置相对于浏览器最左边的距离-物体左边框相对于浏览器最左边的距离
-            // console.log(e.clientX, e.clientY, "-----起始", el.offsetLeft);
             let X = e.clientX - el.offsetLeft;
             let Y = e.clientY - el.offsetTop;
             const move = (e: MouseEvent) => {
+                e.stopPropagation();
                 moveEl.style.bottom = "initial";
                 // 获取拖拽元素的位置
                 let left = e.clientX - X;
@@ -49,11 +50,13 @@ const dragLine = {
         moveEl.addEventListener("mousedown", mouseDown, { passive: true });
 
         const touchStart = (e: TouchEvent) => {
+            e.stopPropagation();
             //鼠标点击物体那一刻相对于物体左侧边框的距离=点击时的位置相对于浏览器最左边的距离-物体左边框相对于浏览器最左边的距离
             // console.log(e.clientX, e.clientY, "-----起始", el.offsetLeft);
             let X = e.touches[0].clientX - el.offsetLeft;
             let Y = e.touches[0].clientY - el.offsetTop;
             const move = (e: TouchEvent) => {
+                e.stopPropagation();
                 moveEl.style.bottom = "initial";
                 // 获取拖拽元素的位置
                 let left = e.touches[0].clientX - X;
