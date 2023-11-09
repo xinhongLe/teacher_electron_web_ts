@@ -694,8 +694,8 @@ export default defineComponent({
 
         .question-img {
             width: 100%;
-            height: 100%;
-            position: absolute;
+            //height: 100%;
+            //position: absolute;
         }
 
         .editd-data {
