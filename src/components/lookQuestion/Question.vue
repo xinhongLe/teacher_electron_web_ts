@@ -5,22 +5,11 @@
             <slot name="title"/>
             <div class="count">{{ number }} / {{ sum }}</div>
             <div class="material-box">
-                <div ref="zoomContainer"
-                     style="width: 100%;height: 100%;transform-origin: top left;" :style="{
+                <div ref="zoomContainer" v-if="questionEditList.length"
+                     style="width: 20%;height: 100%;transform-origin: top left;" :style="{
                                 transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`
                             }">
-                    <audio
-                        ref="audioRef"
-                        :src="
-                        voiceUrlMap[nextIndex - 1 === 0 ? 'question' : 'answer']
-                    "
-                        :controls="true"
-                        @canplay="playAudio"
-                        style="display: none"
-                    >
-                        亲 您的浏览器不支持html5的audio标签
-                    </audio>
-                    <div class="editd-data" v-if="questionEditList.length">
+                    <div class="editd-data">
                         <div class="items">
                             <div class="text">
                                 题目：
@@ -33,16 +22,26 @@
                             </div>
                             <MathJax :text="questionEditList[0]?.AnswerContent"></MathJax>
                         </div>
-
                     </div>
-                    <img
-                        v-else
-                        ref="imageRef"
-                        class="question-img"
-                        :src="imageUrl[nextIndex - 1]"
-                        alt=""
-                    />
                 </div>
+                <img
+                    v-else
+                    ref="imageRef"
+                    class="question-img"
+                    :src="imageUrl[nextIndex - 1]"
+                    alt=""
+                />
+                <audio
+                    ref="audioRef"
+                    :src="
+                        voiceUrlMap[nextIndex - 1 === 0 ? 'question' : 'answer']
+                    "
+                    :controls="true"
+                    @canplay="playAudio"
+                    style="display: none"
+                >
+                    亲 您的浏览器不支持html5的audio标签
+                </audio>
             </div>
         </div>
         <div>
@@ -425,7 +424,7 @@ export default defineComponent({
             childRef.value?.clearBrush();
             emit("update:nowQuestionID", v);
 
-            transform.scale = 1;
+            transform.scale = 5;
             transform.translateY = 0;
             transform.translateX = 0;
         });
@@ -712,7 +711,7 @@ export default defineComponent({
                     margin-bottom: 10px;
                 }
 
-                margin-top: 20px;
+                margin-top: 10px;
             }
 
         }

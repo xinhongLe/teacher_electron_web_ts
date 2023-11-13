@@ -42,6 +42,7 @@
                 :MissionDetails="missionDetails"
                 :questionDetailId="questionDetailId"
                 :questionContent="questionContent"
+                :questionFile="questionFile"
                 :answerContent="answerContent"
                 :type="questionType"
                 :homeworkDetail="homeworkDetail"
@@ -106,7 +107,7 @@ export default defineComponent({
                 answerContent.value = res.result.Question.FlowText?.AnswerContent || "";
                 questionType.value = res.result.Question.Type;
 
-                if (questionContent.value) {
+                if (!questionContent.value) {
                     questionFile.value = await getUrl(res.result.Question?.QuestionFiles[0].File);
                 }
             }
@@ -151,7 +152,8 @@ export default defineComponent({
             missionDetails,
             questionContent,
             questionList,
-            getClassHomeworkPaperQuestionList
+            getClassHomeworkPaperQuestionList,
+            questionFile
         };
     },
     components: { Chart, ReviewHomework }

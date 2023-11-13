@@ -1,5 +1,5 @@
 <template>
-    <div ref="mathContainer" style="word-break: break-all;"></div>
+    <div ref="mathContainer" style="word-break: break-all;line-height: 20px"></div>
 </template>
 
 <script setup lang="ts">
