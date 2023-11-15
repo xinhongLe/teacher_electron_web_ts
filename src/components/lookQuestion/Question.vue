@@ -306,6 +306,14 @@ export default defineComponent({
         toolClass: {
             type: String,
             default: 'question'
+        },
+        nowQuestionID: {
+            type: String,
+            default: ''
+        },
+        isMinimized: {
+            type: String,
+            default: ''
         }
     },
     setup(props, { emit }) {

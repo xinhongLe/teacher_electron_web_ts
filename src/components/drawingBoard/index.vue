@@ -156,7 +156,7 @@ defineExpose({ whiteboard, whiteboardOption, undo, redo })
     left: 0;
     top: 0;
     z-index: 99998;
-    //pointer-events: none;
+    pointer-events: none;
 
     &.active {
         pointer-events: all;

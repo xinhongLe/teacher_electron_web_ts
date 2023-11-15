@@ -72,8 +72,8 @@ export default (contentRef: Ref<HTMLElement | any>) => {
     const unit = 0.05; // 缩放单位
     // 获取目标dom左上角距离视窗左边和上边的距离
     const getDomOffset = () => {
-        const offsetX = contentRef.value.offsetLeft + transform.translateX + contentRef.value.parentElement.offsetLeft;
-        const offsetY = contentRef.value.offsetTop + transform.translateY + 60 + contentRef.value.parentElement.offsetTop;
+        const offsetX = contentRef.value?.offsetLeft + transform.translateX + contentRef.value?.parentElement.offsetLeft;
+        const offsetY = contentRef.value?.offsetTop + transform.translateY + 60 + contentRef.value?.parentElement.offsetTop;
         return { offsetX, offsetY };
     };
 

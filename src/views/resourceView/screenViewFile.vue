@@ -219,6 +219,7 @@ export default defineComponent({
                 penTop.value = top;
             } else {
                 drawingShow.value = false;
+                drawingBoardRef.value.whiteboardOption("setMouse");
             }
         };
         // 撤销
