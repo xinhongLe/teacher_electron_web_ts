@@ -130,7 +130,7 @@ async function createWindow() {
         height: size.height,
         show: false,
         frame: false,
-        minWidth: 1280,
+        minWidth: 1024,
         useContentSize: true,
         webPreferences: {
             webviewTag: true,
